@@ -18,7 +18,6 @@
   --sidebar-w:248px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
 body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);color:var(--ink);-webkit-font-smoothing:antialiased}
 .mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
 
@@ -30,26 +29,37 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .brand h1{color:#fff;font-size:16px;font-weight:600;margin-top:6px;line-height:1.25}
 .brand p{color:#7e93a6;font-size:11px;margin-top:5px}
 .nav{flex:1;overflow-y:auto;padding:12px 10px}
-.nav a{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:8px;color:#aebccb;
-  text-decoration:none;font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s}
-.nav a .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none;opacity:.55}
-.nav a:hover{background:var(--navy-2);color:#fff}
-.nav a.active{background:var(--navy-3);color:#fff}
-.nav a.active .dot{opacity:1;box-shadow:0 0 0 3px rgba(23,184,196,.18)}
+.nav button{width:100%;display:flex;align-items:center;gap:11px;padding:9px 12px;border:0;background:none;border-radius:8px;
+  color:#aebccb;text-align:left;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s}
+.nav button .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none;opacity:.55}
+.nav button:hover{background:var(--navy-2);color:#fff}
+.nav button.active{background:var(--navy-3);color:#fff}
+.nav button.active .dot{opacity:1;box-shadow:0 0 0 3px rgba(23,184,196,.18)}
 .sidebar-foot{padding:14px 20px;border-top:1px solid rgba(255,255,255,.07);font-size:10.5px;color:#63788c;font-family:'IBM Plex Mono'}
 
 /* ---------- Layout ---------- */
 .main{margin-left:var(--sidebar-w)}
 .topbar{position:sticky;top:0;z-index:40;background:rgba(238,242,246,.86);backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--line);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  border-bottom:1px solid var(--line);padding:12px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .topbar h2{font-size:15px;font-weight:600}
 .topbar .sub{font-size:11.5px;color:var(--muted);margin-top:2px}
-.chip{font-family:'IBM Plex Mono';font-size:11px;background:var(--navy);color:#cfe;padding:6px 11px;border-radius:20px;letter-spacing:.03em}
-.wrap{padding:28px 32px 80px;max-width:1180px}
+.topbar-right{display:flex;align-items:center;gap:14px}
+.weekfilter{display:flex;align-items:center;gap:8px}
+.weekfilter label{font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.weekfilter select{font-family:'IBM Plex Sans';font-size:13px;font-weight:600;padding:8px 12px;border:1px solid var(--line);
+  border-radius:9px;background:#fff;color:var(--ink);cursor:pointer}
+.chip{font-family:'IBM Plex Mono';font-size:11px;background:var(--navy);color:#cfe;padding:6px 11px;border-radius:20px;letter-spacing:.03em;white-space:nowrap}
+.wrap{padding:26px 32px 80px;max-width:1180px}
 
-/* ---------- Signature: estado band ---------- */
+/* ---------- Views ---------- */
+.view{display:none;animation:fade .28s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.view{animation:none}}
+
+/* ---------- Hero ---------- */
 .hero{background:linear-gradient(135deg,var(--navy) 0%,#123049 60%,#0e6470 130%);border-radius:16px;
-  padding:26px 28px;color:#fff;position:relative;overflow:hidden;margin-bottom:26px}
+  padding:26px 28px;color:#fff;position:relative;overflow:hidden;margin-bottom:24px}
 .hero::after{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);
   background-size:22px 22px;opacity:.5;pointer-events:none}
 .hero .eyebrow{font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.2em;color:var(--cyan);text-transform:uppercase}
@@ -62,11 +72,19 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .hs .delta{font-size:11px;margin-top:7px;font-family:'IBM Plex Mono'}
 .up{color:#7ee0a5}.down{color:#f2a3a3}.flat{color:#9fb6c8}
 
-/* ---------- Sections & cards ---------- */
-.section{padding-top:34px;margin-top:-14px}
+/* Overview mini-cards en Resumen */
+.ov-title{font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin:6px 0 12px}
+.overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:13px}
+.ovcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 16px;cursor:pointer;transition:.15s}
+.ovcard:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 6px 18px rgba(13,27,42,.08)}
+.ovcard .area{font-size:10.5px;font-family:'IBM Plex Mono';letter-spacing:.06em;color:var(--cyan-deep);text-transform:uppercase}
+.ovcard .lbl{font-size:12px;color:var(--muted);margin-top:8px}
+.ovcard .val{font-family:'IBM Plex Mono';font-size:24px;font-weight:600;margin-top:4px}
+
+/* ---------- Section head ---------- */
 .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
 .sec-head .num{font-family:'IBM Plex Mono';font-size:12px;color:var(--cyan-deep);font-weight:600}
-.sec-head h3{font-size:18px;font-weight:600}
+.sec-head h3{font-size:19px;font-weight:600}
 .sec-head .tag{font-size:11px;color:var(--muted);margin-left:auto;font-family:'IBM Plex Mono'}
 
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin-bottom:16px}
@@ -88,13 +106,17 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .chart-box{position:relative;height:280px}
 .chart-box.sm{height:230px}
 
+.empty-state{display:none;background:var(--card);border:1px dashed #c4d0db;border-radius:12px;padding:44px 24px;text-align:center}
+.empty-state .ico{font-size:26px}
+.empty-state p{color:var(--muted);font-size:13px;margin-top:10px;font-family:'IBM Plex Mono'}
+
 /* ---------- Table ---------- */
 .tbl-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
 .tbl-tools input,.tbl-tools select{font-family:'IBM Plex Sans';font-size:13px;padding:8px 11px;border:1px solid var(--line);
   border-radius:8px;background:#fff;color:var(--ink)}
 .tbl-tools input{flex:1;min-width:180px}
 .count{font-family:'IBM Plex Mono';font-size:11.5px;color:var(--muted)}
-.tbl-scroll{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.tbl-scroll{max-height:440px;overflow:auto;border:1px solid var(--line);border-radius:10px}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
 thead th{position:sticky;top:0;background:var(--navy);color:#dfeaf2;text-align:left;padding:10px 12px;font-weight:600;
   font-size:11px;letter-spacing:.04em;cursor:pointer;user-select:none;white-space:nowrap}
@@ -106,8 +128,8 @@ tbody tr:nth-child(even){background:#f7fafc}
 .b-aju{background:#cfe8dc;color:#1d6b45}
 .b-si{background:#d3e2f4;color:#274f82}
 .pct{font-family:'IBM Plex Mono';font-weight:600}
-
 .note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;font-family:'IBM Plex Mono'}
+
 footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(--line);color:var(--muted);font-size:11.5px}
 
 @media(max-width:900px){
@@ -116,6 +138,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
   .main,footer{margin-left:0}
   .g2,.g3,.hero-stats{grid-template-columns:1fr}
   .wrap,.topbar{padding-left:18px;padding-right:18px}
+  .topbar{flex-wrap:wrap}
 }
 </style>
 </head>
@@ -128,109 +151,132 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <p>Infraestructura de Centros Escolares</p>
   </div>
   <nav class="nav" id="nav">
-    <a href="#resumen" class="active"><span class="dot"></span>Resumen ejecutivo</a>
-    <a href="#fase"><span class="dot"></span>Cambios de fase</a>
-    <a href="#inspeccion"><span class="dot"></span>Inspección</a>
-    <a href="#reparacion"><span class="dot"></span>Reparación</a>
-    <a href="#mantenimiento"><span class="dot"></span>Mantenimiento</a>
-    <a href="#banda"><span class="dot"></span>Anchos de banda</a>
-    <a href="#fibra"><span class="dot"></span>Fibra óptica</a>
-    <a href="#starlink"><span class="dot"></span>Starlink</a>
-    <a href="#cobertura"><span class="dot"></span>Cobertura</a>
-    <a href="#dimensionamiento"><span class="dot"></span>Dimensionamiento RT</a>
+    <button data-section="resumen" class="active"><span class="dot"></span>Resumen ejecutivo</button>
+    <button data-section="fase"><span class="dot"></span>Cambios de fase</button>
+    <button data-section="inspeccion"><span class="dot"></span>Inspección</button>
+    <button data-section="reparacion"><span class="dot"></span>Reparación</button>
+    <button data-section="mantenimiento"><span class="dot"></span>Mantenimiento</button>
+    <button data-section="banda"><span class="dot"></span>Anchos de banda</button>
+    <button data-section="fibra"><span class="dot"></span>Fibra óptica</button>
+    <button data-section="starlink"><span class="dot"></span>Starlink</button>
+    <button data-section="cobertura"><span class="dot"></span>Cobertura</button>
+    <button data-section="dimensionamiento"><span class="dot"></span>Dimensionamiento RT</button>
   </nav>
-  <div class="sidebar-foot" id="foot-week">Fuente · Dashboard Q2</div>
+  <div class="sidebar-foot">Fuente · Dashboard Q2</div>
 </aside>
 
 <div class="main">
   <div class="topbar">
     <div>
-      <h2>Panorama operativo semanal</h2>
-      <div class="sub">Consolidado de 9 áreas de trabajo · Semanas 28–30</div>
+      <h2 id="tbTitle">Resumen ejecutivo</h2>
+      <div class="sub" id="tbSub">Panorama consolidado de 9 áreas de trabajo</div>
     </div>
-    <span class="chip" id="topchip">Última carga: Semana 29</span>
+    <div class="topbar-right">
+      <div class="weekfilter">
+        <label for="weekSel">Semana</label>
+        <select id="weekSel">
+          <option value="all">Todas</option>
+          <option value="Semana 28">Semana 28</option>
+          <option value="Semana 29">Semana 29</option>
+          <option value="Semana 30">Semana 30</option>
+        </select>
+      </div>
+      <span class="chip" id="topchip">Todas las semanas</span>
+    </div>
   </div>
 
   <div class="wrap">
 
-    <!-- ===== HERO / ESTADO ===== -->
-    <div class="hero" id="resumen">
-      <div class="eyebrow">Estado de la red · Semana 29</div>
-      <h3>Panorama gerencial del parque conectado</h3>
-      <p>Vista consolidada de migración, inspección, reparación, mantenimiento, ancho de banda, fibra óptica, Starlink, cobertura y dimensionamiento de red.</p>
-      <div class="hero-stats" id="heroStats"></div>
-    </div>
+    <!-- ===== RESUMEN ===== -->
+    <section class="view active" id="resumen">
+      <div class="hero">
+        <div class="eyebrow" id="heroEyebrow">Estado de la red</div>
+        <h3>Panorama gerencial del parque conectado</h3>
+        <p>Vista consolidada de migración, inspección, reparación, mantenimiento, ancho de banda, fibra óptica, Starlink, cobertura y dimensionamiento de red.</p>
+        <div class="hero-stats" id="heroStats"></div>
+      </div>
+      <div class="ov-title">Indicador principal por área — clic para abrir</div>
+      <div class="overview" id="overview"></div>
+    </section>
 
     <!-- ===== CAMBIOS DE FASE ===== -->
-    <section class="section" id="fase">
+    <section class="view" id="fase">
       <div class="sec-head"><span class="num">01</span><h3>Cambios de fase</h3><span class="tag">parque · migraciones</span></div>
-      <div class="kpis" id="kpiFase"></div>
+      <div class="gated"><div class="kpis" id="kpiFase"></div>
       <div class="grid g2">
-        <div class="panel"><h4>Evolución del parque</h4><div class="psub">centros escolares activos por semana</div><div class="chart-box sm"><canvas id="chFaseParque"></canvas></div></div>
-        <div class="panel"><h4>Migraciones por semana</h4><div class="psub">Q3 · Q1 · ingresos Q2</div><div class="chart-box sm"><canvas id="chFaseMig"></canvas></div></div>
-      </div>
+        <div class="panel"><h4>Evolución del parque</h4><div class="psub">centros escolares activos</div><div class="chart-box sm"><canvas id="chFaseParque"></canvas></div></div>
+        <div class="panel"><h4>Migraciones</h4><div class="psub">Q3 · Q1 · ingresos Q2</div><div class="chart-box sm"><canvas id="chFaseMig"></canvas></div></div>
+      </div></div>
+      <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
     <!-- ===== INSPECCION ===== -->
-    <section class="section" id="inspeccion">
+    <section class="view" id="inspeccion">
       <div class="sec-head"><span class="num">02</span><h3>Inspección</h3><span class="tag">cumplimiento F4 / F3</span></div>
-      <div class="kpis" id="kpiInsp"></div>
+      <div class="gated"><div class="kpis" id="kpiInsp"></div>
       <div class="grid g3">
         <div class="panel"><h4>Cumple vs. No cumple</h4><div class="psub">F4 (cumple) · F3 (no cumple) · pendientes</div><div class="chart-box"><canvas id="chInsp"></canvas></div></div>
-        <div class="panel"><h4>Distribución Semana 29</h4><div class="psub">estado de inspecciones</div><div class="chart-box"><canvas id="chInspDonut"></canvas></div></div>
-      </div>
+        <div class="panel"><h4>Distribución</h4><div class="psub">estado de inspecciones</div><div class="chart-box"><canvas id="chInspDonut"></canvas></div></div>
+      </div></div>
+      <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
     <!-- ===== REPARACION ===== -->
-    <section class="section" id="reparacion">
+    <section class="view" id="reparacion">
       <div class="sec-head"><span class="num">03</span><h3>Reparación</h3><span class="tag">flujo de casos</span></div>
-      <div class="kpis" id="kpiRep"></div>
-      <div class="panel"><h4>Flujo de reparaciones</h4><div class="psub">cola, reparados, casos nuevos, en proceso y pendientes</div><div class="chart-box"><canvas id="chRep"></canvas></div></div>
+      <div class="gated"><div class="kpis" id="kpiRep"></div>
+      <div class="panel"><h4>Flujo de reparaciones</h4><div class="psub">cola, reparados, casos nuevos, en proceso y pendientes</div><div class="chart-box"><canvas id="chRep"></canvas></div></div></div>
+      <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
     <!-- ===== MANTENIMIENTO ===== -->
-    <section class="section" id="mantenimiento">
+    <section class="view" id="mantenimiento">
       <div class="sec-head"><span class="num">04</span><h3>Mantenimiento</h3><span class="tag">preventivo / correctivo</span></div>
-      <div class="kpis" id="kpiMant"></div>
-      <div class="panel"><h4>Intervenciones por tipo</h4><div class="psub">comparativo Semana 28 vs. Semana 29</div><div class="chart-box sm"><canvas id="chMant"></canvas></div></div>
+      <div class="gated"><div class="kpis" id="kpiMant"></div>
+      <div class="panel"><h4>Intervenciones por tipo</h4><div class="psub" id="mantSub">comparativo entre semanas</div><div class="chart-box sm"><canvas id="chMant"></canvas></div></div></div>
+      <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
     <!-- ===== ANCHOS DE BANDA ===== -->
-    <section class="section" id="banda">
-      <div class="sec-head"><span class="num">05</span><h3>Anchos de banda</h3><span class="tag">Semana 28 · por bloque</span></div>
-      <div class="kpis" id="kpiBanda"></div>
+    <section class="view" id="banda">
+      <div class="sec-head"><span class="num">05</span><h3>Anchos de banda</h3><span class="tag">por bloque</span></div>
+      <div class="gated"><div class="kpis" id="kpiBanda"></div>
       <div class="grid g2">
         <div class="panel"><h4>Verificación de velocidad (VT)</h4><div class="psub">cumple · no cumple · sin verificar, por bloque</div><div class="chart-box"><canvas id="chBandaVT"></canvas></div></div>
         <div class="panel"><h4>Cumplimiento teórico</h4><div class="psub">cumple vs. no cumple teórico, por bloque</div><div class="chart-box"><canvas id="chBandaTeo"></canvas></div></div>
-      </div>
+      </div></div>
+      <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
     <!-- ===== FIBRA ===== -->
-    <section class="section" id="fibra">
+    <section class="view" id="fibra">
       <div class="sec-head"><span class="num">06</span><h3>Cortes de fibra óptica</h3><span class="tag">bloque F3</span></div>
-      <div class="kpis" id="kpiFibra"></div>
-      <div class="panel"><h4>Enlaces afectados por semana</h4><div class="psub">enlaces offline · CFO (SDP) · sin energía o desconectados</div><div class="chart-box sm"><canvas id="chFibra"></canvas></div></div>
+      <div class="gated"><div class="kpis" id="kpiFibra"></div>
+      <div class="panel"><h4>Enlaces afectados</h4><div class="psub">enlaces offline · CFO (SDP) · sin energía o desconectados</div><div class="chart-box sm"><canvas id="chFibra"></canvas></div></div></div>
+      <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
     <!-- ===== STARLINK ===== -->
-    <section class="section" id="starlink">
-      <div class="sec-head"><span class="num">07</span><h3>Starlink</h3><span class="tag">Semana 28 · bloque 754</span></div>
-      <div class="kpis" id="kpiStar"></div>
+    <section class="view" id="starlink">
+      <div class="sec-head"><span class="num">07</span><h3>Starlink</h3><span class="tag">bloque 754</span></div>
+      <div class="gated"><div class="kpis" id="kpiStar"></div>
       <div class="grid g2">
         <div class="panel"><h4>Estado de antenas</h4><div class="psub">con antena vs. sin antena sobre el bloque 754</div><div class="chart-box sm"><canvas id="chStar"></canvas></div></div>
         <div class="panel"><h4>Detalle operativo</h4><div class="psub">desglose funcional</div><div class="chart-box sm"><canvas id="chStarBar"></canvas></div></div>
-      </div>
+      </div></div>
+      <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
     <!-- ===== COBERTURA ===== -->
-    <section class="section" id="cobertura">
+    <section class="view" id="cobertura">
       <div class="sec-head"><span class="num">08</span><h3>Cobertura</h3><span class="tag">deficiencias detectadas</span></div>
-      <div class="kpis" id="kpiCob"></div>
-      <div class="panel"><h4>Deficiencias de cobertura por bloque</h4><div class="psub">falta de AP, enlaces entre gabinetes y otras deficiencias</div><div class="chart-box"><canvas id="chCob"></canvas></div></div>
+      <div class="gated"><div class="kpis" id="kpiCob"></div>
+      <div class="panel"><h4>Deficiencias de cobertura por bloque</h4><div class="psub">falta de AP, enlaces entre gabinetes y otras deficiencias</div><div class="chart-box"><canvas id="chCob"></canvas></div></div></div>
+      <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
     <!-- ===== DIMENSIONAMIENTO ===== -->
-    <section class="section" id="dimensionamiento">
+    <section class="view" id="dimensionamiento">
       <div class="sec-head"><span class="num">09</span><h3>Dimensionamiento RT</h3><span class="tag" id="dimTag">enfoque 754</span></div>
       <div class="kpis" id="kpiDim"></div>
       <div class="grid g2" style="margin-bottom:16px">
@@ -261,38 +307,52 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
             <tbody></tbody>
           </table>
         </div>
-        <p class="note">REVISAR: uso muy por encima del escenario planificado (sobredimensionado). AJUSTADO: cercano al objetivo (≈70–100%). SI: dentro de rango.</p>
+        <p class="note">Instantánea consolidada (no varía por semana). REVISAR: uso muy por encima del escenario planificado. AJUSTADO: cercano al objetivo (≈70–100%). SI: dentro de rango.</p>
       </div>
     </section>
 
   </div>
 </div>
 <footer>
-  Generado desde <strong>Dashboard Q2</strong> (Google Sheets) · 9 hojas consolidadas ·
-  Datos de Semanas 28–30. Las semanas sin carga aparecen vacías en la fuente.
+  Generado desde <strong>Dashboard Q2</strong> (Google Sheets) · 9 hojas consolidadas · Datos de Semanas 28–30.
 </footer>
 
 <script src="data.js"></script>
 <script>
-/* ================= Helpers ================= */
+/* ================= Helpers base ================= */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const C={green:'#2f9e63',amber:'#e0992e',red:'#d64545',blue:'#3b6fb0',cyan:'#17b8c4',violet:'#7a5cc0',navy:'#1d3a55',slate:'#94a7b6'};
 const fmt=n=>n==null?'—':n.toLocaleString('es-SV');
 Chart.defaults.font.family="'IBM Plex Sans',sans-serif";
 Chart.defaults.font.size=11.5;
 Chart.defaults.color='#5c6b7a';
-Chart.defaults.plugins.legend.labels.boxWidth=12;
-Chart.defaults.plugins.legend.labels.boxHeight=12;
-Chart.defaults.plugins.legend.labels.usePointStyle=true;
-Chart.defaults.plugins.legend.labels.padding=14;
+Object.assign(Chart.defaults.plugins.legend.labels,{boxWidth:12,boxHeight:12,usePointStyle:true,padding:14});
 const gridColor='rgba(0,0,0,.05)';
 const baseScales=(stacked=false)=>({
   x:{stacked,grid:{display:false},ticks:{font:{family:"'IBM Plex Mono'"}}},
   y:{stacked,grid:{color:gridColor},ticks:{font:{family:"'IBM Plex Mono'"}},beginAtZero:true}
 });
+
+/* Registro de charts para poder reconstruirlos al cambiar semana/sección */
+const charts={};
+function mkChart(id,cfg){ if(charts[id]){charts[id].destroy();} charts[id]=new Chart($('#'+id),cfg); return charts[id]; }
+function killCharts(ids){ ids.forEach(id=>{ if(charts[id]){charts[id].destroy(); delete charts[id];} }); }
+
+/* Acceso a valores por semana */
+function latestVal(arr,key){ for(let i=arr.length-1;i>=0;i--){ if(arr[i][key]!=null) return arr[i][key]; } return null; }
+function weekVal(arr,week,key){ if(week==='all') return latestVal(arr,key); const r=arr.find(x=>x.semana===week); return r?r[key]:null; }
+function prevWeekVal(arr,week,key){
+  if(week==='all'){ let seen=0; for(let i=arr.length-1;i>=0;i--){ if(arr[i][key]!=null){ if(++seen===2) return arr[i][key]; } } return null; }
+  const i=arr.findIndex(x=>x.semana===week); for(let j=i-1;j>=0;j--){ if(arr[j][key]!=null) return arr[j][key]; } return null;
+}
+function weekRows(arr,week){ return week==='all'? arr : arr.filter(r=>r.semana===week); }
+function hasData(arr,week){
+  return weekRows(arr,week).some(r=>Object.entries(r).some(([k,v])=>k!=='semana'&&k!=='bloque'&&v!=null));
+}
+function labelsFor(arr,week){ return weekRows(arr,week).map(r=>r.semana); }
+
 function card(host,items){
-  $(host).innerHTML=items.map(i=>`
-    <div class="kpi ${i.cls||''}"><div class="lbl">${i.lbl}</div>
+  $(host).innerHTML=items.map(i=>`<div class="kpi ${i.cls||''}"><div class="lbl">${i.lbl}</div>
     <div class="val">${i.val}</div><div class="foot">${i.foot||''}</div></div>`).join('');
 }
 function delta(cur,prev,invert=false){
@@ -301,160 +361,246 @@ function delta(cur,prev,invert=false){
   const good=invert? d<0 : d>0;
   return {t:(d>0?'▲ +':'▼ ')+fmt(Math.abs(d)),c:good?'up':'down'};
 }
+/* etiqueta del "punto de comparación" según semana */
+function refLabel(week){ return week==='all' ? 'sem. previa' : 'vs. sem. previa'; }
 
-/* ================= HERO ================= */
-(function(){
+/* Mostrar/ocultar estado vacío por sección */
+function gate(viewId, arr, week){
+  const v=$('#'+viewId), ok=hasData(arr,week);
+  v.querySelectorAll('.gated').forEach(el=>el.style.display=ok?'':'none');
+  const e=v.querySelector('.empty-state');
+  if(e){ e.style.display=ok?'none':'block';
+    if(!ok) e.querySelector('p').textContent=`Sin datos cargados para ${week} en esta sección.`; }
+  return ok;
+}
+
+/* ================= State + navegación ================= */
+const WEEKLABEL = w => w==='all' ? 'Todas las semanas' : w;
+const state={ week:'all', section:'resumen' };
+
+const TITLES={
+  resumen:['Resumen ejecutivo','Panorama consolidado de 9 áreas de trabajo'],
+  fase:['Cambios de fase','Evolución del parque y migraciones'],
+  inspeccion:['Inspección','Cumplimiento F4 / F3 y pendientes'],
+  reparacion:['Reparación','Flujo de casos de reparación'],
+  mantenimiento:['Mantenimiento','Intervenciones preventivas y correctivas'],
+  banda:['Anchos de banda','Verificación de velocidad por bloque'],
+  fibra:['Cortes de fibra óptica','Enlaces afectados en el bloque F3'],
+  starlink:['Starlink','Estado de antenas satelitales'],
+  cobertura:['Cobertura','Deficiencias de cobertura detectadas'],
+  dimensionamiento:['Dimensionamiento RT','Uso frente al escenario 70% por centro']
+};
+
+const RENDERERS={
+  resumen:renderResumen, fase:renderFase, inspeccion:renderInsp, reparacion:renderRep,
+  mantenimiento:renderMant, banda:renderBanda, fibra:renderFibra, starlink:renderStar,
+  cobertura:renderCob, dimensionamiento:renderDim
+};
+
+function showSection(id){
+  state.section=id;
+  $$('.view').forEach(v=>v.classList.toggle('active', v.id===id));
+  $$('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.section===id));
+  $('#tbTitle').textContent=TITLES[id][0];
+  $('#tbSub').textContent=TITLES[id][1];
+  RENDERERS[id](state.week);
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function onWeekChange(){
+  state.week=$('#weekSel').value;
+  $('#topchip').textContent=WEEKLABEL(state.week);
+  RENDERERS[state.section](state.week);
+}
+
+/* ================= RESUMEN ================= */
+function renderResumen(week){
   const f=DATA.cambiosFase, ins=DATA.inspeccion, rep=DATA.reparacion, fib=DATA.fibra;
-  const dP=delta(f[1].parque,f[0].parque);
-  const dPend=delta(ins[1].pendientes,ins[0].pendientes,true);
-  const dRep=delta(rep[1].reparados,rep[0].reparados);
-  const dOff=delta(fib[1].enlacesOffline,fib[0].enlacesOffline,true);
+  $('#heroEyebrow').textContent='Estado de la red · '+WEEKLABEL(week);
   const stats=[
-    {lbl:'Parque activo',val:fmt(f[1].parque),d:dP},
-    {lbl:'Pendientes de inspección',val:fmt(ins[1].pendientes),d:dPend},
-    {lbl:'Reparaciones en la semana',val:fmt(rep[1].reparados),d:dRep},
-    {lbl:'Enlaces de fibra offline',val:fmt(fib[1].enlacesOffline),d:dOff},
-  ];
-  $('#heroStats').innerHTML=stats.map(s=>`
-    <div class="hs"><div class="lbl">${s.lbl}</div><div class="val">${s.val}</div>
-    <div class="delta ${s.d.c}">${s.d.t} vs. S28</div></div>`).join('');
-})();
+    {lbl:'Parque activo',arr:f,key:'parque',inv:false},
+    {lbl:'Pendientes de inspección',arr:ins,key:'pendientes',inv:true},
+    {lbl:'Reparaciones en la semana',arr:rep,key:'reparados',inv:false},
+    {lbl:'Enlaces de fibra offline',arr:fib,key:'enlacesOffline',inv:true},
+  ].map(s=>{
+    const cur=weekVal(s.arr,week,s.key), prev=prevWeekVal(s.arr,week,s.key), d=delta(cur,prev,s.inv);
+    return `<div class="hs"><div class="lbl">${s.lbl}</div><div class="val">${fmt(cur)}</div>
+      <div class="delta ${d.c}">${d.t} ${refLabel(week)}</div></div>`;
+  }).join('');
+  $('#heroStats').innerHTML=stats;
 
-/* ================= 01 CAMBIOS DE FASE ================= */
-(function(){
-  const f=DATA.cambiosFase, wk=f.map(r=>r.semana);
+  // Overview: 1 indicador por área
+  const cob=DATA.cobertura, star=DATA.starlink, band=DATA.anchosBanda;
+  const dimCounts=getDimCounts();
+  const ov=[
+    {area:'Cambios de fase',sec:'fase',lbl:'Parque activo',val:weekVal(f,week,'parque')},
+    {area:'Inspección',sec:'inspeccion',lbl:'Inspecciones',val:weekVal(ins,week,'inspecciones')},
+    {area:'Reparación',sec:'reparacion',lbl:'Reparados',val:weekVal(rep,week,'reparados')},
+    {area:'Mantenimiento',sec:'mantenimiento',lbl:'Correctivos',val:weekVal(DATA.mantenimiento,week,'correctivos')},
+    {area:'Anchos de banda',sec:'banda',lbl:'Cumple VT (total)',val:aggWeek(band,week,'cumpleVT')},
+    {area:'Fibra óptica',sec:'fibra',lbl:'Enlaces offline',val:weekVal(fib,week,'enlacesOffline')},
+    {area:'Starlink',sec:'starlink',lbl:'Con antena',val:aggWeek(star,week,'conAntena')},
+    {area:'Cobertura',sec:'cobertura',lbl:'Falta 2+ AP',val:aggWeek(cob,week,'faltaAP')},
+    {area:'Dimensionamiento',sec:'dimensionamiento',lbl:'Centros en REVISAR',val:dimCounts.REVISAR},
+  ];
+  $('#overview').innerHTML=ov.map(o=>`<div class="ovcard" data-go="${o.sec}">
+    <div class="area">${o.area}</div><div class="lbl">${o.lbl}</div><div class="val">${fmt(o.val)}</div></div>`).join('');
+  $$('#overview .ovcard').forEach(c=>c.onclick=()=>showSection(c.dataset.go));
+}
+/* suma de una clave sobre las filas de la semana (para hojas por bloque) */
+function aggWeek(arr,week,key){ const rows=weekRows(arr,week); if(!rows.length) return null; return rows.reduce((a,r)=>a+(r[key]||0),0); }
+
+/* ================= 01 FASE ================= */
+function renderFase(week){
+  const f=DATA.cambiosFase;
+  if(!gate('fase',f,week)){ killCharts(['chFaseParque','chFaseMig']); return; }
   card('#kpiFase',[
-    {lbl:'Parque · Semana 30',val:fmt(f[2].parque),cls:'accent',foot:'último dato registrado'},
-    {lbl:'Migrados Q3 · S29',val:fmt(f[1].migradosQ3),foot:'centros migrados'},
-    {lbl:'Ingresan Q2 · S29',val:fmt(f[1].ingresanQ2),cls:'good',foot:'nuevos ingresos'},
-    {lbl:'Reducción de parque',val:fmt(f[0].parque-f[2].parque),cls:'warn',foot:'S28 → S30'},
+    {lbl:'Parque activo',val:fmt(weekVal(f,week,'parque')),cls:'accent',foot:`${refLabel(week)}: ${fmt(prevWeekVal(f,week,'parque'))}`},
+    {lbl:'Migrados Q3',val:fmt(weekVal(f,week,'migradosQ3')),foot:'centros migrados'},
+    {lbl:'Migrados Q1',val:fmt(weekVal(f,week,'migradosQ1'))},
+    {lbl:'Ingresan Q2',val:fmt(weekVal(f,week,'ingresanQ2')),cls:'good',foot:'nuevos ingresos'},
   ]);
-  new Chart($('#chFaseParque'),{type:'line',data:{labels:wk,datasets:[{
-    label:'Parque',data:f.map(r=>r.parque),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',
-    fill:true,tension:.3,pointRadius:4,pointBackgroundColor:C.cyan,borderWidth:2}]},
+  const rows=weekRows(f,week), L=rows.map(r=>r.semana);
+  mkChart('chFaseParque',{type:'line',data:{labels:L,datasets:[{label:'Parque',
+    data:rows.map(r=>r.parque),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
-  new Chart($('#chFaseMig'),{type:'bar',data:{labels:wk,datasets:[
-    {label:'Migrados Q3',data:f.map(r=>r.migradosQ3),backgroundColor:C.blue},
-    {label:'Migrados Q1',data:f.map(r=>r.migradosQ1),backgroundColor:C.violet},
-    {label:'Ingresan Q2',data:f.map(r=>r.ingresanQ2),backgroundColor:C.green}]},
+  mkChart('chFaseMig',{type:'bar',data:{labels:L,datasets:[
+    {label:'Migrados Q3',data:rows.map(r=>r.migradosQ3),backgroundColor:C.blue},
+    {label:'Migrados Q1',data:rows.map(r=>r.migradosQ1),backgroundColor:C.violet},
+    {label:'Ingresan Q2',data:rows.map(r=>r.ingresanQ2),backgroundColor:C.green}]},
     options:{maintainAspectRatio:false,scales:baseScales()}});
-})();
+}
 
 /* ================= 02 INSPECCION ================= */
-(function(){
-  const d=DATA.inspeccion, wk=d.map(r=>r.semana);
+function renderInsp(week){
+  const d=DATA.inspeccion;
+  if(!gate('inspeccion',d,week)){ killCharts(['chInsp','chInspDonut']); return; }
   card('#kpiInsp',[
-    {lbl:'Inspecciones · S29',val:fmt(d[1].inspecciones),cls:'accent'},
-    {lbl:'Cumple F4 · S29',val:fmt(d[1].cumpleF4),cls:'good'},
-    {lbl:'No cumple F3 · S29',val:fmt(d[1].noCumpleF3),cls:'bad'},
-    {lbl:'% Revisión · S29',val:d[1].pctRevision+'%',cls:'warn',foot:'S28: '+d[0].pctRevision+'%'},
-    {lbl:'Pendientes · S29',val:fmt(d[1].pendientes),foot:'S28: '+fmt(d[0].pendientes)},
+    {lbl:'Inspecciones',val:fmt(weekVal(d,week,'inspecciones')),cls:'accent'},
+    {lbl:'Cumple F4',val:fmt(weekVal(d,week,'cumpleF4')),cls:'good'},
+    {lbl:'No cumple F3',val:fmt(weekVal(d,week,'noCumpleF3')),cls:'bad'},
+    {lbl:'% Revisión',val:(weekVal(d,week,'pctRevision')??'—')+(weekVal(d,week,'pctRevision')!=null?'%':''),cls:'warn'},
+    {lbl:'Pendientes',val:fmt(weekVal(d,week,'pendientes')),foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'pendientes'))}`},
   ]);
-  new Chart($('#chInsp'),{type:'bar',data:{labels:wk,datasets:[
-    {label:'Cumple (F4)',data:d.map(r=>r.cumpleF4),backgroundColor:C.green},
-    {label:'No cumple (F3)',data:d.map(r=>r.noCumpleF3),backgroundColor:C.red},
-    {label:'Pendientes',data:d.map(r=>r.pendientes),backgroundColor:C.amber}]},
+  const rows=weekRows(d,week), L=rows.map(r=>r.semana);
+  mkChart('chInsp',{type:'bar',data:{labels:L,datasets:[
+    {label:'Cumple (F4)',data:rows.map(r=>r.cumpleF4),backgroundColor:C.green},
+    {label:'No cumple (F3)',data:rows.map(r=>r.noCumpleF3),backgroundColor:C.red},
+    {label:'Pendientes',data:rows.map(r=>r.pendientes),backgroundColor:C.amber}]},
     options:{maintainAspectRatio:false,scales:baseScales(true)}});
-  new Chart($('#chInspDonut'),{type:'doughnut',data:{labels:['Cumple (F4)','No cumple (F3)','Hallazgos'],
-    datasets:[{data:[d[1].cumpleF4,d[1].noCumpleF3,d[1].hallazgos],backgroundColor:[C.green,C.red,C.violet],borderWidth:0}]},
+  const cf=weekVal(d,week,'cumpleF4'), nf=weekVal(d,week,'noCumpleF3'), hz=weekVal(d,week,'hallazgos');
+  mkChart('chInspDonut',{type:'doughnut',data:{labels:['Cumple (F4)','No cumple (F3)','Hallazgos'],
+    datasets:[{data:[cf,nf,hz],backgroundColor:[C.green,C.red,C.violet],borderWidth:0}]},
     options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'}}}});
-})();
+}
 
 /* ================= 03 REPARACION ================= */
-(function(){
-  const d=DATA.reparacion, wk=d.map(r=>r.semana);
+function renderRep(week){
+  const d=DATA.reparacion;
+  if(!gate('reparacion',d,week)){ killCharts(['chRep']); return; }
   card('#kpiRep',[
-    {lbl:'Reparados · S29',val:fmt(d[1].reparados),cls:'good'},
-    {lbl:'Casos nuevos · S29',val:fmt(d[1].casosNuevos),cls:'warn',foot:'S28: '+fmt(d[0].casosNuevos)},
-    {lbl:'En proceso · S29',val:fmt(d[1].enProceso),cls:'accent'},
-    {lbl:'Pendientes · S29',val:fmt(d[1].pendientes),cls:'bad',foot:'S28: '+fmt(d[0].pendientes)},
+    {lbl:'Reparados',val:fmt(weekVal(d,week,'reparados')),cls:'good'},
+    {lbl:'Casos nuevos',val:fmt(weekVal(d,week,'casosNuevos')),cls:'warn'},
+    {lbl:'En proceso',val:fmt(weekVal(d,week,'enProceso')),cls:'accent'},
+    {lbl:'Pendientes',val:fmt(weekVal(d,week,'pendientes')),cls:'bad',foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'pendientes'))}`},
   ]);
-  new Chart($('#chRep'),{type:'bar',data:{labels:wk,datasets:[
-    {label:'Cola (inicio)',data:d.map(r=>r.cola),backgroundColor:C.slate},
-    {label:'Reparados',data:d.map(r=>r.reparados),backgroundColor:C.green},
-    {label:'Casos nuevos',data:d.map(r=>r.casosNuevos),backgroundColor:C.blue},
-    {label:'En proceso',data:d.map(r=>r.enProceso),backgroundColor:C.amber},
-    {label:'Pendientes',data:d.map(r=>r.pendientes),backgroundColor:C.red}]},
+  const rows=weekRows(d,week), L=rows.map(r=>r.semana);
+  mkChart('chRep',{type:'bar',data:{labels:L,datasets:[
+    {label:'Cola (inicio)',data:rows.map(r=>r.cola),backgroundColor:C.slate},
+    {label:'Reparados',data:rows.map(r=>r.reparados),backgroundColor:C.green},
+    {label:'Casos nuevos',data:rows.map(r=>r.casosNuevos),backgroundColor:C.blue},
+    {label:'En proceso',data:rows.map(r=>r.enProceso),backgroundColor:C.amber},
+    {label:'Pendientes',data:rows.map(r=>r.pendientes),backgroundColor:C.red}]},
     options:{maintainAspectRatio:false,scales:baseScales()}});
-})();
+}
 
 /* ================= 04 MANTENIMIENTO ================= */
-(function(){
+function renderMant(week){
   const d=DATA.mantenimiento;
+  if(!gate('mantenimiento',d,week)){ killCharts(['chMant']); return; }
   const tot=r=>r.correctivos+r.preventivos+r.ups+r.switch+r.accessPoint+r.garantias;
+  const cur=weekRows(d,week);
   card('#kpiMant',[
-    {lbl:'Correctivos · S29',val:fmt(d[1].correctivos),cls:'warn'},
-    {lbl:'UPS intervenidos · S29',val:fmt(d[1].ups),cls:'accent'},
-    {lbl:'Switch · S29',val:fmt(d[1].switch)},
-    {lbl:'Total intervenciones · S29',val:fmt(tot(d[1])),cls:'good'},
+    {lbl:'Correctivos',val:fmt(weekVal(d,week,'correctivos')),cls:'warn'},
+    {lbl:'UPS intervenidos',val:fmt(weekVal(d,week,'ups')),cls:'accent'},
+    {lbl:'Switch',val:fmt(weekVal(d,week,'switch'))},
+    {lbl:'Total intervenciones',val:fmt(cur.reduce((a,r)=>a+tot(r),0)),cls:'good'},
   ]);
   const cats=['Preventivos','Correctivos','UPS','Switch','Access Point','Garantías','Resueltas'];
   const keys=['preventivos','correctivos','ups','switch','accessPoint','garantias','resueltas'];
-  new Chart($('#chMant'),{type:'bar',data:{labels:cats,datasets:[
-    {label:'Semana 28',data:keys.map(k=>d[0][k]),backgroundColor:C.slate},
-    {label:'Semana 29',data:keys.map(k=>d[1][k]),backgroundColor:C.cyan}]},
+  const palette=[C.slate,C.cyan,C.blue,C.amber];
+  $('#mantSub').textContent = week==='all' ? 'comparativo entre semanas' : 'intervenciones · '+week;
+  mkChart('chMant',{type:'bar',data:{labels:cats,datasets:cur.map((r,i)=>({
+    label:r.semana,data:keys.map(k=>r[k]),backgroundColor:palette[i%palette.length]}))},
     options:{maintainAspectRatio:false,scales:baseScales()}});
-})();
+}
 
 /* ================= 05 ANCHOS DE BANDA ================= */
-(function(){
-  const d=DATA.anchosBanda, bl=d.map(r=>r.bloque);
-  const cumpleVT=d.reduce((a,r)=>a+r.cumpleVT,0), noVT=d.reduce((a,r)=>a+r.noCumpleVT,0), sinVT=d.reduce((a,r)=>a+r.sinVerificarVT,0);
+function renderBanda(week){
+  const d=DATA.anchosBanda;
+  if(!gate('banda',d,week)){ killCharts(['chBandaVT','chBandaTeo']); return; }
+  const rows=weekRows(d,week);
+  const sum=k=>rows.reduce((a,r)=>a+r[k],0);
   card('#kpiBanda',[
-    {lbl:'Cumple VT (total)',val:fmt(cumpleVT),cls:'good'},
-    {lbl:'No cumple VT (total)',val:fmt(noVT),cls:'bad'},
-    {lbl:'Sin verificar VT',val:fmt(sinVT),cls:'warn'},
-    {lbl:'Sin contrato',val:fmt(d.reduce((a,r)=>a+r.noContrato,0)),foot:'requiere gestión'},
+    {lbl:'Cumple VT (total)',val:fmt(sum('cumpleVT')),cls:'good'},
+    {lbl:'No cumple VT (total)',val:fmt(sum('noCumpleVT')),cls:'bad'},
+    {lbl:'Sin verificar VT',val:fmt(sum('sinVerificarVT')),cls:'warn'},
+    {lbl:'Sin contrato',val:fmt(sum('noContrato')),foot:'requiere gestión'},
   ]);
-  new Chart($('#chBandaVT'),{type:'bar',data:{labels:bl,datasets:[
-    {label:'Cumple VT',data:d.map(r=>r.cumpleVT),backgroundColor:C.green},
-    {label:'No cumple VT',data:d.map(r=>r.noCumpleVT),backgroundColor:C.red},
-    {label:'Sin verificar VT',data:d.map(r=>r.sinVerificarVT),backgroundColor:C.amber}]},
+  const bl=rows.map(r=>r.bloque);
+  mkChart('chBandaVT',{type:'bar',data:{labels:bl,datasets:[
+    {label:'Cumple VT',data:rows.map(r=>r.cumpleVT),backgroundColor:C.green},
+    {label:'No cumple VT',data:rows.map(r=>r.noCumpleVT),backgroundColor:C.red},
+    {label:'Sin verificar VT',data:rows.map(r=>r.sinVerificarVT),backgroundColor:C.amber}]},
     options:{maintainAspectRatio:false,scales:baseScales(true)}});
-  new Chart($('#chBandaTeo'),{type:'bar',data:{labels:bl,datasets:[
-    {label:'Cumple teórico',data:d.map(r=>r.cumpleTeorico),backgroundColor:C.blue},
-    {label:'No cumple teórico',data:d.map(r=>r.noCumpleTeorico),backgroundColor:C.violet}]},
+  mkChart('chBandaTeo',{type:'bar',data:{labels:bl,datasets:[
+    {label:'Cumple teórico',data:rows.map(r=>r.cumpleTeorico),backgroundColor:C.blue},
+    {label:'No cumple teórico',data:rows.map(r=>r.noCumpleTeorico),backgroundColor:C.violet}]},
     options:{maintainAspectRatio:false,scales:baseScales(true)}});
-})();
+}
 
 /* ================= 06 FIBRA ================= */
-(function(){
-  const d=DATA.fibra, wk=d.map(r=>r.semana);
+function renderFibra(week){
+  const d=DATA.fibra;
+  if(!gate('fibra',d,week)){ killCharts(['chFibra']); return; }
   card('#kpiFibra',[
-    {lbl:'Enlaces offline · S29',val:fmt(d[1].enlacesOffline),cls:'bad',foot:'S28: '+fmt(d[0].enlacesOffline)},
-    {lbl:'CFO (SDP) · S29',val:fmt(d[1].cfoSDP),cls:'warn'},
-    {lbl:'Sin energía · S29',val:fmt(d[1].sinEnergia),cls:'accent',foot:'S28: '+fmt(d[0].sinEnergia)},
-    {lbl:'Mejora offline',val:fmt(d[0].enlacesOffline-d[1].enlacesOffline),cls:'good',foot:'S28 → S29'},
+    {lbl:'Enlaces offline',val:fmt(weekVal(d,week,'enlacesOffline')),cls:'bad',foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'enlacesOffline'))}`},
+    {lbl:'CFO (SDP)',val:fmt(weekVal(d,week,'cfoSDP')),cls:'warn'},
+    {lbl:'Sin energía',val:fmt(weekVal(d,week,'sinEnergia')),cls:'accent'},
+    {lbl:'Parque (bloque F3)',val:fmt(weekVal(d,week,'parque'))},
   ]);
-  new Chart($('#chFibra'),{type:'line',data:{labels:wk,datasets:[
-    {label:'Enlaces offline',data:d.map(r=>r.enlacesOffline),borderColor:C.red,backgroundColor:'rgba(214,69,69,.1)',fill:true,tension:.3,borderWidth:2,pointRadius:4},
-    {label:'CFO (SDP)',data:d.map(r=>r.cfoSDP),borderColor:C.amber,tension:.3,borderWidth:2,pointRadius:4},
-    {label:'Sin energía',data:d.map(r=>r.sinEnergia),borderColor:C.blue,tension:.3,borderWidth:2,pointRadius:4}]},
+  const rows=weekRows(d,week), L=rows.map(r=>r.semana);
+  mkChart('chFibra',{type:'line',data:{labels:L,datasets:[
+    {label:'Enlaces offline',data:rows.map(r=>r.enlacesOffline),borderColor:C.red,backgroundColor:'rgba(214,69,69,.1)',fill:true,tension:.3,borderWidth:2,pointRadius:5},
+    {label:'CFO (SDP)',data:rows.map(r=>r.cfoSDP),borderColor:C.amber,tension:.3,borderWidth:2,pointRadius:5},
+    {label:'Sin energía',data:rows.map(r=>r.sinEnergia),borderColor:C.blue,tension:.3,borderWidth:2,pointRadius:5}]},
     options:{maintainAspectRatio:false,scales:baseScales()}});
-})();
+}
 
 /* ================= 07 STARLINK ================= */
-(function(){
-  const s=DATA.starlink[0];
+function renderStar(week){
+  const d=DATA.starlink;
+  if(!gate('starlink',d,week)){ killCharts(['chStar','chStarBar']); return; }
+  const s=weekRows(d,week)[0];
   card('#kpiStar',[
     {lbl:'Con antena',val:fmt(s.conAntena),cls:'good'},
     {lbl:'Funcionales',val:fmt(s.funcionales),cls:'accent'},
     {lbl:'Sin antena',val:fmt(s.sinAntena),cls:'bad',foot:'sobre bloque 754'},
     {lbl:'En proceso',val:fmt(s.enProceso),cls:'warn'},
   ]);
-  new Chart($('#chStar'),{type:'doughnut',data:{labels:['Con antena','Sin antena','En proceso'],
+  mkChart('chStar',{type:'doughnut',data:{labels:['Con antena','Sin antena','En proceso'],
     datasets:[{data:[s.conAntena,s.sinAntena,s.enProceso],backgroundColor:[C.green,C.red,C.amber],borderWidth:0}]},
     options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'}}}});
-  new Chart($('#chStarBar'),{type:'bar',data:{labels:['Con antena','Funcionales','Sin antena','En proceso'],
-    datasets:[{data:[s.conAntena,s.funcionales,s.sinAntena,s.enProceso],
-    backgroundColor:[C.green,C.cyan,C.red,C.amber]}]},
+  mkChart('chStarBar',{type:'bar',data:{labels:['Con antena','Funcionales','Sin antena','En proceso'],
+    datasets:[{data:[s.conAntena,s.funcionales,s.sinAntena,s.enProceso],backgroundColor:[C.green,C.cyan,C.red,C.amber]}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
-})();
+}
 
 /* ================= 08 COBERTURA ================= */
-(function(){
+function renderCob(week){
   const d=DATA.cobertura;
-  const sum=k=>d.reduce((a,r)=>a+r[k],0);
+  if(!gate('cobertura',d,week)){ killCharts(['chCob']); return; }
+  const rows=weekRows(d,week);
+  const sum=k=>rows.reduce((a,r)=>a+r[k],0);
   card('#kpiCob',[
     {lbl:'F3 con cobertura',val:fmt(sum('cantidadF3')),cls:'accent'},
     {lbl:'Falta instalar 2+ AP',val:fmt(sum('faltaAP')),cls:'bad'},
@@ -463,19 +609,27 @@ function delta(cur,prev,invert=false){
   ]);
   const cats=['Cantidad F3','Innovación','Empresas CAPRES','Falta 2+ AP','Falta enlace','Varias deficiencias'];
   const keys=['cantidadF3','innovacion','empresasCapres','faltaAP','faltaEnlace','variasDeficiencias'];
-  new Chart($('#chCob'),{type:'bar',data:{labels:cats,datasets:d.map((r,i)=>({
+  mkChart('chCob',{type:'bar',data:{labels:cats,datasets:rows.map((r,i)=>({
     label:'Bloque '+r.bloque,data:keys.map(k=>r[k]),backgroundColor:i?C.cyan:C.navy}))},
     options:{maintainAspectRatio:false,scales:baseScales()}});
-})();
+}
 
 /* ================= 09 DIMENSIONAMIENTO ================= */
-(function(){
-  const rows=DIMENSIONAMIENTO_CSV.trim().split('\n').map(l=>{
+let _dimRows=null;
+function getDimRows(){
+  if(_dimRows) return _dimRows;
+  _dimRows=DIMENSIONAMIENTO_CSV.trim().split('\n').map(l=>{
     const [codigo,nombre,escenario,pct]=l.split('|');
     return {codigo,nombre,escenario,pct:parseFloat(pct)};
   });
-  const counts={REVISAR:0,AJUSTADO:0,SI:0};
-  rows.forEach(r=>counts[r.escenario]=(counts[r.escenario]||0)+1);
+  return _dimRows;
+}
+function getDimCounts(){
+  const c={REVISAR:0,AJUSTADO:0,SI:0}; getDimRows().forEach(r=>c[r.escenario]++); return c;
+}
+let _dimInit=false;
+function renderDim(week){
+  const rows=getDimRows(), counts=getDimCounts();
   card('#kpiDim',[
     {lbl:'Centros evaluados',val:fmt(rows.length),cls:'accent'},
     {lbl:'REVISAR (sobredim.)',val:fmt(counts.REVISAR),cls:'bad'},
@@ -483,52 +637,39 @@ function delta(cur,prev,invert=false){
     {lbl:'SI (en rango)',val:fmt(counts.SI),cls:'good'},
   ]);
   $('#dimTag').textContent='enfoque 754 · '+rows.length+' centros';
-
-  new Chart($('#chDimDonut'),{type:'doughnut',data:{labels:['REVISAR','AJUSTADO','SI'],
+  mkChart('chDimDonut',{type:'doughnut',data:{labels:['REVISAR','AJUSTADO','SI'],
     datasets:[{data:[counts.REVISAR,counts.AJUSTADO,counts.SI],backgroundColor:[C.amber,C.green,C.blue],borderWidth:0}]},
     options:{maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom'}}}});
-
   const bins=[['<70%',0],['70–100%',0],['100–200%',0],['200–400%',0],['>400%',0]];
   rows.forEach(r=>{const p=r.pct;
     if(p<70)bins[0][1]++;else if(p<=100)bins[1][1]++;else if(p<=200)bins[2][1]++;else if(p<=400)bins[3][1]++;else bins[4][1]++;});
-  new Chart($('#chDimHist'),{type:'bar',data:{labels:bins.map(b=>b[0]),
+  mkChart('chDimHist',{type:'bar',data:{labels:bins.map(b=>b[0]),
     datasets:[{data:bins.map(b=>b[1]),backgroundColor:[C.blue,C.green,C.cyan,C.amber,C.red]}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
 
-  // Tabla interactiva
+  if(_dimInit) return; _dimInit=true;   // la tabla se inicializa una sola vez
   const tbody=$('#dimTable tbody'), search=$('#dimSearch'), filter=$('#dimFilter'), count=$('#dimCount');
   let sortKey='pct', sortDir=-1;
   const badge=e=>({REVISAR:'b-rev',AJUSTADO:'b-aju',SI:'b-si'}[e]);
-  function render(){
+  function draw(){
     const q=search.value.trim().toLowerCase(), fv=filter.value;
-    let list=rows.filter(r=>(!fv||r.escenario===fv)&&
-      (!q||r.nombre.toLowerCase().includes(q)||r.codigo.includes(q)));
+    let list=rows.filter(r=>(!fv||r.escenario===fv)&&(!q||r.nombre.toLowerCase().includes(q)||r.codigo.includes(q)));
     list.sort((a,b)=>{let x=a[sortKey],y=b[sortKey];
-      if(typeof x==='string'){x=x.toLowerCase();y=y.toLowerCase();}
-      return x<y?-sortDir:x>y?sortDir:0;});
-    tbody.innerHTML=list.map(r=>`<tr>
-      <td class="mono">${r.codigo}</td>
-      <td>${r.nombre}</td>
+      if(typeof x==='string'){x=x.toLowerCase();y=y.toLowerCase();} return x<y?-sortDir:x>y?sortDir:0;});
+    tbody.innerHTML=list.map(r=>`<tr><td class="mono">${r.codigo}</td><td>${r.nombre}</td>
       <td><span class="badge ${badge(r.escenario)}">${r.escenario}</span></td>
       <td class="pct">${r.pct.toFixed(2)}%</td></tr>`).join('');
     count.textContent=list.length+' de '+rows.length+' centros';
   }
   $$('#dimTable thead th').forEach(th=>th.onclick=()=>{
-    const k=th.dataset.k; sortDir=(sortKey===k)?-sortDir:1; sortKey=k; render();});
-  search.oninput=render; filter.onchange=render; render();
-})();
+    const k=th.dataset.k; sortDir=(sortKey===k)?-sortDir:1; sortKey=k; draw();});
+  search.oninput=draw; filter.onchange=draw; draw();
+}
 
-/* ================= Scrollspy nav ================= */
-(function(){
-  const links=$$('.nav a'), secs=links.map(a=>$(a.getAttribute('href')));
-  const obs=new IntersectionObserver(es=>{
-    es.forEach(e=>{if(e.isIntersecting){
-      const id='#'+e.target.id;
-      links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')===id));
-    }});
-  },{rootMargin:'-45% 0px -50% 0px'});
-  secs.forEach(s=>s&&obs.observe(s));
-})();
+/* ================= Init ================= */
+$$('.nav button').forEach(b=>b.onclick=()=>showSection(b.dataset.section));
+$('#weekSel').onchange=onWeekChange;
+showSection('resumen');
 </script>
 </body>
 </html>
