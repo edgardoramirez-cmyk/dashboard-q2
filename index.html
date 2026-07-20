@@ -49,6 +49,14 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .weekfilter select{font-family:'IBM Plex Sans';font-size:13px;font-weight:600;padding:8px 12px;border:1px solid var(--line);
   border-radius:9px;background:#fff;color:var(--ink);cursor:pointer}
 .chip{font-family:'IBM Plex Mono';font-size:11px;background:var(--navy);color:#cfe;padding:6px 11px;border-radius:20px;letter-spacing:.03em;white-space:nowrap}
+.livedot{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono';font-size:11px;padding:6px 11px;border-radius:20px;white-space:nowrap;border:1px solid var(--line);background:#fff;color:var(--muted);cursor:default}
+.livedot::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--slate,#94a7b6)}
+.livedot.local::before{background:#9aa7b3}
+.livedot.loading{color:var(--amber)}
+.livedot.loading::before{background:var(--amber);animation:pulse 1s infinite}
+.livedot.live{color:var(--green);border-color:#bfe3cd;background:#f2fbf6}
+.livedot.live::before{background:var(--green)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 .wrap{padding:26px 32px 80px;max-width:1180px}
 
 /* ---------- Views ---------- */
@@ -181,6 +189,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
           <option value="Semana 30">Semana 30</option>
         </select>
       </div>
+      <span class="livedot local" id="liveStatus" title="Mostrando la copia local (data.js)">Copia local</span>
       <span class="chip" id="topchip">Todas las semanas</span>
     </div>
   </div>
@@ -318,6 +327,8 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
 </footer>
 
 <script src="data.js"></script>
+<script src="config.js"></script>
+<script src="live.js"></script>
 <script>
 /* ================= Helpers base ================= */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -615,7 +626,7 @@ function renderCob(week){
 }
 
 /* ================= 09 DIMENSIONAMIENTO ================= */
-let _dimRows=null;
+let _dimRows=null, _dimDraw=null;
 function getDimRows(){
   if(_dimRows) return _dimRows;
   _dimRows=DIMENSIONAMIENTO_CSV.trim().split('\n').map(l=>{
@@ -624,8 +635,11 @@ function getDimRows(){
   });
   return _dimRows;
 }
+function setDimRows(rows){                    // reemplaza los datos con la versión en vivo
+  if(rows&&rows.length){ _dimRows=rows; if(_dimDraw)_dimDraw(); }
+}
 function getDimCounts(){
-  const c={REVISAR:0,AJUSTADO:0,SI:0}; getDimRows().forEach(r=>c[r.escenario]++); return c;
+  const c={REVISAR:0,AJUSTADO:0,SI:0}; getDimRows().forEach(r=>{ if(c[r.escenario]!=null)c[r.escenario]++; }); return c;
 }
 let _dimInit=false;
 function renderDim(week){
@@ -647,29 +661,59 @@ function renderDim(week){
     datasets:[{data:bins.map(b=>b[1]),backgroundColor:[C.blue,C.green,C.cyan,C.amber,C.red]}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
 
-  if(_dimInit) return; _dimInit=true;   // la tabla se inicializa una sola vez
+  if(_dimInit){ if(_dimDraw)_dimDraw(); return; }  // ya inicializada: solo redibuja
+  _dimInit=true;
   const tbody=$('#dimTable tbody'), search=$('#dimSearch'), filter=$('#dimFilter'), count=$('#dimCount');
   let sortKey='pct', sortDir=-1;
   const badge=e=>({REVISAR:'b-rev',AJUSTADO:'b-aju',SI:'b-si'}[e]);
   function draw(){
+    const all=getDimRows();
     const q=search.value.trim().toLowerCase(), fv=filter.value;
-    let list=rows.filter(r=>(!fv||r.escenario===fv)&&(!q||r.nombre.toLowerCase().includes(q)||r.codigo.includes(q)));
+    let list=all.filter(r=>(!fv||r.escenario===fv)&&(!q||r.nombre.toLowerCase().includes(q)||r.codigo.includes(q)));
     list.sort((a,b)=>{let x=a[sortKey],y=b[sortKey];
       if(typeof x==='string'){x=x.toLowerCase();y=y.toLowerCase();} return x<y?-sortDir:x>y?sortDir:0;});
     tbody.innerHTML=list.map(r=>`<tr><td class="mono">${r.codigo}</td><td>${r.nombre}</td>
       <td><span class="badge ${badge(r.escenario)}">${r.escenario}</span></td>
       <td class="pct">${r.pct.toFixed(2)}%</td></tr>`).join('');
-    count.textContent=list.length+' de '+rows.length+' centros';
+    count.textContent=list.length+' de '+getDimRows().length+' centros';
   }
+  _dimDraw=draw;
   $$('#dimTable thead th').forEach(th=>th.onclick=()=>{
     const k=th.dataset.k; sortDir=(sortKey===k)?-sortDir:1; sortKey=k; draw();});
   search.oninput=draw; filter.onchange=draw; draw();
 }
 
+/* ================= Datos en vivo ================= */
+function setLive(mode,msg){
+  const el=$('#liveStatus'); if(!el) return;
+  el.className='livedot '+mode;
+  const t=new Date().toLocaleTimeString('es-SV',{hour:'2-digit',minute:'2-digit'});
+  el.textContent = mode==='live' ? ('En vivo · '+t) : mode==='loading' ? 'Actualizando…' : 'Copia local';
+  el.title = msg || (mode==='live'
+      ? 'Datos leídos del Google Sheet en vivo'
+      : 'Mostrando la copia local (data.js). Configura los gid en config.js para datos en vivo.');
+}
+async function initLive(){
+  const cfg=window.LIVE_CONFIG;
+  if(!cfg||!cfg.enabled||!window.LIVE){ setLive('local'); return; }
+  const gids=cfg.gids||{};
+  if(!Object.values(gids).some(v=>v&&v.toString().trim())){ setLive('local'); return; }
+  setLive('loading');
+  try{
+    const res=await LIVE.refresh({ onDim:setDimRows });
+    if(res.ok>0){
+      setLive('live', res.failed.length? ('En vivo. Sin leer: '+res.failed.join(', ')) : 'Datos leídos del Google Sheet en vivo');
+      RENDERERS[state.section](state.week);      // repinta la sección visible con datos frescos
+      if(_dimDraw)_dimDraw();
+    } else setLive('local');
+  }catch(e){ setLive('local'); }
+}
+
 /* ================= Init ================= */
 $$('.nav button').forEach(b=>b.onclick=()=>showSection(b.dataset.section));
 $('#weekSel').onchange=onWeekChange;
-showSection('resumen');
+showSection('resumen');   // 1) pinta al instante con la copia local
+initLive();               // 2) intenta refrescar desde el Sheet en vivo
 </script>
 </body>
 </html>

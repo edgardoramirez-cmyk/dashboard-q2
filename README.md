@@ -41,7 +41,34 @@ git push -u origin main
 
 Luego activa Pages desde **Settings → Pages**.
 
-## Cómo actualizar los datos
+## Archivos del proyecto
+
+| Archivo | Para qué sirve |
+|---------|----------------|
+| `index.html` | El dashboard (interfaz, filtros y gráficos). |
+| `data.js` | Copia local de los datos (respaldo). Se usa si el Sheet no está disponible. |
+| `config.js` | Configuración de la conexión en vivo (aquí van los `gid` de cada pestaña). |
+| `live.js` | Motor que lee el Google Sheet en vivo y lo convierte al formato del dashboard. |
+
+Sube **los cuatro** a la raíz del repositorio.
+
+## Datos en vivo (recomendado)
+
+El dashboard puede leer el Google Sheet **cada vez que alguien lo abre**, sin que tengas que editar `data.js`. Arriba a la derecha verás un indicador: **En vivo** (leyó el Sheet) o **Copia local** (usó el respaldo).
+
+Para activarlo, una sola vez:
+
+1. Abre el Google Sheet y compártelo: **Compartir → Acceso general → "Cualquiera con el enlace" (Lector)**. Es necesario para que el navegador de quien abra el dashboard pueda leerlo.
+2. Copia el `gid` de cada pestaña: al hacer clic en una pestaña, la URL termina en algo como `#gid=2114092089`. Ese número es el `gid` de esa hoja.
+3. Pega cada `gid` en **`config.js`** (hay una línea por hoja, con el nombre de la pestaña al lado).
+4. Sube `config.js` a GitHub. Listo: los cambios que hagas en Drive se reflejan solos.
+
+Notas:
+- Puedes llenar solo algunas hojas; las que dejes en blanco seguirán mostrando la copia local.
+- Si el Sheet está privado o sin conexión, el dashboard **no se rompe**: usa `data.js` y muestra "Copia local".
+- La conexión en vivo requiere que el Sheet sea de lectura pública (cualquiera con el enlace). Si prefieres mantenerlo privado, no configures los `gid` y actualiza `data.js` cuando toque.
+
+## Cómo actualizar los datos manualmente (sin conexión en vivo)
 
 Todos los números viven en **`data.js`**. Cada hoja es un arreglo de objetos por semana; para cargar la Semana 30 (u otra) solo reemplaza los valores `null` por los datos reales y vuelve a subir el archivo. No hace falta tocar `index.html`.
 

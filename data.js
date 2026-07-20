@@ -4,7 +4,7 @@
    Semanas 28, 29 y 30
    ============================================================ */
 
-const DATA = {
+var DATA = {
   meta: {
     titulo: "Dashboard Gerencial · Q2",
     fuente: "Google Sheets — Dashboard Q2",
@@ -70,7 +70,7 @@ const DATA = {
 
 /* Dimensionamiento RT — detalle por centro escolar.
    Formato: codigo | nombre | escenario | porcentaje (%) */
-const DIMENSIONAMIENTO_CSV = `11330|INSTITUTO NACIONAL "DE APOPA"|REVISAR|592.57
+var DIMENSIONAMIENTO_CSV = `11330|INSTITUTO NACIONAL "DE APOPA"|REVISAR|592.57
 11354|CENTRO ESCOLAR "DOCTOR ARTURO ROMERO"|REVISAR|271.70
 11395|INSTITUTO NACIONAL DE SAN BARTOLO|REVISAR|629.66
 11433|COMPLEJO EDUCATIVO "PROFESORA MARÍA AMANDA ARTIGA DE VILLALTA"|REVISAR|557.99
