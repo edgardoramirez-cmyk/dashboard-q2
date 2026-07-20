@@ -200,8 +200,8 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <section class="view active" id="resumen">
       <div class="hero">
         <div class="eyebrow" id="heroEyebrow">Estado de la red</div>
-        <h3>Panorama gerencial del parque conectado</h3>
-        <p>Vista consolidada de migración, inspección, reparación, mantenimiento, ancho de banda, fibra óptica, Starlink, cobertura y dimensionamiento de red.</p>
+        <h3>Panorama gerencial del parque Q2 = F3</h3>
+        <p>Vista consolidada de migración, inspección, reparación, mantenimiento, ancho de banda, Cortes de fibra óptica, Starlink, cobertura y dimensionamiento de red.</p>
         <div class="hero-stats" id="heroStats"></div>
       </div>
       <div class="ov-title">Indicador principal por área — clic para abrir</div>
@@ -569,7 +569,7 @@ function renderBanda(week){
     options:{maintainAspectRatio:false,scales:baseScales(true)}});
 }
 
-/* ================= 06 FIBRA ================= */
+/* ================= 06 CORTES DE FIBRA OPTICA ================= */
 function renderFibra(week){
   const d=DATA.fibra;
   if(!gate('fibra',d,week)){ killCharts(['chFibra']); return; }
