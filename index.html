@@ -285,7 +285,10 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <section class="view" id="cobertura">
       <div class="sec-head"><span class="num">08</span><h3>Cobertura</h3><span class="tag">deficiencias detectadas</span></div>
       <div class="gated"><div class="kpis" id="kpiCob"></div>
-      <div class="panel"><h4>Deficiencias de cobertura por bloque</h4><div class="psub">falta de AP, enlaces entre gabinetes y otras deficiencias</div><div class="chart-box"><canvas id="chCob"></canvas></div></div></div>
+      <div class="grid g2">
+        <div class="panel"><h4>Deficiencias por bloque</h4><div class="psub" id="cobSub">foto semanal por bloque</div><div class="chart-box"><canvas id="chCob"></canvas></div></div>
+        <div class="panel"><h4>Evolución de deficiencias</h4><div class="psub">total por semana · falta AP + enlace + varias</div><div class="chart-box"><canvas id="chCobEvo"></canvas></div></div>
+      </div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
@@ -466,8 +469,8 @@ function renderResumen(week){
     {area:'Mantenimiento',sec:'mantenimiento',lbl:'Correctivos',val:weekVal(DATA.mantenimiento,week,'correctivos')},
     {area:'Anchos de banda',sec:'banda',lbl:'Cumple VT (total)',val:aggWeek(band,week,'cumpleVT')},
     {area:'Fibra óptica',sec:'fibra',lbl:'Enlaces offline',val:weekVal(fib,week,'enlacesOffline')},
-    {area:'Starlink',sec:'starlink',lbl:'Con antena',val:aggWeek(star,week,'conAntena')},
-    {area:'Cobertura',sec:'cobertura',lbl:'Falta 2+ AP',val:aggWeek(cob,week,'faltaAP')},
+    {area:'Starlink',sec:'starlink',lbl:'Con antena',val:aggWeek(star,cobSnapWeek(star,week,'conAntena'),'conAntena')},
+    {area:'Cobertura',sec:'cobertura',lbl:'Falta 2+ AP',val:aggWeek(cob,cobSnapWeek(cob,week),'faltaAP')},
     {area:'Dimensionamiento',sec:'dimensionamiento',lbl:'Centros en REVISAR',val:dimCounts.REVISAR},
     {area:'Tickets SDP',sec:'ticket',lbl:'Tickets CFO inspección',val:weekVal(DATA.ticketSDP,week,'cfoInspecciones')},
   ];
@@ -638,22 +641,41 @@ function renderStar(week){
 }
 
 /* ================= 08 COBERTURA ================= */
+/* Cobertura es una FOTO por semana (no acumulable). Con "Todas" mostramos
+   el snapshot más reciente en el desglose por bloque, y la evolución
+   semana a semana en un panel aparte. */
+function cobWeeks(d,key){ return [...new Set(d.filter(r=>r[key||'cantidadF3']!=null).map(r=>r.semana))]; }
+function cobSnapWeek(d,week,key){ if(week!=='all') return week; const w=cobWeeks(d,key); return w[w.length-1]; }
+function cobSumWeek(d,semana,key){ return d.filter(r=>r.semana===semana).reduce((a,r)=>a+(r[key]||0),0); }
+
 function renderCob(week){
   const d=DATA.cobertura;
-  if(!gate('cobertura',d,week)){ killCharts(['chCob']); return; }
-  const rows=weekRows(d,week);
-  const sum=k=>rows.reduce((a,r)=>a+r[k],0);
+  if(!gate('cobertura',d,week)){ killCharts(['chCob','chCobEvo']); return; }
+  const snap=cobSnapWeek(d,week);
+  const rows=d.filter(r=>r.semana===snap);
+  const sum=k=>rows.reduce((a,r)=>a+(r[k]||0),0);
   card('#kpiCob',[
-    {lbl:'F3 con cobertura',val:fmt(sum('cantidadF3')),cls:'accent'},
-    {lbl:'Falta instalar 2+ AP',val:fmt(sum('faltaAP')),cls:'bad'},
-    {lbl:'Innovación',val:fmt(sum('innovacion')),cls:'good'},
-    {lbl:'Varias deficiencias',val:fmt(sum('variasDeficiencias')),cls:'warn'},
+    {lbl:'F3 con cobertura',val:fmt(sum('cantidadF3')),cls:'accent',foot:snap},
+    {lbl:'Falta instalar 2+ AP',val:fmt(sum('faltaAP')),cls:'bad',foot:snap},
+    {lbl:'Innovación',val:fmt(sum('innovacion')),cls:'good',foot:snap},
+    {lbl:'Varias deficiencias',val:fmt(sum('variasDeficiencias')),cls:'warn',foot:snap},
   ]);
+  $('#cobSub').textContent=(week==='all'?'último snapshot · ':'')+snap+' · por bloque';
+
   const cats=['Cantidad F3','Innovación','Empresas CAPRES','Falta 2+ AP','Falta enlace','Varias deficiencias'];
   const keys=['cantidadF3','innovacion','empresasCapres','faltaAP','faltaEnlace','variasDeficiencias'];
+  const blockColors=[C.navy,C.cyan,C.blue,C.violet];
   mkChart('chCob',{type:'bar',data:{labels:cats,datasets:rows.map((r,i)=>({
-    label:'Bloque '+r.bloque,data:keys.map(k=>r[k]),backgroundColor:i?C.cyan:C.navy}))},
+    label:r.bloque,data:keys.map(k=>r[k]),backgroundColor:blockColors[i%blockColors.length],borderRadius:3}))},
     options:{maintainAspectRatio:false,scales:baseScales()}});
+
+  // Evolución: total de deficiencias por semana (apilado)
+  const wks=cobWeeks(d);
+  mkChart('chCobEvo',{type:'bar',data:{labels:wks,datasets:[
+    {label:'Falta 2+ AP',data:wks.map(w=>cobSumWeek(d,w,'faltaAP')),backgroundColor:C.red},
+    {label:'Falta enlace',data:wks.map(w=>cobSumWeek(d,w,'faltaEnlace')),backgroundColor:C.amber},
+    {label:'Varias deficiencias',data:wks.map(w=>cobSumWeek(d,w,'variasDeficiencias')),backgroundColor:C.violet}]},
+    options:{maintainAspectRatio:false,scales:baseScales(true)}});
 }
 
 /* ================= 09 DIMENSIONAMIENTO ================= */
