@@ -154,9 +154,9 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
 
 <aside class="sidebar">
   <div class="brand">
-    <div class="kicker">Conectividad MINEDCYT</div>
+    <div class="kicker">Programa de Conectividad</div>
     <h1>Dashboard Gerencial · Q2</h1>
-    <p>O&M Q2</p>
+    <p>Infraestructura de Centros Escolares</p>
   </div>
   <nav class="nav" id="nav">
     <button data-section="resumen" class="active"><span class="dot"></span>Resumen ejecutivo</button>
@@ -200,8 +200,8 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <section class="view active" id="resumen">
       <div class="hero">
         <div class="eyebrow" id="heroEyebrow">Estado de la red</div>
-        <h3>Panorama gerencial del parque Q2 = F3</h3>
-        <p>Vista consolidada de migración, inspección, reparación, mantenimiento, ancho de banda, Cortes de fibra óptica, Starlink, cobertura y dimensionamiento de red.</p>
+        <h3>Panorama gerencial del parque conectado</h3>
+        <p>Vista consolidada de migración, inspección, reparación, mantenimiento, ancho de banda, fibra óptica, Starlink, cobertura y dimensionamiento de red.</p>
         <div class="hero-stats" id="heroStats"></div>
       </div>
       <div class="ov-title">Indicador principal por área — clic para abrir</div>
@@ -223,6 +223,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <section class="view" id="inspeccion">
       <div class="sec-head"><span class="num">02</span><h3>Inspección</h3><span class="tag">cumplimiento F4 / F3</span></div>
       <div class="gated"><div class="kpis" id="kpiInsp"></div>
+      <div class="panel" style="margin-bottom:16px"><h4>Evolución de inspecciones</h4><div class="psub">inspecciones totales realizadas por semana</div><div class="chart-box sm"><canvas id="chInspTotal"></canvas></div></div>
       <div class="grid g3">
         <div class="panel"><h4>Cumple vs. No cumple</h4><div class="psub">F4 (cumple) · F3 (no cumple) · pendientes</div><div class="chart-box"><canvas id="chInsp"></canvas></div></div>
         <div class="panel"><h4>Distribución</h4><div class="psub">estado de inspecciones</div><div class="chart-box"><canvas id="chInspDonut"></canvas></div></div>
@@ -484,7 +485,7 @@ function renderFase(week){
 /* ================= 02 INSPECCION ================= */
 function renderInsp(week){
   const d=DATA.inspeccion;
-  if(!gate('inspeccion',d,week)){ killCharts(['chInsp','chInspDonut']); return; }
+  if(!gate('inspeccion',d,week)){ killCharts(['chInspTotal','chInsp','chInspDonut']); return; }
   card('#kpiInsp',[
     {lbl:'Inspecciones',val:fmt(weekVal(d,week,'inspecciones')),cls:'accent'},
     {lbl:'Cumple F4',val:fmt(weekVal(d,week,'cumpleF4')),cls:'good'},
@@ -493,6 +494,9 @@ function renderInsp(week){
     {lbl:'Pendientes',val:fmt(weekVal(d,week,'pendientes')),foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'pendientes'))}`},
   ]);
   const rows=weekRows(d,week), L=rows.map(r=>r.semana);
+  mkChart('chInspTotal',{type:'line',data:{labels:L,datasets:[{label:'Inspecciones',
+    data:rows.map(r=>r.inspecciones),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
   mkChart('chInsp',{type:'bar',data:{labels:L,datasets:[
     {label:'Cumple (F4)',data:rows.map(r=>r.cumpleF4),backgroundColor:C.green},
     {label:'No cumple (F3)',data:rows.map(r=>r.noCumpleF3),backgroundColor:C.red},
@@ -569,7 +573,7 @@ function renderBanda(week){
     options:{maintainAspectRatio:false,scales:baseScales(true)}});
 }
 
-/* ================= 06 CORTES DE FIBRA OPTICA ================= */
+/* ================= 06 FIBRA ================= */
 function renderFibra(week){
   const d=DATA.fibra;
   if(!gate('fibra',d,week)){ killCharts(['chFibra']); return; }
