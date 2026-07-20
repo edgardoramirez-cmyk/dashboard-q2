@@ -28,14 +28,14 @@ var LIVE_CONFIG = {
   // gid de cada pestaña. Deja "" en las que aún no tengas;
   // esas seguirán mostrando la copia local hasta que las llenes.
   gids: {
-    cambiosFase:      "",   // pestaña: Cambios Fase
-    inspeccion:       "",   // pestaña: DATA_INSPECCION
-    reparacion:       "",   // pestaña: DATA_REPARACION
-    mantenimiento:    "",   // pestaña: DATA_MANTENIMIENTO
-    anchosBanda:      "",   // pestaña: Anchos de Banda
-    fibra:            "",   // pestaña: Cortes de Fibra Optica
-    starlink:         "",   // pestaña: Starlink
-    cobertura:        "",   // pestaña: Cobertura
-    dimensionamiento: ""    // pestaña: Dimensionamiento RT
+    cambiosFase:      "1241249610",   // pestaña: Cambios Fase
+    inspeccion:       "1440900351",   // pestaña: DATA_INSPECCION
+    reparacion:       "961746831",   // pestaña: DATA_REPARACION
+    mantenimiento:    "396709499",   // pestaña: DATA_MANTENIMIENTO
+    anchosBanda:      "2076061251",   // pestaña: Anchos de Banda
+    fibra:            "80312339",   // pestaña: Cortes de Fibra Optica
+    starlink:         "283482419",   // pestaña: Starlink
+    cobertura:        "1060545745",   // pestaña: Cobertura
+    dimensionamiento: "2114092089"    // pestaña: Dimensionamiento RT
   }
 };
