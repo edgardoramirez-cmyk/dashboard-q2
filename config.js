@@ -36,6 +36,7 @@ var LIVE_CONFIG = {
     fibra:            "80312339",   // pestaña: Cortes de Fibra Optica
     starlink:         "283482419",   // pestaña: Starlink
     cobertura:        "1060545745",   // pestaña: Cobertura
-    dimensionamiento: "2114092089"    // pestaña: Dimensionamiento RT
+    dimensionamiento: "2114092089",   // pestaña: Dimensionamiento RT
+    ticketSDP:        "543826361"     // pestaña: TICKET SDP
   }
 };

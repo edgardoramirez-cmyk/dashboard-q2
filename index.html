@@ -169,6 +169,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <button data-section="starlink"><span class="dot"></span>Starlink</button>
     <button data-section="cobertura"><span class="dot"></span>Cobertura</button>
     <button data-section="dimensionamiento"><span class="dot"></span>Dimensionamiento RT</button>
+    <button data-section="ticket"><span class="dot"></span>Tickets SDP</button>
   </nav>
   <div class="sidebar-foot">Fuente · Dashboard Q2</div>
 </aside>
@@ -177,7 +178,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
   <div class="topbar">
     <div>
       <h2 id="tbTitle">Resumen ejecutivo</h2>
-      <div class="sub" id="tbSub">Panorama consolidado de 9 áreas de trabajo</div>
+      <div class="sub" id="tbSub">Panorama consolidado de 10 áreas de trabajo</div>
     </div>
     <div class="topbar-right">
       <div class="weekfilter">
@@ -324,10 +325,21 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
       </div>
     </section>
 
+    <!-- ===== TICKET SDP ===== -->
+    <section class="view" id="ticket">
+      <div class="sec-head"><span class="num">10</span><h3>Tickets SDP</h3><span class="tag">CFO · chatbot · visitas</span></div>
+      <div class="gated"><div class="kpis" id="kpiTicket"></div>
+      <div class="grid g2">
+        <div class="panel"><h4>Tickets por canal</h4><div class="psub">generados · cerrados · en proceso</div><div class="chart-box"><canvas id="chTicket"></canvas></div></div>
+        <div class="panel"><h4>Distribución de cerrados</h4><div class="psub">tickets cerrados por canal</div><div class="chart-box"><canvas id="chTicketDonut"></canvas></div></div>
+      </div></div>
+      <div class="empty-state"><div class="ico">🎫</div><p></p></div>
+    </section>
+
   </div>
 </div>
 <footer>
-  Generado desde <strong>Dashboard Q2</strong> (Google Sheets) · 9 hojas consolidadas · Datos de Semanas 28–30.
+  Generado desde <strong>Dashboard Q2</strong> (Google Sheets) · 10 hojas consolidadas · Datos de Semanas 28–30.
 </footer>
 
 <script src="data.js"></script>
@@ -403,13 +415,14 @@ const TITLES={
   fibra:['Cortes de fibra óptica','Enlaces afectados en el bloque F3'],
   starlink:['Starlink','Estado de antenas satelitales'],
   cobertura:['Cobertura','Deficiencias de cobertura detectadas'],
-  dimensionamiento:['Dimensionamiento RT','Uso frente al escenario 70% por centro']
+  dimensionamiento:['Dimensionamiento RT','Uso frente al escenario 70% por centro'],
+  ticket:['Tickets SDP','Mesa de servicio: CFO, chatbot y visitas']
 };
 
 const RENDERERS={
   resumen:renderResumen, fase:renderFase, inspeccion:renderInsp, reparacion:renderRep,
   mantenimiento:renderMant, banda:renderBanda, fibra:renderFibra, starlink:renderStar,
-  cobertura:renderCob, dimensionamiento:renderDim
+  cobertura:renderCob, dimensionamiento:renderDim, ticket:renderTicket
 };
 
 function showSection(id){
@@ -456,6 +469,7 @@ function renderResumen(week){
     {area:'Starlink',sec:'starlink',lbl:'Con antena',val:aggWeek(star,week,'conAntena')},
     {area:'Cobertura',sec:'cobertura',lbl:'Falta 2+ AP',val:aggWeek(cob,week,'faltaAP')},
     {area:'Dimensionamiento',sec:'dimensionamiento',lbl:'Centros en REVISAR',val:dimCounts.REVISAR},
+    {area:'Tickets SDP',sec:'ticket',lbl:'Tickets CFO inspección',val:weekVal(DATA.ticketSDP,week,'cfoInspecciones')},
   ];
   $('#overview').innerHTML=ov.map(o=>`<div class="ovcard" data-go="${o.sec}">
     <div class="area">${o.area}</div><div class="lbl">${o.lbl}</div><div class="val">${fmt(o.val)}</div></div>`).join('');
@@ -538,7 +552,7 @@ function renderRep(week){
 function renderMant(week){
   const d=DATA.mantenimiento;
   if(!gate('mantenimiento',d,week)){ killCharts(['chMantTotal','chMant']); return; }
-  const tot=r=>r.correctivos+r.preventivos+r.ups+r.switch+r.accessPoint+r.garantias;
+  const tot=r=>['preventivos','correctivos','ups','switch','accessPoint','garantias','firewall'].reduce((a,k)=>a+(r[k]||0),0);
   const cur=weekRows(d,week);
   card('#kpiMant',[
     {lbl:'Correctivos',val:fmt(weekVal(d,week,'correctivos')),cls:'warn'},
@@ -550,8 +564,8 @@ function renderMant(week){
   mkChart('chMantTotal',{type:'line',data:{labels:evo.map(r=>r.semana),datasets:[{label:'Intervenciones',
     data:evo.map(r=>tot(r)),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
-  const cats=['Preventivos','Correctivos','UPS','Switch','Access Point','Garantías','Resueltas'];
-  const keys=['preventivos','correctivos','ups','switch','accessPoint','garantias','resueltas'];
+  const cats=['Preventivos','Correctivos','UPS','Switch','Access Point','Garantías','Firewall','En proceso','Resueltas'];
+  const keys=['preventivos','correctivos','ups','switch','accessPoint','garantias','firewall','enProceso','resueltas'];
   const palette=[C.slate,C.cyan,C.blue,C.amber];
   $('#mantSub').textContent = week==='all' ? 'comparativo entre semanas' : 'intervenciones · '+week;
   mkChart('chMant',{type:'bar',data:{labels:cats,datasets:cur.map((r,i)=>({
@@ -698,6 +712,27 @@ function renderDim(week){
   $$('#dimTable thead th').forEach(th=>th.onclick=()=>{
     const k=th.dataset.k; sortDir=(sortKey===k)?-sortDir:1; sortKey=k; draw();});
   search.oninput=draw; filter.onchange=draw; draw();
+}
+
+/* ================= 10 TICKETS SDP ================= */
+function renderTicket(week){
+  const d=DATA.ticketSDP;
+  if(!gate('ticket',d,week)){ killCharts(['chTicket','chTicketDonut']); return; }
+  const rows=weekRows(d,week); const t=rows[rows.length-1]||{};
+  card('#kpiTicket',[
+    {lbl:'CFO inspección',val:fmt(t.cfoInspecciones),cls:'accent',foot:'cerrados: '+fmt(t.cfoCerrados)},
+    {lbl:'Chatbot CE',val:fmt(t.chatbotCE),cls:'warn',foot:'en proceso: '+fmt(t.chatbotProceso)},
+    {lbl:'Visitas solicitadas',val:fmt(t.visitas),cls:'good',foot:'en proceso: '+fmt(t.visitasProceso)},
+    {lbl:'Total cerrados',val:fmt((t.cfoCerrados||0)+(t.chatbotCerrados||0)+(t.visitasCerrados||0)),cls:'good'},
+  ]);
+  mkChart('chTicket',{type:'bar',data:{labels:['CFO inspección','Chatbot CE','Visitas'],datasets:[
+    {label:'Generados',data:[t.cfoInspecciones,t.chatbotCE,t.visitas],backgroundColor:C.blue},
+    {label:'Cerrados',data:[t.cfoCerrados,t.chatbotCerrados,t.visitasCerrados],backgroundColor:C.green},
+    {label:'En proceso',data:[null,t.chatbotProceso,t.visitasProceso],backgroundColor:C.amber}]},
+    options:{maintainAspectRatio:false,scales:baseScales()}});
+  mkChart('chTicketDonut',{type:'doughnut',data:{labels:['CFO','Chatbot','Visitas'],
+    datasets:[{data:[t.cfoCerrados,t.chatbotCerrados,t.visitasCerrados],backgroundColor:[C.cyan,C.violet,C.green],borderWidth:0}]},
+    options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'}}}});
 }
 
 /* ================= Datos en vivo ================= */

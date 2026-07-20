@@ -8,7 +8,7 @@ var DATA = {
   meta: {
     titulo: "Dashboard Gerencial · Q2",
     fuente: "Google Sheets — Dashboard Q2",
-    actualizado: "Semana 29 (última con carga completa)",
+    actualizado: "Semana 30 (carga parcial) · Semana 29 completa",
     semanas: ["Semana 28", "Semana 29", "Semana 30"]
   },
 
@@ -21,22 +21,22 @@ var DATA = {
 
   // --- Hoja: DATA_INSPECCION ---
   inspeccion: [
-    { semana: "Semana 28", totalCE: 278, inspecciones: 278, visitas: 278, cumpleF4: 147, noCumpleF3: 122, hallazgos: 0, revisiones: 86, pctRevision: 30, pendientes: 192 },
-    { semana: "Semana 29", totalCE: 100, inspecciones: 100, visitas: 100, cumpleF4: 63,  noCumpleF3: 35,  hallazgos: 2, revisiones: 41, pctRevision: 41, pendientes: 39 },
+    { semana: "Semana 28", totalCE: 398, inspecciones: 272, visitas: 390, cumpleF4: 148, noCumpleF3: 116, hallazgos: 8,  revisiones: 86,  pctRevision: 32,  pendientes: 186 },
+    { semana: "Semana 29", totalCE: 180, inspecciones: 121, visitas: 180, cumpleF4: 69,  noCumpleF3: 39,  hallazgos: 13, revisiones: 121, pctRevision: 100, pendientes: 0 },
     { semana: "Semana 30", totalCE: null, inspecciones: null, visitas: null, cumpleF4: null, noCumpleF3: null, hallazgos: null, revisiones: null, pctRevision: null, pendientes: null }
   ],
 
   // --- Hoja: DATA_REPARACION ---
   reparacion: [
     { semana: "Semana 28", cola: 17, reparados: 10, casosNuevos: 7,  enProceso: 0,  pendientes: 14 },
-    { semana: "Semana 29", cola: 14, reparados: 13, casosNuevos: 18, enProceso: 11, pendientes: 8 },
-    { semana: "Semana 30", cola: null, reparados: null, casosNuevos: null, enProceso: null, pendientes: null }
+    { semana: "Semana 29", cola: 14, reparados: 22, casosNuevos: 18, enProceso: 2,  pendientes: 8 },
+    { semana: "Semana 30", cola: 8,  reparados: 0,  casosNuevos: 10, enProceso: 11, pendientes: 7 }
   ],
 
   // --- Hoja: DATA_MANTENIMIENTO ---
   mantenimiento: [
-    { semana: "Semana 28", preventivos: 0, correctivos: 1, ups: 1, switch: 0, accessPoint: 0, garantias: 0, resueltas: 0 },
-    { semana: "Semana 29", preventivos: 0, correctivos: 2, ups: 1, switch: 1, accessPoint: 0, garantias: 0, resueltas: 0 }
+    { semana: "Semana 28", preventivos: 0, correctivos: 1, ups: 1, switch: 0, accessPoint: 0, garantias: 0, firewall: 0, enProceso: null, resueltas: 0 },
+    { semana: "Semana 29", preventivos: 0, correctivos: 2, ups: 1, switch: 1, accessPoint: 0, garantias: 4, firewall: 4, enProceso: 3, resueltas: 1 }
   ],
 
   // --- Hoja: Anchos de Banda (Semana 28) ---
@@ -50,18 +50,26 @@ var DATA = {
   fibra: [
     { semana: "Semana 28", parque: 1083, bloque: "F3", enlacesOffline: 344, cfoSDP: 297, sinEnergia: 47 },
     { semana: "Semana 29", parque: 1011, bloque: "F3", enlacesOffline: 325, cfoSDP: 275, sinEnergia: 50 },
-    { semana: "Semana 30", parque: 962,  bloque: null, enlacesOffline: null, cfoSDP: null, sinEnergia: null }
+    { semana: "Semana 30", parque: 962,  bloque: "F3", enlacesOffline: 332, cfoSDP: 293, sinEnergia: 38 }
   ],
 
   // --- Hoja: Starlink (Semana 28) ---
   starlink: [
-    { semana: "Semana 28", bloque: "754", conAntena: 69, funcionales: 30, sinAntena: 685, enProceso: 3, codigosReparar: "111371, 10249, 12247" }
+    { semana: "Semana 28", bloque: "754", conAntena: 69, funcionales: 30, sinAntena: 685, enProceso: 3, codigosReparar: "111371, 10249, 12247" },
+    { semana: "Semana 29", bloque: "754", conAntena: 69, funcionales: 30, sinAntena: 685, enProceso: 3, codigosReparar: "111371, 10249, 12247" }
   ],
 
   // --- Hoja: Cobertura (Semana 28) ---
   cobertura: [
-    { semana: "Semana 28", bloque: "Q2 = F3", parqueCE: 1083, cantidadF3: 201, innovacion: 176, empresasCapres: 26, faltaAP: 174, faltaEnlace: 5, variasDeficiencias: 21 },
-    { semana: "Semana 28", bloque: "754",     parqueCE: 754,  cantidadF3: 45,  innovacion: 35,  empresasCapres: 6,  faltaAP: 11,  faltaEnlace: 2, variasDeficiencias: 6 }
+    { semana: "Semana 28", bloque: "Q2 = F3", parqueCE: 1083, cantidadF3: 200, innovacion: 173, empresasCapres: 27, faltaAP: 172, faltaEnlace: 8, variasDeficiencias: 20 },
+    { semana: "Semana 28", bloque: "754",     parqueCE: 754,  cantidadF3: 49,  innovacion: 34,  empresasCapres: 15, faltaAP: 44,  faltaEnlace: 2, variasDeficiencias: 3 },
+    { semana: "Semana 29", bloque: "Q2 = F3", parqueCE: 1011, cantidadF3: 196, innovacion: 174, empresasCapres: 22, faltaAP: 173, faltaEnlace: 6, variasDeficiencias: 17 },
+    { semana: "Semana 29", bloque: "754",     parqueCE: 754,  cantidadF3: 45,  innovacion: 33,  empresasCapres: 12, faltaAP: 36,  faltaEnlace: 3, variasDeficiencias: 6 }
+  ],
+
+  // --- Hoja: TICKET SDP ---
+  ticketSDP: [
+    { semana: "Semana 29", cfoInspecciones: 24, cfoCerrados: 45, chatbotCE: 45, chatbotCerrados: 15, chatbotProceso: 30, visitas: 28, visitasProceso: 25, visitasCerrados: 3 }
   ],
 
   // --- Hoja: Dimensionamiento RT — resumen de cumplimiento ---

@@ -1,6 +1,6 @@
 # Dashboard Gerencial Q2 · Conectividad de Centros Escolares
 
-Tablero de control ejecutivo construido a partir del Google Sheet **"Dashboard Q2"**, que consolida las 9 hojas de seguimiento semanal (Semanas 28–30) en una sola vista gerencial.
+Tablero de control ejecutivo construido a partir del Google Sheet **"Dashboard Q2"**, que consolida las 10 hojas de seguimiento semanal (Semanas 28–30) en una sola vista gerencial.
 
 ## Áreas incluidas
 
@@ -15,6 +15,7 @@ Tablero de control ejecutivo construido a partir del Google Sheet **"Dashboard Q
 | 07 | Starlink | `Starlink` |
 | 08 | Cobertura | `Cobertura` |
 | 09 | Dimensionamiento RT | `Dimensionamiento RT` (279 centros, tabla buscable) |
+| 10 | Tickets SDP | `TICKET SDP` (mesa de servicio: CFO, chatbot y visitas) |
 
 ## Cómo publicarlo en GitHub Pages
 
