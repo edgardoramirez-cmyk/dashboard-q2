@@ -235,6 +235,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <section class="view" id="reparacion">
       <div class="sec-head"><span class="num">03</span><h3>Reparación</h3><span class="tag">flujo de casos</span></div>
       <div class="gated"><div class="kpis" id="kpiRep"></div>
+      <div class="panel" style="margin-bottom:16px"><h4>Evolución de reparaciones</h4><div class="psub">casos reparados por semana</div><div class="chart-box sm"><canvas id="chRepTotal"></canvas></div></div>
       <div class="panel"><h4>Flujo de reparaciones</h4><div class="psub">cola, reparados, casos nuevos, en proceso y pendientes</div><div class="chart-box"><canvas id="chRep"></canvas></div></div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
@@ -243,6 +244,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <section class="view" id="mantenimiento">
       <div class="sec-head"><span class="num">04</span><h3>Mantenimiento</h3><span class="tag">preventivo / correctivo</span></div>
       <div class="gated"><div class="kpis" id="kpiMant"></div>
+      <div class="panel" style="margin-bottom:16px"><h4>Evolución de mantenimientos</h4><div class="psub">intervenciones totales por semana</div><div class="chart-box sm"><canvas id="chMantTotal"></canvas></div></div>
       <div class="panel"><h4>Intervenciones por tipo</h4><div class="psub" id="mantSub">comparativo entre semanas</div><div class="chart-box sm"><canvas id="chMant"></canvas></div></div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
@@ -262,6 +264,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <section class="view" id="fibra">
       <div class="sec-head"><span class="num">06</span><h3>Cortes de fibra óptica</h3><span class="tag">bloque F3</span></div>
       <div class="gated"><div class="kpis" id="kpiFibra"></div>
+      <div class="panel" style="margin-bottom:16px"><h4>Evolución de enlaces offline</h4><div class="psub">enlaces offline por semana</div><div class="chart-box sm"><canvas id="chFibraTotal"></canvas></div></div>
       <div class="panel"><h4>Enlaces afectados</h4><div class="psub">enlaces offline · CFO (SDP) · sin energía o desconectados</div><div class="chart-box sm"><canvas id="chFibra"></canvas></div></div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
@@ -511,7 +514,7 @@ function renderInsp(week){
 /* ================= 03 REPARACION ================= */
 function renderRep(week){
   const d=DATA.reparacion;
-  if(!gate('reparacion',d,week)){ killCharts(['chRep']); return; }
+  if(!gate('reparacion',d,week)){ killCharts(['chRepTotal','chRep']); return; }
   card('#kpiRep',[
     {lbl:'Reparados',val:fmt(weekVal(d,week,'reparados')),cls:'good'},
     {lbl:'Casos nuevos',val:fmt(weekVal(d,week,'casosNuevos')),cls:'warn'},
@@ -519,6 +522,9 @@ function renderRep(week){
     {lbl:'Pendientes',val:fmt(weekVal(d,week,'pendientes')),cls:'bad',foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'pendientes'))}`},
   ]);
   const rows=weekRows(d,week), L=rows.map(r=>r.semana);
+  mkChart('chRepTotal',{type:'line',data:{labels:L,datasets:[{label:'Reparados',
+    data:rows.map(r=>r.reparados),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
   mkChart('chRep',{type:'bar',data:{labels:L,datasets:[
     {label:'Cola (inicio)',data:rows.map(r=>r.cola),backgroundColor:C.slate},
     {label:'Reparados',data:rows.map(r=>r.reparados),backgroundColor:C.green},
@@ -531,7 +537,7 @@ function renderRep(week){
 /* ================= 04 MANTENIMIENTO ================= */
 function renderMant(week){
   const d=DATA.mantenimiento;
-  if(!gate('mantenimiento',d,week)){ killCharts(['chMant']); return; }
+  if(!gate('mantenimiento',d,week)){ killCharts(['chMantTotal','chMant']); return; }
   const tot=r=>r.correctivos+r.preventivos+r.ups+r.switch+r.accessPoint+r.garantias;
   const cur=weekRows(d,week);
   card('#kpiMant',[
@@ -540,6 +546,10 @@ function renderMant(week){
     {lbl:'Switch',val:fmt(weekVal(d,week,'switch'))},
     {lbl:'Total intervenciones',val:fmt(cur.reduce((a,r)=>a+tot(r),0)),cls:'good'},
   ]);
+  const evo=weekRows(d,week);
+  mkChart('chMantTotal',{type:'line',data:{labels:evo.map(r=>r.semana),datasets:[{label:'Intervenciones',
+    data:evo.map(r=>tot(r)),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
   const cats=['Preventivos','Correctivos','UPS','Switch','Access Point','Garantías','Resueltas'];
   const keys=['preventivos','correctivos','ups','switch','accessPoint','garantias','resueltas'];
   const palette=[C.slate,C.cyan,C.blue,C.amber];
@@ -576,7 +586,7 @@ function renderBanda(week){
 /* ================= 06 FIBRA ================= */
 function renderFibra(week){
   const d=DATA.fibra;
-  if(!gate('fibra',d,week)){ killCharts(['chFibra']); return; }
+  if(!gate('fibra',d,week)){ killCharts(['chFibraTotal','chFibra']); return; }
   card('#kpiFibra',[
     {lbl:'Enlaces offline',val:fmt(weekVal(d,week,'enlacesOffline')),cls:'bad',foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'enlacesOffline'))}`},
     {lbl:'CFO (SDP)',val:fmt(weekVal(d,week,'cfoSDP')),cls:'warn'},
@@ -584,6 +594,9 @@ function renderFibra(week){
     {lbl:'Parque (bloque F3)',val:fmt(weekVal(d,week,'parque'))},
   ]);
   const rows=weekRows(d,week), L=rows.map(r=>r.semana);
+  mkChart('chFibraTotal',{type:'line',data:{labels:L,datasets:[{label:'Enlaces offline',
+    data:rows.map(r=>r.enlacesOffline),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
   mkChart('chFibra',{type:'line',data:{labels:L,datasets:[
     {label:'Enlaces offline',data:rows.map(r=>r.enlacesOffline),borderColor:C.red,backgroundColor:'rgba(214,69,69,.1)',fill:true,tension:.3,borderWidth:2,pointRadius:5},
     {label:'CFO (SDP)',data:rows.map(r=>r.cfoSDP),borderColor:C.amber,tension:.3,borderWidth:2,pointRadius:5},
