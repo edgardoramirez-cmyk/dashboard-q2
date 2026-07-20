@@ -288,7 +288,9 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
       <div class="grid g2">
         <div class="panel"><h4>Deficiencias por bloque</h4><div class="psub" id="cobSub">foto semanal por bloque</div><div class="chart-box"><canvas id="chCob"></canvas></div></div>
         <div class="panel"><h4>Evolución de deficiencias</h4><div class="psub">total por semana · falta AP + enlace + varias</div><div class="chart-box"><canvas id="chCobEvo"></canvas></div></div>
-      </div></div>
+      </div>
+      <div class="panel" style="margin-top:16px"><h4>Comparativo histórico por bloque y semana</h4><div class="psub">cada bloque de cada semana, métrica por métrica</div><div class="chart-box"><canvas id="chCobHist"></canvas></div></div>
+      </div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
@@ -650,7 +652,7 @@ function cobSumWeek(d,semana,key){ return d.filter(r=>r.semana===semana).reduce(
 
 function renderCob(week){
   const d=DATA.cobertura;
-  if(!gate('cobertura',d,week)){ killCharts(['chCob','chCobEvo']); return; }
+  if(!gate('cobertura',d,week)){ killCharts(['chCob','chCobEvo','chCobHist']); return; }
   const snap=cobSnapWeek(d,week);
   const rows=d.filter(r=>r.semana===snap);
   const sum=k=>rows.reduce((a,r)=>a+(r[k]||0),0);
@@ -676,6 +678,17 @@ function renderCob(week){
     {label:'Falta enlace',data:wks.map(w=>cobSumWeek(d,w,'faltaEnlace')),backgroundColor:C.amber},
     {label:'Varias deficiencias',data:wks.map(w=>cobSumWeek(d,w,'variasDeficiencias')),backgroundColor:C.violet}]},
     options:{maintainAspectRatio:false,scales:baseScales(true)}});
+
+  // Comparativo histórico: cada bloque de cada semana, métrica por métrica.
+  // Siempre muestra todas las semanas con datos (independiente del filtro).
+  const hcats=['Cantidad F3','Innovación','Empresas CAPRES','Falta 2+ AP','Falta enlace','Varias def.'];
+  const hkeys=['cantidadF3','innovacion','empresasCapres','faltaAP','faltaEnlace','variasDeficiencias'];
+  const hpal=[C.navy,C.slate,C.cyan,C.blue,C.violet,C.amber,C.green];
+  const histRows=d.filter(r=>r.cantidadF3!=null);
+  mkChart('chCobHist',{type:'bar',data:{labels:hcats,datasets:histRows.map((r,i)=>({
+    label:r.semana.replace('Semana ','S')+' · '+r.bloque,
+    data:hkeys.map(k=>r[k]),backgroundColor:hpal[i%hpal.length],borderRadius:3}))},
+    options:{maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:baseScales()}});
 }
 
 /* ================= 09 DIMENSIONAMIENTO ================= */
