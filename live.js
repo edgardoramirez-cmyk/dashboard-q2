@@ -8,7 +8,8 @@
 
   /* ---------- utilidades de texto/número ---------- */
   const norm = s => (s == null ? '' : s.toString())
-    .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim()
+    .replace(/\s+/g, ' ');   // colapsa espacios dobles/múltiples (evita falsos "no cumple" al buscar "cumple")
 
   function num(v) {
     if (v == null) return null;
@@ -96,6 +97,7 @@
     if (hi < 0) return null;
     const header = rows[hi];
     const cmap = {}; for (const f in spec) cmap[f] = col(header, spec[f]);
+    if ('cumpleVT' in cmap && 'noCumpleVT' in cmap) fixBandaCumpleVT(header, cmap);
     const mets = metricFields(spec);
     const out = [];
     let fillSemana = null, fillBloque = null;
