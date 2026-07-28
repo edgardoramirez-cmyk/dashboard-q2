@@ -168,9 +168,10 @@ thead th:hover{background:var(--navy-2)}
 tbody td{padding:9px 12px;border-top:1px solid var(--line)}
 tbody tr:nth-child(even){background:#f7fafc}
 .badge{font-family:'IBM Plex Mono';font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap}
-.b-rev{background:#fbe6c9;color:#8a5a12}
-.b-aju{background:#cfe8dc;color:#1d6b45}
-.b-si{background:#d3e2f4;color:#274f82}
+.b-nocumple{background:#fbdada;color:#8a1f1f}
+.b-revisar{background:#fbe6c9;color:#8a5a12}
+.b-cumple{background:#cfe8dc;color:#1d6b45}
+.b-sindatos{background:#e5e9ee;color:#5c6b7a}
 .pct{font-family:'IBM Plex Mono';font-weight:600}
 .note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;font-family:'IBM Plex Mono'}
 
@@ -371,19 +372,20 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
       <div class="sec-head"><span class="num">09</span><h3>Dimensionamiento RT</h3><span class="tag" id="dimTag">enfoque 754</span></div>
       <div class="kpis" id="kpiDim"></div>
       <div class="grid g2" style="margin-bottom:16px">
-        <div class="panel"><h4>Estado de dimensionamiento</h4><div class="psub">REVISAR · AJUSTADO · SI (dentro de rango)</div><div class="chart-box sm"><canvas id="chDimDonut"></canvas></div></div>
+        <div class="panel"><h4>Estado de dimensionamiento</h4><div class="psub">Cumple · Revisar · No cumple · Sin datos</div><div class="chart-box sm"><canvas id="chDimDonut"></canvas></div></div>
         <div class="panel"><h4>Distribución de % de uso</h4><div class="psub">centros por rango de porcentaje del escenario 70%</div><div class="chart-box sm"><canvas id="chDimHist"></canvas></div></div>
       </div>
       <div class="panel">
         <h4>Detalle por centro escolar</h4>
-        <div class="psub">buscá por código o nombre; ordená por cualquier columna</div>
+        <div class="psub">buscá por código, nombre o modelo de router; ordená por cualquier columna</div>
         <div class="tbl-tools">
-          <input id="dimSearch" placeholder="Buscar centro escolar o código…">
+          <input id="dimSearch" placeholder="Buscar centro escolar, código o modelo…">
           <select id="dimFilter">
             <option value="">Todos los estados</option>
-            <option value="REVISAR">REVISAR</option>
-            <option value="AJUSTADO">AJUSTADO</option>
-            <option value="SI">SI</option>
+            <option value="No Cumple">No Cumple</option>
+            <option value="Revisar">Revisar</option>
+            <option value="Cumple">Cumple</option>
+            <option value="Sin datos">Sin datos</option>
           </select>
           <span class="count" id="dimCount"></span>
         </div>
@@ -392,13 +394,14 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
             <thead><tr>
               <th data-k="codigo">Código</th>
               <th data-k="nombre">Centro escolar</th>
+              <th data-k="modelo">Modelo de router</th>
               <th data-k="escenario">Estado</th>
               <th data-k="pct">% escenario 70%</th>
             </tr></thead>
             <tbody></tbody>
           </table>
         </div>
-        <p class="note">Instantánea consolidada (no varía por semana). REVISAR: uso muy por encima del escenario planificado. AJUSTADO: cercano al objetivo (≈70–100%). SI: dentro de rango.</p>
+        <p class="note">Instantánea consolidada (no varía por semana). No Cumple: uso muy por encima del escenario planificado. Revisar: cercano al objetivo (≈70–100%). Cumple: dentro de rango. Sin datos: centro aún sin visita técnica registrada.</p>
       </div>
     </section>
 
@@ -619,7 +622,7 @@ function renderResumen(week){
     {area:'Fibra óptica',sec:'fibra',lbl:'Enlaces offline',val:weekVal(fib,week,'enlacesOffline')},
     {area:'Starlink',sec:'starlink',lbl:'Instaladas (semana)',val:weekVal(star,week,'instaladas')},
     {area:'Cobertura',sec:'cobertura',lbl:'Falta 2+ AP',val:weekVal(cob,week,'faltaAP')},
-    {area:'Dimensionamiento',sec:'dimensionamiento',lbl:'Centros en REVISAR',val:dimCounts.REVISAR},
+    {area:'Dimensionamiento',sec:'dimensionamiento',lbl:'Centros No Cumple',val:dimCounts['No Cumple']},
     {area:'Tickets SDP',sec:'ticket',lbl:'Tickets CFO inspección',val:weekVal(DATA.ticketSDP,week,'cfoInspecciones')},
   ];
   $('#overview').innerHTML=ov.map(o=>`<div class="ovcard" data-go="${o.sec}">
@@ -884,36 +887,44 @@ function renderCob(week){
 }
 
 /* ================= 09 DIMENSIONAMIENTO ================= */
+/* La hoja "Dimensionamiento RT" agregó la columna "Modelo de router" y
+   renombró el escenario: antes REVISAR/AJUSTADO/SI, ahora
+   No Cumple / Revisar / Cumple (+ algún centro "Sin datos" todavía sin
+   visita técnica, sin modelo ni % registrado). */
 let _dimRows=null, _dimDraw=null;
 function getDimRows(){
   if(_dimRows) return _dimRows;
   _dimRows=DIMENSIONAMIENTO_CSV.trim().split('\n').map(l=>{
-    const [codigo,nombre,escenario,pct]=l.split('|');
-    return {codigo,nombre,escenario,pct:parseFloat(pct)};
+    const [codigo,nombre,modelo,escenario,pct]=l.split('|');
+    return {codigo,nombre,modelo:modelo||'',escenario,pct:(pct===''||pct==null)?null:parseFloat(pct)};
   });
   return _dimRows;
 }
 function setDimRows(rows){                    // reemplaza los datos con la versión en vivo
   if(rows&&rows.length){ _dimRows=rows; if(_dimDraw)_dimDraw(); }
 }
+const DIM_ESTADOS=['Cumple','Revisar','No Cumple','Sin datos'];
 function getDimCounts(){
-  const c={REVISAR:0,AJUSTADO:0,SI:0}; getDimRows().forEach(r=>{ if(c[r.escenario]!=null)c[r.escenario]++; }); return c;
+  const c={Cumple:0,Revisar:0,'No Cumple':0,'Sin datos':0};
+  getDimRows().forEach(r=>{ if(c[r.escenario]!=null)c[r.escenario]++; else c[r.escenario]=1; });
+  return c;
 }
 let _dimInit=false;
 function renderDim(week){
   const rows=getDimRows(), counts=getDimCounts();
   card('#kpiDim',[
     {lbl:'Centros evaluados',val:fmt(rows.length),cls:'accent'},
-    {lbl:'REVISAR (sobredim.)',val:fmt(counts.REVISAR),cls:'bad'},
-    {lbl:'AJUSTADO',val:fmt(counts.AJUSTADO),cls:'warn'},
-    {lbl:'SI (en rango)',val:fmt(counts.SI),cls:'good'},
+    {lbl:'No Cumple (sobredim.)',val:fmt(counts['No Cumple']),cls:'bad'},
+    {lbl:'Revisar',val:fmt(counts.Revisar),cls:'warn'},
+    {lbl:'Cumple (en rango)',val:fmt(counts.Cumple),cls:'good'},
+    {lbl:'Sin datos',val:fmt(counts['Sin datos']),foot:'sin visita técnica'},
   ]);
   $('#dimTag').textContent='enfoque 754 · '+rows.length+' centros';
-  mkChart('chDimDonut',{type:'doughnut',data:{labels:['REVISAR','AJUSTADO','SI'],
-    datasets:[{data:[counts.REVISAR,counts.AJUSTADO,counts.SI],backgroundColor:[C.amber,C.green,C.blue],borderWidth:0}]},
+  mkChart('chDimDonut',{type:'doughnut',data:{labels:['Cumple','Revisar','No Cumple','Sin datos'],
+    datasets:[{data:[counts.Cumple,counts.Revisar,counts['No Cumple'],counts['Sin datos']],backgroundColor:[C.green,C.amber,C.red,C.slate],borderWidth:0}]},
     options:{maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom'},...DONUT_LABELS}}});
   const bins=[['<70%',0],['70–100%',0],['100–200%',0],['200–400%',0],['>400%',0]];
-  rows.forEach(r=>{const p=r.pct;
+  rows.forEach(r=>{const p=r.pct; if(p==null) return;   // "Sin datos" no entra al histograma de %
     if(p<70)bins[0][1]++;else if(p<=100)bins[1][1]++;else if(p<=200)bins[2][1]++;else if(p<=400)bins[3][1]++;else bins[4][1]++;});
   mkChart('chDimHist',{type:'bar',data:{labels:bins.map(b=>b[0]),
     datasets:[{data:bins.map(b=>b[1]),backgroundColor:[C.blue,C.green,C.cyan,C.amber,C.red]}]},
@@ -923,16 +934,18 @@ function renderDim(week){
   _dimInit=true;
   const tbody=$('#dimTable tbody'), search=$('#dimSearch'), filter=$('#dimFilter'), count=$('#dimCount');
   let sortKey='pct', sortDir=-1;
-  const badge=e=>({REVISAR:'b-rev',AJUSTADO:'b-aju',SI:'b-si'}[e]);
+  const badge=e=>({'No Cumple':'b-nocumple',Revisar:'b-revisar',Cumple:'b-cumple','Sin datos':'b-sindatos'}[e]||'b-sindatos');
   function draw(){
     const all=getDimRows();
     const q=search.value.trim().toLowerCase(), fv=filter.value;
-    let list=all.filter(r=>(!fv||r.escenario===fv)&&(!q||r.nombre.toLowerCase().includes(q)||r.codigo.includes(q)));
+    let list=all.filter(r=>(!fv||r.escenario===fv)&&(!q||r.nombre.toLowerCase().includes(q)||r.codigo.includes(q)||(r.modelo||'').toLowerCase().includes(q)));
     list.sort((a,b)=>{let x=a[sortKey],y=b[sortKey];
+      if(x==null) x=-Infinity; if(y==null) y=-Infinity;
       if(typeof x==='string'){x=x.toLowerCase();y=y.toLowerCase();} return x<y?-sortDir:x>y?sortDir:0;});
     tbody.innerHTML=list.map(r=>`<tr><td class="mono">${r.codigo}</td><td>${r.nombre}</td>
+      <td class="mono">${r.modelo||'—'}</td>
       <td><span class="badge ${badge(r.escenario)}">${r.escenario}</span></td>
-      <td class="pct">${r.pct.toFixed(2)}%</td></tr>`).join('');
+      <td class="pct">${r.pct==null?'—':r.pct.toFixed(2)+'%'}</td></tr>`).join('');
     count.textContent=list.length+' de '+getDimRows().length+' centros';
   }
   _dimDraw=draw;

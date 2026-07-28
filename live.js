@@ -117,6 +117,11 @@
   }
 
   /* ---------- Dimensionamiento RT ---------- */
+  /* La hoja agregó una columna "Modelo de router" entre el centro escolar y
+     el escenario, y el escenario ahora usa Cumple / Revisar / No Cumple
+     (antes era SI / AJUSTADO / REVISAR). Se respeta el texto tal cual viene
+     (solo se normaliza "SIN DATOS" a "Sin datos" para que calce con la
+     copia local de data.js) en vez de forzar mayúsculas. */
   function dimSheet(rows) {
     const hi = findHeader(rows, ['codigo', 'centro escolar']);
     if (hi < 0) return null;
@@ -124,6 +129,7 @@
     const ci = {
       codigo: col(header, ['codigo']),
       nombre: col(header, ['centro escolar', 'nombre']),
+      modelo: col(header, ['modelo de router', 'modelo']),
       escenario: col(header, ['escenario']),
       pct: col(header, ['%'])
     };
@@ -134,11 +140,14 @@
       const code = (raw[ci.codigo] || '').toString().trim();
       if (!/^\d+$/.test(code)) continue;       // solo filas con código numérico
       const pct = num(raw[ci.pct]);
+      let escenario = (raw[ci.escenario] || '').toString().trim();
+      if (norm(escenario) === 'sin datos') escenario = 'Sin datos';
       out.push({
         codigo: code,
         nombre: (raw[ci.nombre] || '').toString().trim(),
-        escenario: (raw[ci.escenario] || '').toString().trim().toUpperCase(),
-        pct: pct == null ? 0 : pct
+        modelo: ci.modelo >= 0 ? (raw[ci.modelo] || '').toString().trim() : '',
+        escenario,
+        pct: pct == null ? null : pct   // null (no 0) para no mezclar "sin dato" con un uso real de 0%
       });
     }
     return out.length ? out : null;
