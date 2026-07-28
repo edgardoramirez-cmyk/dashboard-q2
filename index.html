@@ -222,9 +222,6 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
         <label for="weekSel">Semana</label>
         <select id="weekSel">
           <option value="all">Todas</option>
-          <option value="Semana 28">Semana 28</option>
-          <option value="Semana 29">Semana 29</option>
-          <option value="Semana 30">Semana 30</option>
         </select>
       </div>
       <span class="livedot local" id="liveStatus" title="Mostrando la copia local (data.js)">Copia local</span>
@@ -558,6 +555,35 @@ function gate(viewId, arr, week){
 /* ================= State + navegación ================= */
 const WEEKLABEL = w => w==='all' ? 'Todas las semanas' : w;
 const state={ week:'all', section:'resumen', mantEvo:'total' };
+
+/* El filtro de semana ya NO trae las semanas escritas a mano en el HTML:
+   se arma solo a partir de las semanas que realmente tienen algún dato
+   cargado (en cualquier hoja). Así, cuando se llena "Semana 31" en el
+   Sheet (o aparece una "Semana 32"), la aparece sola en el filtro apenas
+   se refresca — sin tener que tocar el código cada vez. */
+const WEEK_SHEETS=['cambiosFase','inspeccion','reparacion','mantenimiento','anchosBanda','fibra','starlink','cobertura','ticketSDP'];
+function collectWeeks(){
+  const set=new Set();
+  WEEK_SHEETS.forEach(k=>{
+    const arr=DATA[k]; if(!Array.isArray(arr)) return;
+    arr.forEach(r=>{
+      if(!r||!r.semana) return;
+      const hasAny=Object.entries(r).some(([f,v])=>f!=='semana'&&f!=='bloque'&&v!=null);
+      if(hasAny) set.add(r.semana);
+    });
+  });
+  return [...set].sort((a,b)=>{
+    const na=parseInt((a.match(/\d+/)||[0])[0],10), nb=parseInt((b.match(/\d+/)||[0])[0],10);
+    return na-nb;
+  });
+}
+function refreshWeekOptions(){
+  const sel=$('#weekSel'); if(!sel) return;
+  const weeks=collectWeeks(), current=sel.value||state.week||'all';
+  sel.innerHTML='<option value="all">Todas</option>'+weeks.map(w=>`<option value="${w}">${w}</option>`).join('');
+  sel.value = (current==='all'||weeks.includes(current)) ? current : 'all';
+  state.week=sel.value;
+}
 
 const TITLES={
   resumen:['Resumen ejecutivo','Panorama consolidado de 9 áreas de trabajo'],
@@ -996,6 +1022,8 @@ async function initLive(){
     const res=await LIVE.refresh({ onDim:setDimRows });
     if(res.ok>0){
       setLive('live', res.failed.length? ('En vivo. Sin leer: '+res.failed.join(', ')) : 'Datos leídos del Google Sheet en vivo');
+      refreshWeekOptions();                       // por si el Sheet ya trae una semana nueva
+      $('#topchip').textContent=WEEKLABEL(state.week);
       RENDERERS[state.section](state.week);      // repinta la sección visible con datos frescos
       if(_dimDraw)_dimDraw();
     } else setLive('local');
@@ -1010,6 +1038,7 @@ $$('#mantEvoFilter button').forEach(b=>b.onclick=()=>{
   $$('#mantEvoFilter button').forEach(x=>x.classList.toggle('active', x===b));
   renderMant(state.week);
 });
+refreshWeekOptions();     // 0) arma el filtro de semanas con la copia local
 showSection('resumen');   // 1) pinta al instante con la copia local
 initLive();               // 2) intenta refrescar desde el Sheet en vivo
 </script>
