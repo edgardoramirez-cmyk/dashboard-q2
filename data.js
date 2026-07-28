@@ -54,11 +54,10 @@ var DATA = {
     { semana: "Semana 30", parque: 962,  bloque: "F3", enlacesOffline: 305, cfoSDP: 280, sinEnergia: 25 }
   ],
 
-  // --- Hoja: Starlink (Semana 28) ---
+  // --- Hoja: Starlink (nueva estructura: instaladas/reparadas/retiradas por semana) ---
   starlink: [
-    { semana: "Semana 28", bloque: "754", conAntena: 69, funcionales: 30, sinAntena: 685, enProceso: 3, codigosReparar: "111371, 10249, 12247" },
-    { semana: "Semana 29", bloque: "754", conAntena: 69, funcionales: 30, sinAntena: 685, enProceso: 3, codigosReparar: "111371, 10249, 12247" },
-    { semana: "Semana 30", bloque: "754", conAntena: 69, funcionales: 30, sinAntena: 685, enProceso: 3, codigosReparar: "111371, 10249, 12247" }
+    { semana: "Semana 30", instaladas: 2, reparadas: 0, retiradas: 0 },
+    { semana: "Semana 31", instaladas: 0, reparadas: 0, retiradas: 0 }
   ],
 
   // --- Hoja: Cobertura (1 fila consolidada por semana) ---

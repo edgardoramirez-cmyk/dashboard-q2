@@ -152,7 +152,7 @@
     mantenimiento: { semana: ['semana'], preventivos: ['preventivos'], correctivos: ['correctivos'], ups: ['ups'], switch: ['switch'], accessPoint: ['access point', 'access'], garantias: ['garant'], firewall: ['firewall'], enProceso: ['en proceso', 'proceso'], resueltas: ['resueltas'] },
     anchosBanda: { semana: ['semana'], parque: ['parque'], noCumpleVT: ['no cumple por visita tecnica', 'no cumple vt'], cumpleVT: ['cumple por visita tecnica', 'cumple vt'], sinVerificarVT: ['sin verificar por visita tecnica', 'sin verificar'], noCumpleTeorico: ['no cumple teorico'], cumpleTeorico: ['cumple teorico'], noContrato: ['no contrato', 'contrato'], noData: ['no data'] },
     fibra: { semana: ['semana'], parque: ['parque'], bloque: ['bloque'], enlacesOffline: ['enlaces offline', 'offline'], cfoSDP: ['cfo'], sinEnergia: ['energia', 's/ energia'] },
-    starlink: { semana: ['semana'], bloque: ['bloque'], conAntena: ['con antena'], funcionales: ['funcionales'], sinAntena: ['sin antena'], enProceso: ['en proceso', 'proceso'], codigosReparar: ['cod a reparar', 'reparar'] },
+    starlink: { semana: ['semana'], instaladas: ['instaladas'], reparadas: ['reparadas'], retiradas: ['retiradas'] },
     cobertura: { semana: ['semana'], parqueCE: ['parque'], cantidadF3: ['cantidad f3', 'cantidad'], innovacion: ['innovacion'], empresasCapres: ['capres'], faltaAP: ['falta instalar', '2 o mas ap'], faltaEnlace: ['falta enlace', 'enlace entre'], variasDeficiencias: ['varias'] },
     ticketSDP: { semana: ['semana'], cfoInspecciones: ['ticket cfo', 'cfo de inspecciones'], cfoCerrados: ['ticket cerrados'], chatbotCE: ['ticket de chatbot ce', 'chatbot ce'], chatbotCerrados: ['ticket cerrados de chatbot', 'cerrados de chatbot'], chatbotProceso: ['ticket chatbot en proceso', 'chatbot en proceso'], visitas: ['ticket para visita'], visitasProceso: ['ticket para visitas en proceso', 'visitas en proceso'], visitasCerrados: ['cerrados ticket de visitas', 'cerrados ticket'] }
   };
@@ -174,7 +174,7 @@
     { key: 'mantenimiento', fn: r => weeklySheet(r, SPEC.mantenimiento, ['preventivos', 'correctivos']) },
     { key: 'anchosBanda', fn: r => weeklySheet(r, SPEC.anchosBanda, ['parque', 'teorico']) },
     { key: 'fibra', fn: r => weeklySheet(r, SPEC.fibra, ['offline']) },
-    { key: 'starlink', fn: r => blockSheet(r, SPEC.starlink, ['con antena']) },
+    { key: 'starlink', fn: r => weeklySheet(r, SPEC.starlink, ['instaladas']) },
     { key: 'cobertura', fn: r => weeklySheet(r, SPEC.cobertura, ['parque', 'cantidad']) },
     { key: 'ticketSDP', fn: r => weeklySheet(r, SPEC.ticketSDP, ['chatbot', 'ticket para visita']) },
     { key: 'dimensionamiento', fn: r => dimSheet(r) }

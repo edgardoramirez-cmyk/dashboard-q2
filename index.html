@@ -332,11 +332,11 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
 
     <!-- ===== STARLINK ===== -->
     <section class="view" id="starlink">
-      <div class="sec-head"><span class="num">07</span><h3>Starlink</h3><span class="tag">bloque 754</span></div>
+      <div class="sec-head"><span class="num">07</span><h3>Starlink</h3><span class="tag">altas · reparaciones · bajas</span></div>
       <div class="gated"><div class="kpis" id="kpiStar"></div>
       <div class="grid g2">
-        <div class="panel"><h4>Estado de antenas</h4><div class="psub">con antena vs. sin antena sobre el bloque 754</div><div class="chart-box sm"><canvas id="chStar"></canvas></div></div>
-        <div class="panel"><h4>Detalle operativo</h4><div class="psub">desglose funcional</div><div class="chart-box sm"><canvas id="chStarBar"></canvas></div></div>
+        <div class="panel"><h4>Evolución semanal</h4><div class="psub">antenas instaladas, reparadas y retiradas por semana</div><div class="chart-box sm"><canvas id="chStar"></canvas></div></div>
+        <div class="panel"><h4>Comparativo por semana</h4><div class="psub">instaladas · reparadas · retiradas</div><div class="chart-box sm"><canvas id="chStarBar"></canvas></div></div>
       </div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
@@ -564,7 +564,7 @@ const TITLES={
   mantenimiento:['Mantenimiento','Intervenciones preventivas, correctivas y garantías'],
   banda:['Anchos de banda','Verificación de velocidad, semana a semana'],
   fibra:['Cortes de fibra óptica','Enlaces afectados en el bloque F3'],
-  starlink:['Starlink','Estado de antenas satelitales'],
+  starlink:['Starlink','Antenas instaladas, reparadas y retiradas por semana'],
   cobertura:['Cobertura','Cobertura Fase 3, innovación y deficiencias'],
   dimensionamiento:['Dimensionamiento RT','Uso frente al escenario 70% por centro'],
   ticket:['Tickets SDP','Mesa de servicio: CFO, chatbot y visitas']
@@ -617,7 +617,7 @@ function renderResumen(week){
     {area:'Mantenimiento',sec:'mantenimiento',lbl:'Correctivos',val:weekVal(DATA.mantenimiento,week,'correctivos')},
     {area:'Anchos de banda',sec:'banda',lbl:'Cumple VT',val:weekVal(band,week,'cumpleVT')},
     {area:'Fibra óptica',sec:'fibra',lbl:'Enlaces offline',val:weekVal(fib,week,'enlacesOffline')},
-    {area:'Starlink',sec:'starlink',lbl:'Con antena',val:aggWeek(star,cobSnapWeek(star,week,'conAntena'),'conAntena')},
+    {area:'Starlink',sec:'starlink',lbl:'Instaladas (semana)',val:weekVal(star,week,'instaladas')},
     {area:'Cobertura',sec:'cobertura',lbl:'Falta 2+ AP',val:weekVal(cob,week,'faltaAP')},
     {area:'Dimensionamiento',sec:'dimensionamiento',lbl:'Centros en REVISAR',val:dimCounts.REVISAR},
     {area:'Tickets SDP',sec:'ticket',lbl:'Tickets CFO inspección',val:weekVal(DATA.ticketSDP,week,'cfoInspecciones')},
@@ -813,22 +813,30 @@ function renderFibra(week){
 }
 
 /* ================= 07 STARLINK ================= */
+/* Hoja rediseñada: ya no es una foto fija del bloque 754 (con antena / sin
+   antena), ahora es un conteo semanal de movimientos — instaladas,
+   reparadas y retiradas — igual de formato que fibra/mantenimiento. */
 function renderStar(week){
   const d=DATA.starlink;
   if(!gate('starlink',d,week)){ killCharts(['chStar','chStarBar']); return; }
-  const s=weekRows(d,week)[0];
+  const rows=weekRows(d,week), L=rows.map(r=>r.semana);
+  const sum=k=>rows.reduce((a,r)=>a+(r[k]||0),0);
   card('#kpiStar',[
-    {lbl:'Con antena',val:fmt(s.conAntena),cls:'good'},
-    {lbl:'Funcionales',val:fmt(s.funcionales),cls:'accent'},
-    {lbl:'Sin antena',val:fmt(s.sinAntena),cls:'bad',foot:'sobre bloque 754'},
-    {lbl:'En proceso',val:fmt(s.enProceso),cls:'warn'},
+    {lbl:'Instaladas',val:fmt(sum('instaladas')),cls:'good',foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'instaladas'))}`},
+    {lbl:'Reparadas',val:fmt(sum('reparadas')),cls:'accent'},
+    {lbl:'Retiradas',val:fmt(sum('retiradas')),cls:'bad'},
   ]);
-  mkChart('chStar',{type:'doughnut',data:{labels:['Con antena','Sin antena','En proceso'],
-    datasets:[{data:[s.conAntena,s.sinAntena,s.enProceso],backgroundColor:[C.green,C.red,C.amber],borderWidth:0}]},
-    options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'},...DONUT_LABELS}}});
-  mkChart('chStarBar',{type:'bar',data:{labels:['Con antena','Funcionales','Sin antena','En proceso'],
-    datasets:[{data:[s.conAntena,s.funcionales,s.sinAntena,s.enProceso],backgroundColor:[C.green,C.cyan,C.red,C.amber]}]},
-    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
+  mkChart('chStar',{type:'line',data:{labels:L,datasets:[
+    {label:'Instaladas',data:rows.map(r=>r.instaladas),borderColor:C.green,backgroundColor:hexToRgba(C.green,.12),fill:true,tension:.3,borderWidth:2,pointRadius:5,datalabels:{align:'top',anchor:'end'}},
+    {label:'Reparadas',data:rows.map(r=>r.reparadas),borderColor:C.cyan,tension:.3,borderWidth:2,pointRadius:5,datalabels:{align:'bottom',anchor:'start'}},
+    {label:'Retiradas',data:rows.map(r=>r.retiradas),borderColor:C.red,tension:.3,borderWidth:2,pointRadius:5,datalabels:{align:'top',anchor:'end'}}]},
+    options:{maintainAspectRatio:false,scales:baseScales(false,'22%'),plugins:{legend:bottomLegend(true)}}});
+  const tones={instaladas:C.green,reparadas:C.cyan,retiradas:C.red};
+  mkChart('chStarBar',{type:'bar',data:{labels:['Instaladas','Reparadas','Retiradas'],
+    datasets:rows.map((r,i)=>({label:r.semana,
+      data:['instaladas','reparadas','retiradas'].map(k=>r[k]),
+      backgroundColor:['instaladas','reparadas','retiradas'].map(k=>hexToRgba(tones[k],.4+.6*(i/Math.max(rows.length-1,1))))}))},
+    options:{maintainAspectRatio:false,scales:baseScales(false,'24%'),plugins:{legend:bottomLegend(rows.length>1)}}});
 }
 
 /* ================= 08 COBERTURA ================= */
