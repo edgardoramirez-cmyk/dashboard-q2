@@ -119,7 +119,7 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .panel h4{font-size:13px;font-weight:600;margin-bottom:2px}
 .panel .psub{font-size:11px;color:var(--muted);margin-bottom:14px;font-family:'IBM Plex Mono'}
 .chart-box{position:relative;height:280px}
-.chart-box.sm{height:230px}
+.chart-box.sm{height:248px}
 
 /* Filtro Preventivo/Correctivo/Garantías/Total sobre "Evolución de mantenimientos" */
 .mfilter{display:flex;gap:6px;flex-wrap:wrap;margin:-2px 0 14px}
@@ -434,6 +434,9 @@ Chart.defaults.font.family="'IBM Plex Sans',sans-serif";
 Chart.defaults.font.size=11.5;
 Chart.defaults.color='#5c6b7a';
 Object.assign(Chart.defaults.plugins.legend.labels,{boxWidth:12,boxHeight:12,usePointStyle:true,padding:14});
+/* Colchón fijo arriba/costados del canvas para que ninguna etiqueta de dato
+   quede pegada (o cortada) contra el borde del gráfico o la leyenda */
+Chart.defaults.layout.padding={top:22,right:10,left:2,bottom:2};
 
 /* Etiquetas de datos siempre visibles (sin necesitar hover), CON porcentaje,
    en todas las gráficas (barras, líneas y donas), no solo al pasar el cursor.
@@ -453,6 +456,9 @@ function pctFormatter(value, ctx){
     return Math.round(value/total*100)+'%';
   }
   if (type === 'bar') {
+    // Con una sola serie el "% del total" siempre da 100% (no aporta info) y
+    // solo agrega una segunda línea de texto que choca con la barra vecina.
+    if (ctx.chart.data.datasets.length <= 1) return val;
     let total = 0;
     ctx.chart.data.datasets.forEach(ds => { const v = ds.data[ctx.dataIndex]; if (typeof v === 'number') total += v; });
     if (!total) return val;
@@ -471,7 +477,10 @@ Chart.register(ChartDataLabels);
 Chart.defaults.set('plugins.datalabels', {
   color: '#152230',
   font: { family: "'IBM Plex Mono'", size: 9, weight: '600', lineHeight: 1.15 },
-  anchor: 'end', align: 'top', offset: 4, clip: false,
+  anchor: 'end', align: 'top', offset: 6, clip: false,
+  /* 'auto' hace que el plugin oculte automáticamente cualquier etiqueta que
+     todavía choque con otra ya dibujada, en vez de dejarlas superpuestas */
+  display: 'auto',
   formatter: pctFormatter
 });
 /* config compartida para los gráficos de barras APILADAS (el label va centrado y en blanco, dentro del segmento) */
@@ -479,10 +488,18 @@ const STACK_LABELS = { datalabels:{ anchor:'center', align:'center', color:'#fff
 /* config compartida para donas (formatter de % ya viene del default global) */
 const DONUT_LABELS = { datalabels:{ anchor:'center', align:'center', color:'#fff', font:{ family:"'IBM Plex Mono'", size:11, weight:'700' } } };
 const gridColor='rgba(0,0,0,.05)';
-const baseScales=(stacked=false)=>({
+/* `grace` reserva automáticamente un % extra de rango arriba del valor máximo
+   (y abajo del mínimo) para que las etiquetas de 2 líneas (valor + %) tengan
+   aire y no choquen con la leyenda ni con el borde del gráfico. Reemplaza la
+   necesidad de calcular un suggestedMax a mano por cada gráfico. */
+const baseScales=(stacked=false,grace='18%')=>({
   x:{stacked,grid:{display:false},ticks:{font:{family:"'IBM Plex Mono'"}}},
-  y:{stacked,grid:{color:gridColor},ticks:{font:{family:"'IBM Plex Mono'"}},beginAtZero:true}
+  y:{stacked,grid:{color:gridColor},ticks:{font:{family:"'IBM Plex Mono'"}},beginAtZero:true,grace}
 });
+/* Leyenda compacta abajo del gráfico — para los grupos con hasta 4 series
+   (una por semana) donde una leyenda arriba puede terminar pisando la
+   etiqueta de la barra más alta. */
+const bottomLegend=(show)=>({ display:show, position:'bottom', labels:{boxWidth:9,boxHeight:9,padding:8,font:{size:10}} });
 
 /* Registro de charts para poder reconstruirlos al cambiar semana/sección */
 const charts={};
@@ -729,7 +746,7 @@ function renderMant(week){
     const tones = weekShades(g.color, cur.length);
     mkChart(g.chart,{type:'bar',data:{labels:g.cats,datasets:cur.map((r,i)=>({
       label:r.semana,data:g.keys.map(k=>r[k]),backgroundColor:tones[i]}))},
-      options:{maintainAspectRatio:false,scales:baseScales(),plugins:{legend:{display:cur.length>1}}}});
+      options:{maintainAspectRatio:false,scales:baseScales(false,'24%'),plugins:{legend:bottomLegend(cur.length>1)}}});
   });
 }
 
@@ -772,11 +789,17 @@ function renderFibra(week){
   mkChart('chFibraTotal',{type:'line',data:{labels:L,datasets:[{label:'Enlaces offline',
     data:rows.map(r=>r.enlacesOffline),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
+  /* Enlaces offline y CFO (SDP) suelen viajar muy cerca en valor: se alterna
+     la etiqueta arriba/abajo del punto de cada serie para que no choquen
+     entre sí (Sin energía queda lejos de las otras dos, así que se deja arriba). */
   mkChart('chFibra',{type:'line',data:{labels:L,datasets:[
-    {label:'Enlaces offline',data:rows.map(r=>r.enlacesOffline),borderColor:C.red,backgroundColor:'rgba(214,69,69,.1)',fill:true,tension:.3,borderWidth:2,pointRadius:5},
-    {label:'CFO (SDP)',data:rows.map(r=>r.cfoSDP),borderColor:C.amber,tension:.3,borderWidth:2,pointRadius:5},
-    {label:'Sin energía',data:rows.map(r=>r.sinEnergia),borderColor:C.blue,tension:.3,borderWidth:2,pointRadius:5}]},
-    options:{maintainAspectRatio:false,scales:baseScales()}});
+    {label:'Enlaces offline',data:rows.map(r=>r.enlacesOffline),borderColor:C.red,backgroundColor:'rgba(214,69,69,.1)',fill:true,tension:.3,borderWidth:2,pointRadius:5,
+      datalabels:{align:'top',anchor:'end'}},
+    {label:'CFO (SDP)',data:rows.map(r=>r.cfoSDP),borderColor:C.amber,tension:.3,borderWidth:2,pointRadius:5,
+      datalabels:{align:'bottom',anchor:'start'}},
+    {label:'Sin energía',data:rows.map(r=>r.sinEnergia),borderColor:C.blue,tension:.3,borderWidth:2,pointRadius:5,
+      datalabels:{align:'top',anchor:'end'}}]},
+    options:{maintainAspectRatio:false,scales:baseScales(false,'22%')}});
 }
 
 /* ================= 07 STARLINK ================= */
@@ -838,7 +861,7 @@ function renderCob(week){
     const tones = weekShades(g.color, rowsWithData.length);
     mkChart(g.chart,{type:'bar',data:{labels:g.cats,datasets:rowsWithData.map((r,i)=>({
       label:r.semana,data:g.keys.map(k=>r[k]),backgroundColor:tones[i]}))},
-      options:{maintainAspectRatio:false,scales:baseScales(),plugins:{legend:{display:rowsWithData.length>1}}}});
+      options:{maintainAspectRatio:false,scales:baseScales(false,'24%'),plugins:{legend:bottomLegend(rowsWithData.length>1)}}});
   });
 }
 
