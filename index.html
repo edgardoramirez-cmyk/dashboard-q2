@@ -118,6 +118,17 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .chart-box{position:relative;height:280px}
 .chart-box.sm{height:230px}
 
+/* Filtro Preventivo/Correctivo/Garantías/Total sobre "Evolución de mantenimientos" */
+.mfilter{display:flex;gap:6px;flex-wrap:wrap;margin:-2px 0 14px}
+.mfilter button{font-family:'IBM Plex Mono';font-size:10.5px;padding:5px 12px;border-radius:20px;
+  border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;transition:.15s}
+.mfilter button:hover{border-color:var(--cyan-deep);color:var(--ink)}
+.mfilter button.active{color:#fff;border-color:transparent}
+.mfilter button.active[data-mg="total"]{background:var(--navy)}
+.mfilter button.active[data-mg="prev"]{background:var(--pink)}
+.mfilter button.active[data-mg="corr"]{background:var(--green)}
+.mfilter button.active[data-mg="gar"]{background:var(--blue)}
+
 /* Grupos de Mantenimiento (reflejan colores de la hoja de Drive) */
 .g3m{grid-template-columns:.8fr 1.25fr 1.25fr}
 .mgrp{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;border-top:3px solid transparent}
@@ -263,7 +274,15 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <section class="view" id="mantenimiento">
       <div class="sec-head"><span class="num">04</span><h3>Mantenimiento</h3><span class="tag">preventivo · correctivo · garantías</span></div>
       <div class="gated"><div class="kpis" id="kpiMant"></div>
-      <div class="panel" style="margin-bottom:16px"><h4>Evolución de mantenimientos</h4><div class="psub">intervenciones totales por semana</div><div class="chart-box sm"><canvas id="chMantTotal"></canvas></div></div>
+      <div class="panel" style="margin-bottom:16px"><h4>Evolución de mantenimientos</h4>
+        <div class="psub" id="mantEvoSub">intervenciones totales por semana</div>
+        <div class="mfilter" id="mantEvoFilter">
+          <button class="active" data-mg="total">Total</button>
+          <button data-mg="prev">Preventivo</button>
+          <button data-mg="corr">Correctivo</button>
+          <button data-mg="gar">Garantías</button>
+        </div>
+        <div class="chart-box sm"><canvas id="chMantTotal"></canvas></div></div>
       <div class="grid g3m">
         <div class="mgrp pink">
           <div class="mgrp-head"><span class="mdot"></span><h5>Preventivo</h5></div>
@@ -445,7 +464,7 @@ function gate(viewId, arr, week){
 
 /* ================= State + navegación ================= */
 const WEEKLABEL = w => w==='all' ? 'Todas las semanas' : w;
-const state={ week:'all', section:'resumen' };
+const state={ week:'all', section:'resumen', mantEvo:'total' };
 
 const TITLES={
   resumen:['Resumen ejecutivo','Panorama consolidado de 9 áreas de trabajo'],
@@ -594,27 +613,49 @@ function renderRep(week){
 /* Los 3 bloques (Preventivo / Correctivo / Garantías) reproducen la
    separación por color de la hoja DATA_MANTENIMIENTO en Drive:
    magenta = Preventivos, verde = Correctivos·UPS·Switch·Access Point,
-   azul = Garantías·Firewall·En proceso·Resueltas. */
+   azul = Garantías·Firewall·En proceso·Resueltas.
+
+   IMPORTANTE — cómo cuadran los números con el Drive:
+   en la hoja, "Correctivos" YA ES la suma de UPS+Switch+Access Point,
+   y "Garantías" ya es el total de casos de garantía (Firewall es el
+   equipo afectado y En proceso/Resueltas es su desglose de estado).
+   Por eso el TOTAL correcto es preventivos + correctivos + garantías;
+   sumar también ups/switch/accessPoint/firewall/enProceso/resueltas
+   los cuenta dos veces. */
 const MANT_GROUPS = {
   prev: { cats:['Preventivos'], keys:['preventivos'], color:C.pink, chart:'chMantPrev', sub:'mantSubPrev', subFixed:'' },
   corr: { cats:['Correctivos','UPS','Switch','Access Point'], keys:['correctivos','ups','switch','accessPoint'], color:C.green, chart:'chMantCorr', sub:'mantSubCorr', subFixed:'Correctivos · UPS · Switch · Access Point' },
   gar:  { cats:['Garantías','Firewall','En proceso','Resueltas'], keys:['garantias','firewall','enProceso','resueltas'], color:C.blue, chart:'chMantGar', sub:'mantSubGar', subFixed:'Garantías · Firewall · En proceso · Resueltas' }
 };
+/* Series disponibles para el filtro de "Evolución de mantenimientos" */
+const MANT_EVO = {
+  total:{ label:'Total intervenciones', color:C.cyan, sub:'intervenciones totales por semana',
+    val:r=>(r.preventivos==null&&r.correctivos==null&&r.garantias==null)?null:(r.preventivos||0)+(r.correctivos||0)+(r.garantias||0) },
+  prev: { label:'Preventivo', color:C.pink, sub:'intervenciones preventivas por semana', val:r=>r.preventivos },
+  corr: { label:'Correctivo', color:C.green, sub:'intervenciones correctivas por semana (UPS+Switch+Access Point)', val:r=>r.correctivos },
+  gar:  { label:'Garantías', color:C.blue, sub:'casos de garantía por semana', val:r=>r.garantias }
+};
 function renderMant(week){
   const d=DATA.mantenimiento;
   if(!gate('mantenimiento',d,week)){ killCharts(['chMantTotal','chMantPrev','chMantCorr','chMantGar']); return; }
-  const tot=r=>['preventivos','correctivos','ups','switch','accessPoint','garantias','firewall'].reduce((a,k)=>a+(r[k]||0),0);
+  const totVal=r=>(r.preventivos||0)+(r.correctivos||0)+(r.garantias||0);
   const cur=weekRows(d,week);
   card('#kpiMant',[
     {lbl:'Preventivos',val:fmt(weekVal(d,week,'preventivos')),cls:'pink'},
     {lbl:'Correctivos',val:fmt(weekVal(d,week,'correctivos')),cls:'green'},
     {lbl:'UPS intervenidos',val:fmt(weekVal(d,week,'ups')),cls:'green'},
     {lbl:'Garantías',val:fmt(weekVal(d,week,'garantias')),cls:'blue'},
-    {lbl:'Total intervenciones',val:fmt(cur.reduce((a,r)=>a+tot(r),0)),cls:'accent'},
+    {lbl:'Total intervenciones',val:fmt(cur.reduce((a,r)=>a+totVal(r),0)),cls:'accent',foot:'preventivos + correctivos + garantías'},
   ]);
-  const evo=weekRows(d,week);
-  mkChart('chMantTotal',{type:'line',data:{labels:evo.map(r=>r.semana),datasets:[{label:'Intervenciones',
-    data:evo.map(r=>tot(r)),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
+
+  // Evolución: respeta el filtro activo (Total/Preventivo/Correctivo/Garantías)
+  // y omite semanas sin dato todavía (evita el falso "cae a 0" de Semana 31).
+  const evoCfg = MANT_EVO[state.mantEvo] || MANT_EVO.total;
+  const evoRows = weekRows(d,week).filter(r=>evoCfg.val(r)!=null);
+  $('#mantEvoSub').textContent = week==='all' ? evoCfg.sub : evoCfg.sub.replace('por semana','· '+week);
+  mkChart('chMantTotal',{type:'line',data:{labels:evoRows.map(r=>r.semana),datasets:[{label:evoCfg.label,
+    data:evoRows.map(evoCfg.val),borderColor:evoCfg.color,backgroundColor:hexToRgba(evoCfg.color,.12),
+    fill:true,tension:.3,pointRadius:5,pointBackgroundColor:evoCfg.color,borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
 
   const weekLbl = week==='all' ? 'comparativo entre semanas' : 'semana · '+week;
@@ -848,6 +889,11 @@ async function initLive(){
 /* ================= Init ================= */
 $$('.nav button').forEach(b=>b.onclick=()=>showSection(b.dataset.section));
 $('#weekSel').onchange=onWeekChange;
+$$('#mantEvoFilter button').forEach(b=>b.onclick=()=>{
+  state.mantEvo=b.dataset.mg;
+  $$('#mantEvoFilter button').forEach(x=>x.classList.toggle('active', x===b));
+  renderMant(state.week);
+});
 showSection('resumen');   // 1) pinta al instante con la copia local
 initLive();               // 2) intenta refrescar desde el Sheet en vivo
 </script>
