@@ -15,6 +15,7 @@
   --ink:#152230; --muted:#5c6b7a; --line:#dde5ec;
   --cyan:#17b8c4; --cyan-deep:#0e8a94;
   --green:#2f9e63; --amber:#e0992e; --red:#d64545; --blue:#3b6fb0; --violet:#7a5cc0;
+  --pink:#a3145a;
   --sidebar-w:248px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -104,6 +105,9 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .kpi.warn{border-left:3px solid var(--amber)}
 .kpi.bad{border-left:3px solid var(--red)}
 .kpi.good{border-left:3px solid var(--green)}
+.kpi.pink{border-left:3px solid var(--pink)}
+.kpi.green{border-left:3px solid var(--green)}
+.kpi.blue{border-left:3px solid var(--blue)}
 
 .grid{display:grid;gap:16px}
 .g2{grid-template-columns:1fr 1fr}
@@ -113,6 +117,20 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .panel .psub{font-size:11px;color:var(--muted);margin-bottom:14px;font-family:'IBM Plex Mono'}
 .chart-box{position:relative;height:280px}
 .chart-box.sm{height:230px}
+
+/* Grupos de Mantenimiento (reflejan colores de la hoja de Drive) */
+.g3m{grid-template-columns:.8fr 1.25fr 1.25fr}
+.mgrp{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;border-top:3px solid transparent}
+.mgrp-head{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.mgrp-head .mdot{width:9px;height:9px;border-radius:50%;flex:none}
+.mgrp-head h5{font-size:12.5px;font-weight:600}
+.mgrp .psub{font-size:10.5px;color:var(--muted);margin:4px 0 12px;font-family:'IBM Plex Mono'}
+.mgrp.pink{border-top-color:var(--pink)}
+.mgrp.pink .mdot{background:var(--pink)}
+.mgrp.green{border-top-color:var(--green)}
+.mgrp.green .mdot{background:var(--green)}
+.mgrp.blue{border-top-color:var(--blue)}
+.mgrp.blue .mdot{background:var(--blue)}
 
 .empty-state{display:none;background:var(--card);border:1px dashed #c4d0db;border-radius:12px;padding:44px 24px;text-align:center}
 .empty-state .ico{font-size:26px}
@@ -144,7 +162,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
   :root{--sidebar-w:0px}
   .sidebar{transform:translateX(-100%)}
   .main,footer{margin-left:0}
-  .g2,.g3,.hero-stats{grid-template-columns:1fr}
+  .g2,.g3,.g3m,.hero-stats{grid-template-columns:1fr}
   .wrap,.topbar{padding-left:18px;padding-right:18px}
   .topbar{flex-wrap:wrap}
 }
@@ -243,10 +261,26 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
 
     <!-- ===== MANTENIMIENTO ===== -->
     <section class="view" id="mantenimiento">
-      <div class="sec-head"><span class="num">04</span><h3>Mantenimiento</h3><span class="tag">preventivo / correctivo</span></div>
+      <div class="sec-head"><span class="num">04</span><h3>Mantenimiento</h3><span class="tag">preventivo · correctivo · garantías</span></div>
       <div class="gated"><div class="kpis" id="kpiMant"></div>
       <div class="panel" style="margin-bottom:16px"><h4>Evolución de mantenimientos</h4><div class="psub">intervenciones totales por semana</div><div class="chart-box sm"><canvas id="chMantTotal"></canvas></div></div>
-      <div class="panel"><h4>Intervenciones por tipo</h4><div class="psub" id="mantSub">comparativo entre semanas</div><div class="chart-box sm"><canvas id="chMant"></canvas></div></div></div>
+      <div class="grid g3m">
+        <div class="mgrp pink">
+          <div class="mgrp-head"><span class="mdot"></span><h5>Preventivo</h5></div>
+          <div class="psub" id="mantSubPrev">comparativo entre semanas</div>
+          <div class="chart-box sm"><canvas id="chMantPrev"></canvas></div>
+        </div>
+        <div class="mgrp green">
+          <div class="mgrp-head"><span class="mdot"></span><h5>Correctivo · por equipo</h5></div>
+          <div class="psub" id="mantSubCorr">Correctivos · UPS · Switch · Access Point</div>
+          <div class="chart-box sm"><canvas id="chMantCorr"></canvas></div>
+        </div>
+        <div class="mgrp blue">
+          <div class="mgrp-head"><span class="mdot"></span><h5>Garantías · estado</h5></div>
+          <div class="psub" id="mantSubGar">Garantías · Firewall · En proceso · Resueltas</div>
+          <div class="chart-box sm"><canvas id="chMantGar"></canvas></div>
+        </div>
+      </div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
@@ -353,7 +387,10 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
 <script>
 /* ================= Helpers base ================= */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const C={green:'#2f9e63',amber:'#e0992e',red:'#d64545',blue:'#3b6fb0',cyan:'#17b8c4',violet:'#7a5cc0',navy:'#1d3a55',slate:'#94a7b6'};
+const C={green:'#2f9e63',amber:'#e0992e',red:'#d64545',blue:'#3b6fb0',cyan:'#17b8c4',violet:'#7a5cc0',navy:'#1d3a55',slate:'#94a7b6',pink:'#a3145a'};
+/* tonos de un mismo color por semana (más clara = semana más antigua) */
+function hexToRgba(hex,a){ const h=hex.replace('#',''); const r=parseInt(h.substring(0,2),16),g=parseInt(h.substring(2,4),16),b=parseInt(h.substring(4,6),16); return `rgba(${r},${g},${b},${a})`; }
+function weekShades(hex,n){ if(n<=1) return [hex]; return Array.from({length:n},(_,i)=>hexToRgba(hex,.4+.6*(i/(n-1)))); }
 const fmt=n=>n==null?'—':n.toLocaleString('es-SV');
 Chart.defaults.font.family="'IBM Plex Sans',sans-serif";
 Chart.defaults.font.size=11.5;
@@ -415,7 +452,7 @@ const TITLES={
   fase:['Cambios de fase','Evolución del parque y migraciones'],
   inspeccion:['Inspección','Cumplimiento F4 / F3 y pendientes'],
   reparacion:['Reparación','Flujo de casos de reparación'],
-  mantenimiento:['Mantenimiento','Intervenciones preventivas y correctivas'],
+  mantenimiento:['Mantenimiento','Intervenciones preventivas, correctivas y garantías'],
   banda:['Anchos de banda','Verificación de velocidad por bloque'],
   fibra:['Cortes de fibra óptica','Enlaces afectados en el bloque F3'],
   starlink:['Starlink','Estado de antenas satelitales'],
@@ -554,28 +591,40 @@ function renderRep(week){
 }
 
 /* ================= 04 MANTENIMIENTO ================= */
+/* Los 3 bloques (Preventivo / Correctivo / Garantías) reproducen la
+   separación por color de la hoja DATA_MANTENIMIENTO en Drive:
+   magenta = Preventivos, verde = Correctivos·UPS·Switch·Access Point,
+   azul = Garantías·Firewall·En proceso·Resueltas. */
+const MANT_GROUPS = {
+  prev: { cats:['Preventivos'], keys:['preventivos'], color:C.pink, chart:'chMantPrev', sub:'mantSubPrev', subFixed:'' },
+  corr: { cats:['Correctivos','UPS','Switch','Access Point'], keys:['correctivos','ups','switch','accessPoint'], color:C.green, chart:'chMantCorr', sub:'mantSubCorr', subFixed:'Correctivos · UPS · Switch · Access Point' },
+  gar:  { cats:['Garantías','Firewall','En proceso','Resueltas'], keys:['garantias','firewall','enProceso','resueltas'], color:C.blue, chart:'chMantGar', sub:'mantSubGar', subFixed:'Garantías · Firewall · En proceso · Resueltas' }
+};
 function renderMant(week){
   const d=DATA.mantenimiento;
-  if(!gate('mantenimiento',d,week)){ killCharts(['chMantTotal','chMant']); return; }
+  if(!gate('mantenimiento',d,week)){ killCharts(['chMantTotal','chMantPrev','chMantCorr','chMantGar']); return; }
   const tot=r=>['preventivos','correctivos','ups','switch','accessPoint','garantias','firewall'].reduce((a,k)=>a+(r[k]||0),0);
   const cur=weekRows(d,week);
   card('#kpiMant',[
-    {lbl:'Correctivos',val:fmt(weekVal(d,week,'correctivos')),cls:'warn'},
-    {lbl:'UPS intervenidos',val:fmt(weekVal(d,week,'ups')),cls:'accent'},
-    {lbl:'Switch',val:fmt(weekVal(d,week,'switch'))},
-    {lbl:'Total intervenciones',val:fmt(cur.reduce((a,r)=>a+tot(r),0)),cls:'good'},
+    {lbl:'Preventivos',val:fmt(weekVal(d,week,'preventivos')),cls:'pink'},
+    {lbl:'Correctivos',val:fmt(weekVal(d,week,'correctivos')),cls:'green'},
+    {lbl:'UPS intervenidos',val:fmt(weekVal(d,week,'ups')),cls:'green'},
+    {lbl:'Garantías',val:fmt(weekVal(d,week,'garantias')),cls:'blue'},
+    {lbl:'Total intervenciones',val:fmt(cur.reduce((a,r)=>a+tot(r),0)),cls:'accent'},
   ]);
   const evo=weekRows(d,week);
   mkChart('chMantTotal',{type:'line',data:{labels:evo.map(r=>r.semana),datasets:[{label:'Intervenciones',
     data:evo.map(r=>tot(r)),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
-  const cats=['Preventivos','Correctivos','UPS','Switch','Access Point','Garantías','Firewall','En proceso','Resueltas'];
-  const keys=['preventivos','correctivos','ups','switch','accessPoint','garantias','firewall','enProceso','resueltas'];
-  const palette=[C.slate,C.cyan,C.blue,C.amber];
-  $('#mantSub').textContent = week==='all' ? 'comparativo entre semanas' : 'intervenciones · '+week;
-  mkChart('chMant',{type:'bar',data:{labels:cats,datasets:cur.map((r,i)=>({
-    label:r.semana,data:keys.map(k=>r[k]),backgroundColor:palette[i%palette.length]}))},
-    options:{maintainAspectRatio:false,scales:baseScales()}});
+
+  const weekLbl = week==='all' ? 'comparativo entre semanas' : 'semana · '+week;
+  Object.values(MANT_GROUPS).forEach(g=>{
+    $('#'+g.sub).textContent = g.subFixed ? g.subFixed+' — '+weekLbl : weekLbl;
+    const tones = weekShades(g.color, cur.length);
+    mkChart(g.chart,{type:'bar',data:{labels:g.cats,datasets:cur.map((r,i)=>({
+      label:r.semana,data:g.keys.map(k=>r[k]),backgroundColor:tones[i]}))},
+      options:{maintainAspectRatio:false,scales:baseScales(),plugins:{legend:{display:cur.length>1}}}});
+  });
 }
 
 /* ================= 05 ANCHOS DE BANDA ================= */
