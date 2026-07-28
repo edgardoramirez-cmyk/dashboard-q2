@@ -60,14 +60,15 @@ El dashboard puede leer el Google Sheet **cada vez que alguien lo abre**, sin qu
 Para activarlo, una sola vez:
 
 1. Abre el Google Sheet y compártelo: **Compartir → Acceso general → "Cualquiera con el enlace" (Lector)**. Es necesario para que el navegador de quien abra el dashboard pueda leerlo.
-2. Copia el `gid` de cada pestaña: al hacer clic en una pestaña, la URL termina en algo como `#gid=2114092089`. Ese número es el `gid` de esa hoja.
-3. Pega cada `gid` en **`config.js`** (hay una línea por hoja, con el nombre de la pestaña al lado).
-4. Sube `config.js` a GitHub. Listo: los cambios que hagas en Drive se reflejan solos.
+2. En **`config.js`**, bajo `sheets`, escribe el **nombre exacto de cada pestaña** tal cual aparece en la pestañita de abajo del Sheet (ej. `"Starlink"`, `"Cobertura"`, `"Dimensionamiento RT"`). No hace falta copiar ningún número de la URL.
+3. Sube `config.js` a GitHub. Listo: los cambios que hagas en Drive se reflejan solos, cada vez que alguien abre el dashboard.
 
 Notas:
 - Puedes llenar solo algunas hojas; las que dejes en blanco seguirán mostrando la copia local.
 - Si el Sheet está privado o sin conexión, el dashboard **no se rompe**: usa `data.js` y muestra "Copia local".
-- La conexión en vivo requiere que el Sheet sea de lectura pública (cualquiera con el enlace). Si prefieres mantenerlo privado, no configures los `gid` y actualiza `data.js` cuando toque.
+- La conexión en vivo requiere que el Sheet sea de lectura pública (cualquiera con el enlace). Si prefieres mantenerlo privado, no configures `sheets` y actualiza `data.js` cuando toque.
+- **Si borrás y volvés a crear una pestaña** (en vez de solo renombrarla o vaciarla), solo tenés que confirmar que el nombre en `config.js` siga coincidiendo — no hay ningún ID interno que se rompa, como pasaba antes con el `gid`.
+- **Importante:** el "En vivo" solo trae datos actualizados si la ESTRUCTURA de columnas de la hoja no cambió (mismos encabezados). Si agregás o renombrás columnas — como pasó con "Modelo de router" en Dimensionamiento o el rediseño de Starlink — el dashboard va a necesitar un ajuste de código además de la actualización de datos. Para simples ediciones de valores dentro de las mismas columnas, no hace falta tocar nada más.
 
 ## Cómo actualizar los datos manualmente (sin conexión en vivo)
 

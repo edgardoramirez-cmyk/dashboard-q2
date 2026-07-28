@@ -192,12 +192,18 @@
   /* ---------- API pública para pruebas y navegador ---------- */
   const LIVE = { parseCSV, weeklySheet, blockSheet, dimSheet, SPEC, PLAN, norm, num, weekNorm };
 
-  function gvizURL(id, gid) {
-    return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&gid=${encodeURIComponent(gid)}`;
+  /* Se identifica la pestaña por NOMBRE (como aparece en la pestañita de
+     abajo en Sheets) en vez de por "gid" numérico. El gid es un ID interno
+     que cambia si la pestaña se borra y se vuelve a crear (justo lo que
+     rompió Starlink) — el nombre es estable y es lo que la persona que
+     edita el Sheet realmente ve y controla. */
+  function gvizURL(id, sheetOrGid, byGid) {
+    const param = byGid ? `gid=${encodeURIComponent(sheetOrGid)}` : `sheet=${encodeURIComponent(sheetOrGid)}`;
+    return `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&${param}`;
   }
 
-  async function fetchSheet(id, gid) {
-    const res = await fetch(gvizURL(id, gid), { cache: 'no-store' });
+  async function fetchSheet(id, sheetOrGid, byGid) {
+    const res = await fetch(gvizURL(id, sheetOrGid, byGid), { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return parseCSV(await res.text());
   }
@@ -206,13 +212,18 @@
   LIVE.refresh = async function (opts) {
     const cfg = (glob.LIVE_CONFIG) || {};
     if (!cfg.enabled) return { ok: 0, failed: [], disabled: true };
-    const id = cfg.spreadsheetId, gids = cfg.gids || {};
+    const id = cfg.spreadsheetId;
+    const sheets = cfg.sheets || {};      // config nueva: nombre de pestaña
+    const gids = cfg.gids || {};          // config vieja: gid (se respeta si todavía la usás)
     const failed = []; let ok = 0;
     await Promise.all(PLAN.map(async ({ key, fn }) => {
+      const sheetName = sheets[key];
       const gid = gids[key];
-      if (!gid) { failed.push(key); return; }        // sin gid → se queda con copia local
+      if (!sheetName && !gid) { failed.push(key); return; }   // sin nombre ni gid → se queda con copia local
       try {
-        const rows = await fetchSheet(id, gid);
+        const rows = sheetName
+          ? await fetchSheet(id, sheetName, false)
+          : await fetchSheet(id, gid, true);
         const parsed = fn(rows);
         if (!parsed) { failed.push(key); return; }
         if (key === 'dimensionamiento') {

@@ -37,7 +37,8 @@ var DATA = {
   // --- Hoja: DATA_MANTENIMIENTO ---
   mantenimiento: [
     { semana: "Semana 28", preventivos: 0, correctivos: 1, ups: 1, switch: 0, accessPoint: 0, garantias: 0, firewall: 0, enProceso: null, resueltas: 0 },
-    { semana: "Semana 29", preventivos: 0, correctivos: 2, ups: 1, switch: 1, accessPoint: 0, garantias: 4, firewall: 4, enProceso: 3, resueltas: 1 }
+    { semana: "Semana 29", preventivos: 0, correctivos: 2, ups: 1, switch: 1, accessPoint: 0, garantias: 4, firewall: 4, enProceso: 3, resueltas: 1 },
+    { semana: "Semana 30", preventivos: 0, correctivos: 2, ups: 1, switch: 1, accessPoint: 0, garantias: 5, firewall: 5, enProceso: 4, resueltas: 1 }
   ],
 
   // --- Hoja: Anchos de Banda (1 fila consolidada por semana) ---
