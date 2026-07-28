@@ -456,13 +456,23 @@ function pctFormatter(value, ctx){
     return Math.round(value/total*100)+'%';
   }
   if (type === 'bar') {
-    // Con una sola serie el "% del total" siempre da 100% (no aporta info) y
-    // solo agrega una segunda línea de texto que choca con la barra vecina.
-    if (ctx.chart.data.datasets.length <= 1) return val;
+    const stacked = !!(ctx.chart.options.scales && ctx.chart.options.scales.y && ctx.chart.options.scales.y.stacked);
+    if (!stacked) {
+      // Barras agrupadas: cada serie suele ser una métrica distinta
+      // (p.ej. Migrados Q3 / Migrados Q1 / Ingresan Q2), así que un "% del
+      // total" mezclando esas métricas no es un dato comparable — y esa
+      // segunda línea era justo lo que hacía chocar una barra angosta con
+      // la de al lado (o la ocultaba). Se muestra solo el valor.
+      return val;
+    }
+    // Apiladas: las series SÍ son partes de una misma torta (cumple/no
+    // cumple/pendientes), así que el % es un dato útil. Va en una sola
+    // línea ("valor · %") para que quepa en segmentos angostos sin
+    // desbordarse ni superponerse con el segmento vecino.
     let total = 0;
     ctx.chart.data.datasets.forEach(ds => { const v = ds.data[ctx.dataIndex]; if (typeof v === 'number') total += v; });
     if (!total) return val;
-    return [val, Math.round(value/total*100)+'%'];
+    return val + ' · ' + Math.round(value/total*100) + '%';
   }
   if (type === 'line') {
     const arr = ctx.dataset.data;
