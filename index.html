@@ -988,8 +988,9 @@ function setLive(mode,msg){
 async function initLive(){
   const cfg=window.LIVE_CONFIG;
   if(!cfg||!cfg.enabled||!window.LIVE){ setLive('local'); return; }
-  const gids=cfg.gids||{};
-  if(!Object.values(gids).some(v=>v&&v.toString().trim())){ setLive('local'); return; }
+  const sheets=cfg.sheets||{}, gids=cfg.gids||{};
+  const hasTarget=v=>v&&v.toString().trim();
+  if(!Object.values(sheets).some(hasTarget) && !Object.values(gids).some(hasTarget)){ setLive('local'); return; }
   setLive('loading');
   try{
     const res=await LIVE.refresh({ onDim:setDimRows });
