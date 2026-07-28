@@ -146,7 +146,7 @@
 
   /* ---------- especificaciones de columnas por hoja ---------- */
   const SPEC = {
-    cambiosFase: { semana: ['semana'], parque: ['parque'], migradosQ3: ['migrados q3', 'q3'], migradosQ1: ['migrados q1', 'q1'], ingresanQ2: ['ingresan q2', 'ingresan'] },
+    cambiosFase: { semana: ['semana'], parque: ['parque'], migradosQ3: ['migrados q3', 'q3'], migradosQ1: ['migrados q1', 'q1'], ingresanQ2: ['ingresan q2', 'ingresan'], sinFaseF3: ['sin fase a f3', 'sin fase'] },
     inspeccion: { semana: ['semana'], totalCE: ['total ce'], inspecciones: ['inspecciones'], visitas: ['visitas'], cumpleF4: ['f4'], noCumpleF3: ['f3'], hallazgos: ['hallazgos'], revisiones: ['revisiones'], pctRevision: ['%'], pendientes: ['pendientes'] },
     reparacion: { semana: ['semana'], cola: ['cola'], reparados: ['reparados'], casosNuevos: ['casos nuevos', 'nuevos'], enProceso: ['en proceso', 'proceso'], pendientes: ['pendientes'] },
     mantenimiento: { semana: ['semana'], preventivos: ['preventivos'], correctivos: ['correctivos'], ups: ['ups'], switch: ['switch'], accessPoint: ['access point', 'access'], garantias: ['garant'], firewall: ['firewall'], enProceso: ['en proceso', 'proceso'], resueltas: ['resueltas'] },

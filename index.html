@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
 :root{
   --navy:#0d1b2a; --navy-2:#14273d; --navy-3:#1d3a55;
@@ -250,7 +251,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
       <div class="gated"><div class="kpis" id="kpiFase"></div>
       <div class="grid g2">
         <div class="panel"><h4>Evolución del parque</h4><div class="psub">centros escolares activos</div><div class="chart-box sm"><canvas id="chFaseParque"></canvas></div></div>
-        <div class="panel"><h4>Migraciones</h4><div class="psub">Q3 · Q1 · ingresos Q2</div><div class="chart-box sm"><canvas id="chFaseMig"></canvas></div></div>
+        <div class="panel"><h4>Migraciones</h4><div class="psub">Q3 · Q1 · ingresos Q2 · sin fase a F3</div><div class="chart-box sm"><canvas id="chFaseMig"></canvas></div></div>
       </div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
@@ -433,6 +434,50 @@ Chart.defaults.font.family="'IBM Plex Sans',sans-serif";
 Chart.defaults.font.size=11.5;
 Chart.defaults.color='#5c6b7a';
 Object.assign(Chart.defaults.plugins.legend.labels,{boxWidth:12,boxHeight:12,usePointStyle:true,padding:14});
+
+/* Etiquetas de datos siempre visibles (sin necesitar hover), CON porcentaje,
+   en todas las gráficas (barras, líneas y donas), no solo al pasar el cursor.
+   - Barras: valor + % que representa esa barra sobre el total de su columna
+     (todas las series en ese mismo punto del eje X) — funciona igual para
+     barras apiladas y agrupadas.
+   - Líneas: valor + variación % contra el punto anterior de la misma serie.
+   - Donas: % del total (ya no hace falta pasar el cursor). */
+function pctFormatter(value, ctx){
+  if (value == null) return '';
+  const val = value.toLocaleString('es-SV');
+  const type = ctx.chart.config.type;
+  if (type === 'doughnut' || type === 'pie') {
+    const arr = ctx.chart.data.datasets[0].data;
+    const total = arr.reduce((a,b)=>a+(b||0),0);
+    if (!total) return '';
+    return Math.round(value/total*100)+'%';
+  }
+  if (type === 'bar') {
+    let total = 0;
+    ctx.chart.data.datasets.forEach(ds => { const v = ds.data[ctx.dataIndex]; if (typeof v === 'number') total += v; });
+    if (!total) return val;
+    return [val, Math.round(value/total*100)+'%'];
+  }
+  if (type === 'line') {
+    const arr = ctx.dataset.data;
+    const prev = ctx.dataIndex > 0 ? arr[ctx.dataIndex-1] : null;
+    if (prev==null || prev===0) return val;
+    const d = Math.round((value-prev)/Math.abs(prev)*100);
+    return [val, (d>0?'+':'')+d+'%'];
+  }
+  return val;
+}
+Chart.register(ChartDataLabels);
+Chart.defaults.set('plugins.datalabels', {
+  color: '#152230',
+  font: { family: "'IBM Plex Mono'", size: 9, weight: '600', lineHeight: 1.15 },
+  anchor: 'end', align: 'top', offset: 4, clip: false,
+  formatter: pctFormatter
+});
+/* config compartida para los gráficos de barras APILADAS (el label va centrado y en blanco, dentro del segmento) */
+const STACK_LABELS = { datalabels:{ anchor:'center', align:'center', color:'#fff', font:{ family:"'IBM Plex Mono'", size:8, weight:'700', lineHeight:1.1 } } };
+/* config compartida para donas (formatter de % ya viene del default global) */
+const DONUT_LABELS = { datalabels:{ anchor:'center', align:'center', color:'#fff', font:{ family:"'IBM Plex Mono'", size:11, weight:'700' } } };
 const gridColor='rgba(0,0,0,.05)';
 const baseScales=(stacked=false)=>({
   x:{stacked,grid:{display:false},ticks:{font:{family:"'IBM Plex Mono'"}}},
@@ -566,6 +611,7 @@ function renderFase(week){
     {lbl:'Migrados Q3',val:fmt(weekVal(f,week,'migradosQ3')),foot:'centros migrados'},
     {lbl:'Migrados Q1',val:fmt(weekVal(f,week,'migradosQ1'))},
     {lbl:'Ingresan Q2',val:fmt(weekVal(f,week,'ingresanQ2')),cls:'good',foot:'nuevos ingresos'},
+    {lbl:'Sin fase a F3',val:fmt(weekVal(f,week,'sinFaseF3')),cls:'bad',foot:'quedan fuera de F3'},
   ]);
   const rows=weekRows(f,week), L=rows.map(r=>r.semana);
   mkChart('chFaseParque',{type:'line',data:{labels:L,datasets:[{label:'Parque',
@@ -574,7 +620,8 @@ function renderFase(week){
   mkChart('chFaseMig',{type:'bar',data:{labels:L,datasets:[
     {label:'Migrados Q3',data:rows.map(r=>r.migradosQ3),backgroundColor:C.blue},
     {label:'Migrados Q1',data:rows.map(r=>r.migradosQ1),backgroundColor:C.violet},
-    {label:'Ingresan Q2',data:rows.map(r=>r.ingresanQ2),backgroundColor:C.green}]},
+    {label:'Ingresan Q2',data:rows.map(r=>r.ingresanQ2),backgroundColor:C.green},
+    {label:'Sin fase a F3',data:rows.map(r=>r.sinFaseF3),backgroundColor:C.red}]},
     options:{maintainAspectRatio:false,scales:baseScales()}});
 }
 
@@ -597,11 +644,11 @@ function renderInsp(week){
     {label:'Cumple (F4)',data:rows.map(r=>r.cumpleF4),backgroundColor:C.green},
     {label:'No cumple (F3)',data:rows.map(r=>r.noCumpleF3),backgroundColor:C.red},
     {label:'Pendientes',data:rows.map(r=>r.pendientes),backgroundColor:C.amber}]},
-    options:{maintainAspectRatio:false,scales:baseScales(true)}});
+    options:{maintainAspectRatio:false,scales:baseScales(true),plugins:STACK_LABELS}});
   const cf=weekVal(d,week,'cumpleF4'), nf=weekVal(d,week,'noCumpleF3'), hz=weekVal(d,week,'hallazgos');
   mkChart('chInspDonut',{type:'doughnut',data:{labels:['Cumple (F4)','No cumple (F3)','Hallazgos'],
     datasets:[{data:[cf,nf,hz],backgroundColor:[C.green,C.red,C.violet],borderWidth:0}]},
-    options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'}}}});
+    options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'},...DONUT_LABELS}}});
 }
 
 /* ================= 03 REPARACION ================= */
@@ -704,11 +751,11 @@ function renderBanda(week){
     {label:'Cumple VT',data:rows.map(r=>r.cumpleVT),backgroundColor:C.green},
     {label:'No cumple VT',data:rows.map(r=>r.noCumpleVT),backgroundColor:C.red},
     {label:'Sin verificar VT',data:rows.map(r=>r.sinVerificarVT),backgroundColor:C.amber}]},
-    options:{maintainAspectRatio:false,scales:baseScales(true)}});
+    options:{maintainAspectRatio:false,scales:baseScales(true),plugins:STACK_LABELS}});
   mkChart('chBandaTeo',{type:'bar',data:{labels:L,datasets:[
     {label:'Cumple teórico',data:rows.map(r=>r.cumpleTeorico),backgroundColor:C.blue},
     {label:'No cumple teórico',data:rows.map(r=>r.noCumpleTeorico),backgroundColor:C.violet}]},
-    options:{maintainAspectRatio:false,scales:baseScales(true)}});
+    options:{maintainAspectRatio:false,scales:baseScales(true),plugins:STACK_LABELS}});
 }
 
 /* ================= 06 FIBRA ================= */
@@ -745,7 +792,7 @@ function renderStar(week){
   ]);
   mkChart('chStar',{type:'doughnut',data:{labels:['Con antena','Sin antena','En proceso'],
     datasets:[{data:[s.conAntena,s.sinAntena,s.enProceso],backgroundColor:[C.green,C.red,C.amber],borderWidth:0}]},
-    options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'}}}});
+    options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'},...DONUT_LABELS}}});
   mkChart('chStarBar',{type:'bar',data:{labels:['Con antena','Funcionales','Sin antena','En proceso'],
     datasets:[{data:[s.conAntena,s.funcionales,s.sinAntena,s.enProceso],backgroundColor:[C.green,C.cyan,C.red,C.amber]}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
@@ -823,7 +870,7 @@ function renderDim(week){
   $('#dimTag').textContent='enfoque 754 · '+rows.length+' centros';
   mkChart('chDimDonut',{type:'doughnut',data:{labels:['REVISAR','AJUSTADO','SI'],
     datasets:[{data:[counts.REVISAR,counts.AJUSTADO,counts.SI],backgroundColor:[C.amber,C.green,C.blue],borderWidth:0}]},
-    options:{maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom'}}}});
+    options:{maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom'},...DONUT_LABELS}}});
   const bins=[['<70%',0],['70–100%',0],['100–200%',0],['200–400%',0],['>400%',0]];
   rows.forEach(r=>{const p=r.pct;
     if(p<70)bins[0][1]++;else if(p<=100)bins[1][1]++;else if(p<=200)bins[2][1]++;else if(p<=400)bins[3][1]++;else bins[4][1]++;});
@@ -871,7 +918,7 @@ function renderTicket(week){
     options:{maintainAspectRatio:false,scales:baseScales()}});
   mkChart('chTicketDonut',{type:'doughnut',data:{labels:['CFO','Chatbot','Visitas'],
     datasets:[{data:[t.cfoCerrados,t.chatbotCerrados,t.visitasCerrados],backgroundColor:[C.cyan,C.violet,C.green],borderWidth:0}]},
-    options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'}}}});
+    options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'},...DONUT_LABELS}}});
 }
 
 /* ================= Datos en vivo ================= */

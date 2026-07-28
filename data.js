@@ -8,29 +8,30 @@ var DATA = {
   meta: {
     titulo: "Dashboard Gerencial · Q2",
     fuente: "Google Sheets — Dashboard Q2",
-    actualizado: "Semana 30 (carga parcial) · Semana 29 completa",
-    semanas: ["Semana 28", "Semana 29", "Semana 30"]
+    actualizado: "Semana 30 completa · Semana 31 en carga",
+    semanas: ["Semana 28", "Semana 29", "Semana 30", "Semana 31"]
   },
 
   // --- Hoja: Cambios Fase ---
   cambiosFase: [
-    { semana: "Semana 28", parque: 1083, migradosQ3: 83, migradosQ1: 4, ingresanQ2: 15 },
-    { semana: "Semana 29", parque: 1011, migradosQ3: 48, migradosQ1: 4, ingresanQ2: 3 },
-    { semana: "Semana 30", parque: 962,  migradosQ3: null, migradosQ1: null, ingresanQ2: null }
+    { semana: "Semana 28", parque: 1083, migradosQ3: 83, migradosQ1: 4,  ingresanQ2: 15, sinFaseF3: 0 },
+    { semana: "Semana 29", parque: 1011, migradosQ3: 48, migradosQ1: 4,  ingresanQ2: 3,  sinFaseF3: 0 },
+    { semana: "Semana 30", parque: 962,  migradosQ3: 36, migradosQ1: 17, ingresanQ2: 40, sinFaseF3: 34 },
+    { semana: "Semana 31", parque: 983,  migradosQ3: null, migradosQ1: null, ingresanQ2: null, sinFaseF3: null }
   ],
 
   // --- Hoja: DATA_INSPECCION ---
   inspeccion: [
     { semana: "Semana 28", totalCE: 398, inspecciones: 272, visitas: 390, cumpleF4: 148, noCumpleF3: 116, hallazgos: 8,  revisiones: 86,  pctRevision: 32,  pendientes: 186 },
     { semana: "Semana 29", totalCE: 180, inspecciones: 121, visitas: 180, cumpleF4: 69,  noCumpleF3: 39,  hallazgos: 13, revisiones: 121, pctRevision: 100, pendientes: 0 },
-    { semana: "Semana 30", totalCE: null, inspecciones: null, visitas: null, cumpleF4: null, noCumpleF3: null, hallazgos: null, revisiones: null, pctRevision: null, pendientes: null }
+    { semana: "Semana 30", totalCE: 128,  inspecciones: 70,   visitas: 128,  cumpleF4: 34,   noCumpleF3: 33,   hallazgos: 3,    revisiones: 70,   pctRevision: 100, pendientes: 0 }
   ],
 
   // --- Hoja: DATA_REPARACION ---
   reparacion: [
     { semana: "Semana 28", cola: 17, reparados: 10, casosNuevos: 7,  enProceso: 0,  pendientes: 14 },
     { semana: "Semana 29", cola: 14, reparados: 22, casosNuevos: 18, enProceso: 2,  pendientes: 8 },
-    { semana: "Semana 30", cola: 8,  reparados: 0,  casosNuevos: 10, enProceso: 11, pendientes: 7 }
+    { semana: "Semana 30", cola: 8,  reparados: 17, casosNuevos: 14, enProceso: 1,  pendientes: 4 }
   ],
 
   // --- Hoja: DATA_MANTENIMIENTO ---
@@ -50,13 +51,14 @@ var DATA = {
   fibra: [
     { semana: "Semana 28", parque: 1083, bloque: "F3", enlacesOffline: 344, cfoSDP: 297, sinEnergia: 47 },
     { semana: "Semana 29", parque: 1011, bloque: "F3", enlacesOffline: 325, cfoSDP: 275, sinEnergia: 50 },
-    { semana: "Semana 30", parque: 962,  bloque: "F3", enlacesOffline: 332, cfoSDP: 293, sinEnergia: 38 }
+    { semana: "Semana 30", parque: 962,  bloque: "F3", enlacesOffline: 305, cfoSDP: 280, sinEnergia: 25 }
   ],
 
   // --- Hoja: Starlink (Semana 28) ---
   starlink: [
     { semana: "Semana 28", bloque: "754", conAntena: 69, funcionales: 30, sinAntena: 685, enProceso: 3, codigosReparar: "111371, 10249, 12247" },
-    { semana: "Semana 29", bloque: "754", conAntena: 69, funcionales: 30, sinAntena: 685, enProceso: 3, codigosReparar: "111371, 10249, 12247" }
+    { semana: "Semana 29", bloque: "754", conAntena: 69, funcionales: 30, sinAntena: 685, enProceso: 3, codigosReparar: "111371, 10249, 12247" },
+    { semana: "Semana 30", bloque: "754", conAntena: 69, funcionales: 30, sinAntena: 685, enProceso: 3, codigosReparar: "111371, 10249, 12247" }
   ],
 
   // --- Hoja: Cobertura (1 fila consolidada por semana) ---
@@ -67,9 +69,9 @@ var DATA = {
     { semana: "Semana 31", parqueCE: 983,  cantidadF3: 378, innovacion: 348, empresasCapres: 30, faltaAP: 368, faltaEnlace: 0,  variasDeficiencias: 10 }
   ],
 
-  // --- Hoja: TICKET SDP ---
+  // --- Hoja: TICKET SDP (arranca en Semana 30 en el Drive) ---
   ticketSDP: [
-    { semana: "Semana 29", cfoInspecciones: 24, cfoCerrados: 45, chatbotCE: 45, chatbotCerrados: 15, chatbotProceso: 30, visitas: 28, visitasProceso: 25, visitasCerrados: 3 }
+    { semana: "Semana 30", cfoInspecciones: 42, cfoCerrados: 40, chatbotCE: 46, chatbotCerrados: 34, chatbotProceso: 12, visitas: 28, visitasProceso: 17, visitasCerrados: 11 }
   ],
 
   // --- Hoja: Dimensionamiento RT — resumen de cumplimiento ---
