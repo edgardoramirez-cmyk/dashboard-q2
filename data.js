@@ -59,12 +59,12 @@ var DATA = {
     { semana: "Semana 29", bloque: "754", conAntena: 69, funcionales: 30, sinAntena: 685, enProceso: 3, codigosReparar: "111371, 10249, 12247" }
   ],
 
-  // --- Hoja: Cobertura (Semana 28) ---
+  // --- Hoja: Cobertura (1 fila consolidada por semana) ---
   cobertura: [
-    { semana: "Semana 28", bloque: "Q2 = F3", parqueCE: 1083, cantidadF3: 200, innovacion: 173, empresasCapres: 27, faltaAP: 172, faltaEnlace: 8, variasDeficiencias: 20 },
-    { semana: "Semana 28", bloque: "754",     parqueCE: 754,  cantidadF3: 49,  innovacion: 34,  empresasCapres: 15, faltaAP: 44,  faltaEnlace: 2, variasDeficiencias: 3 },
-    { semana: "Semana 29", bloque: "Q2 = F3", parqueCE: 1011, cantidadF3: 196, innovacion: 174, empresasCapres: 22, faltaAP: 173, faltaEnlace: 6, variasDeficiencias: 17 },
-    { semana: "Semana 29", bloque: "754",     parqueCE: 754,  cantidadF3: 45,  innovacion: 33,  empresasCapres: 12, faltaAP: 36,  faltaEnlace: 3, variasDeficiencias: 6 }
+    { semana: "Semana 28", parqueCE: 1083, cantidadF3: 200, innovacion: 173, empresasCapres: 27, faltaAP: 172, faltaEnlace: 8,  variasDeficiencias: 20 },
+    { semana: "Semana 29", parqueCE: 1011, cantidadF3: 196, innovacion: 174, empresasCapres: 22, faltaAP: 173, faltaEnlace: 6,  variasDeficiencias: 17 },
+    { semana: "Semana 30", parqueCE: 962,  cantidadF3: 179, innovacion: 162, empresasCapres: 17, faltaAP: 158, faltaEnlace: 5,  variasDeficiencias: 16 },
+    { semana: "Semana 31", parqueCE: 983,  cantidadF3: 378, innovacion: 348, empresasCapres: 30, faltaAP: 368, faltaEnlace: 0,  variasDeficiencias: 10 }
   ],
 
   // --- Hoja: TICKET SDP ---

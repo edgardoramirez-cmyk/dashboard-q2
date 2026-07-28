@@ -108,6 +108,8 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .kpi.pink{border-left:3px solid var(--pink)}
 .kpi.green{border-left:3px solid var(--green)}
 .kpi.blue{border-left:3px solid var(--blue)}
+.kpi.red{border-left:3px solid var(--red)}
+.kpi.amber{border-left:3px solid var(--amber)}
 
 .grid{display:grid;gap:16px}
 .g2{grid-template-columns:1fr 1fr}
@@ -142,6 +144,10 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .mgrp.green .mdot{background:var(--green)}
 .mgrp.blue{border-top-color:var(--blue)}
 .mgrp.blue .mdot{background:var(--blue)}
+.mgrp.red{border-top-color:var(--red)}
+.mgrp.red .mdot{background:var(--red)}
+.mgrp.amber{border-top-color:var(--amber)}
+.mgrp.amber .mdot{background:var(--amber)}
 
 .empty-state{display:none;background:var(--card);border:1px dashed #c4d0db;border-radius:12px;padding:44px 24px;text-align:center}
 .empty-state .ico{font-size:26px}
@@ -336,14 +342,26 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
 
     <!-- ===== COBERTURA ===== -->
     <section class="view" id="cobertura">
-      <div class="sec-head"><span class="num">08</span><h3>Cobertura</h3><span class="tag">deficiencias detectadas</span></div>
+      <div class="sec-head"><span class="num">08</span><h3>Cobertura</h3><span class="tag">cobertura · innovación · deficiencias</span></div>
       <div class="gated"><div class="kpis" id="kpiCob"></div>
-      <div class="grid g2">
-        <div class="panel"><h4>Deficiencias por bloque</h4><div class="psub" id="cobSub">foto semanal por bloque</div><div class="chart-box"><canvas id="chCob"></canvas></div></div>
-        <div class="panel"><h4>Evolución de deficiencias</h4><div class="psub">total por semana · falta AP + enlace + varias</div><div class="chart-box"><canvas id="chCobEvo"></canvas></div></div>
-      </div>
-      <div class="panel" style="margin-top:16px"><h4>Comparativo histórico por bloque y semana</h4><div class="psub">cada bloque de cada semana, métrica por métrica</div><div class="chart-box"><canvas id="chCobHist"></canvas></div></div>
-      </div>
+      <div class="panel" style="margin-bottom:16px"><h4>Histórico · Cantidad F3 Cobertura</h4><div class="psub" id="cobF3Sub">centros con cobertura Fase 3, por semana</div><div class="chart-box sm"><canvas id="chCobF3"></canvas></div></div>
+      <div class="grid g3m">
+        <div class="mgrp green">
+          <div class="mgrp-head"><span class="mdot"></span><h5>Cobertura</h5></div>
+          <div class="psub" id="cobSubGreen">Parque CE · Cantidad F3</div>
+          <div class="chart-box sm"><canvas id="chCobGreen"></canvas></div>
+        </div>
+        <div class="mgrp red">
+          <div class="mgrp-head"><span class="mdot"></span><h5>Innovación</h5></div>
+          <div class="psub" id="cobSubRed">Innovación · Empresas CAPRES</div>
+          <div class="chart-box sm"><canvas id="chCobRed"></canvas></div>
+        </div>
+        <div class="mgrp amber">
+          <div class="mgrp-head"><span class="mdot"></span><h5>Deficiencias</h5></div>
+          <div class="psub" id="cobSubAmber">Falta 2+ AP · Falta enlace · Varias deficiencias</div>
+          <div class="chart-box sm"><canvas id="chCobAmber"></canvas></div>
+        </div>
+      </div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
@@ -475,7 +493,7 @@ const TITLES={
   banda:['Anchos de banda','Verificación de velocidad, semana a semana'],
   fibra:['Cortes de fibra óptica','Enlaces afectados en el bloque F3'],
   starlink:['Starlink','Estado de antenas satelitales'],
-  cobertura:['Cobertura','Deficiencias de cobertura detectadas'],
+  cobertura:['Cobertura','Cobertura Fase 3, innovación y deficiencias'],
   dimensionamiento:['Dimensionamiento RT','Uso frente al escenario 70% por centro'],
   ticket:['Tickets SDP','Mesa de servicio: CFO, chatbot y visitas']
 };
@@ -528,7 +546,7 @@ function renderResumen(week){
     {area:'Anchos de banda',sec:'banda',lbl:'Cumple VT',val:weekVal(band,week,'cumpleVT')},
     {area:'Fibra óptica',sec:'fibra',lbl:'Enlaces offline',val:weekVal(fib,week,'enlacesOffline')},
     {area:'Starlink',sec:'starlink',lbl:'Con antena',val:aggWeek(star,cobSnapWeek(star,week,'conAntena'),'conAntena')},
-    {area:'Cobertura',sec:'cobertura',lbl:'Falta 2+ AP',val:aggWeek(cob,cobSnapWeek(cob,week),'faltaAP')},
+    {area:'Cobertura',sec:'cobertura',lbl:'Falta 2+ AP',val:weekVal(cob,week,'faltaAP')},
     {area:'Dimensionamiento',sec:'dimensionamiento',lbl:'Centros en REVISAR',val:dimCounts.REVISAR},
     {area:'Tickets SDP',sec:'ticket',lbl:'Tickets CFO inspección',val:weekVal(DATA.ticketSDP,week,'cfoInspecciones')},
   ];
@@ -734,52 +752,47 @@ function renderStar(week){
 }
 
 /* ================= 08 COBERTURA ================= */
-/* Cobertura es una FOTO por semana (no acumulable). Con "Todas" mostramos
-   el snapshot más reciente en el desglose por bloque, y la evolución
-   semana a semana en un panel aparte. */
+/* La hoja Cobertura en Drive es 1 fila por semana (ya no por bloque).
+   Los 3 grupos reproducen los colores de esa hoja:
+   verde = Parque CE · Cantidad F3, rojo = Innovación · Empresas CAPRES,
+   ámbar = Falta 2+ AP · Falta enlace · Varias deficiencias. */
 function cobWeeks(d,key){ return [...new Set(d.filter(r=>r[key||'cantidadF3']!=null).map(r=>r.semana))]; }
 function cobSnapWeek(d,week,key){ if(week!=='all') return week; const w=cobWeeks(d,key); return w[w.length-1]; }
-function cobSumWeek(d,semana,key){ return d.filter(r=>r.semana===semana).reduce((a,r)=>a+(r[key]||0),0); }
 
+const COB_GROUPS = {
+  green: { cats:['Parque CE','Cantidad F3'], keys:['parqueCE','cantidadF3'], color:C.green, chart:'chCobGreen', sub:'cobSubGreen', subFixed:'Parque Centros Escolares · Cantidad F3 Cobertura' },
+  red:   { cats:['Innovación','Empresas CAPRES'], keys:['innovacion','empresasCapres'], color:C.red, chart:'chCobRed', sub:'cobSubRed', subFixed:'Innovación · Empresas CAPRES' },
+  amber: { cats:['Falta 2+ AP','Falta enlace','Varias deficiencias'], keys:['faltaAP','faltaEnlace','variasDeficiencias'], color:C.amber, chart:'chCobAmber', sub:'cobSubAmber', subFixed:'Falta 2+ AP · Falta enlace · Varias deficiencias' }
+};
 function renderCob(week){
   const d=DATA.cobertura;
-  if(!gate('cobertura',d,week)){ killCharts(['chCob','chCobEvo','chCobHist']); return; }
-  const snap=cobSnapWeek(d,week);
-  const rows=d.filter(r=>r.semana===snap);
-  const sum=k=>rows.reduce((a,r)=>a+(r[k]||0),0);
+  if(!gate('cobertura',d,week)){ killCharts(['chCobF3','chCobGreen','chCobRed','chCobAmber']); return; }
+  const cur=weekRows(d,week);
+  const sum=k=>cur.reduce((a,r)=>a+(r[k]||0),0);
   card('#kpiCob',[
-    {lbl:'F3 con cobertura',val:fmt(sum('cantidadF3')),cls:'accent',foot:snap},
-    {lbl:'Falta instalar 2+ AP',val:fmt(sum('faltaAP')),cls:'bad',foot:snap},
-    {lbl:'Innovación',val:fmt(sum('innovacion')),cls:'good',foot:snap},
-    {lbl:'Varias deficiencias',val:fmt(sum('variasDeficiencias')),cls:'warn',foot:snap},
+    {lbl:'F3 con cobertura',val:fmt(sum('cantidadF3')),cls:'green'},
+    {lbl:'Innovación',val:fmt(sum('innovacion')),cls:'red'},
+    {lbl:'Falta 2+ AP',val:fmt(sum('faltaAP')),cls:'amber'},
+    {lbl:'Varias deficiencias',val:fmt(sum('variasDeficiencias')),cls:'amber'},
   ]);
-  $('#cobSub').textContent=(week==='all'?'último snapshot · ':'')+snap+' · por bloque';
 
-  const cats=['Cantidad F3','Innovación','Empresas CAPRES','Falta 2+ AP','Falta enlace','Varias deficiencias'];
-  const keys=['cantidadF3','innovacion','empresasCapres','faltaAP','faltaEnlace','variasDeficiencias'];
-  const blockColors=[C.navy,C.cyan,C.blue,C.violet];
-  mkChart('chCob',{type:'bar',data:{labels:cats,datasets:rows.map((r,i)=>({
-    label:r.bloque,data:keys.map(k=>r[k]),backgroundColor:blockColors[i%blockColors.length],borderRadius:3}))},
-    options:{maintainAspectRatio:false,scales:baseScales()}});
+  // Histórico pedido: Cantidad F3 Cobertura por semana
+  const f3Rows=weekRows(d,week).filter(r=>r.cantidadF3!=null);
+  $('#cobF3Sub').textContent = week==='all' ? 'centros con cobertura Fase 3, por semana' : 'Fase 3 · '+week;
+  mkChart('chCobF3',{type:'line',data:{labels:f3Rows.map(r=>r.semana),datasets:[{label:'Cantidad F3',
+    data:f3Rows.map(r=>r.cantidadF3),borderColor:C.green,backgroundColor:hexToRgba(C.green,.12),
+    fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.green,borderWidth:2}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
 
-  // Evolución: total de deficiencias por semana (apilado)
-  const wks=cobWeeks(d);
-  mkChart('chCobEvo',{type:'bar',data:{labels:wks,datasets:[
-    {label:'Falta 2+ AP',data:wks.map(w=>cobSumWeek(d,w,'faltaAP')),backgroundColor:C.red},
-    {label:'Falta enlace',data:wks.map(w=>cobSumWeek(d,w,'faltaEnlace')),backgroundColor:C.amber},
-    {label:'Varias deficiencias',data:wks.map(w=>cobSumWeek(d,w,'variasDeficiencias')),backgroundColor:C.violet}]},
-    options:{maintainAspectRatio:false,scales:baseScales(true)}});
-
-  // Comparativo histórico: cada bloque de cada semana, métrica por métrica.
-  // Siempre muestra todas las semanas con datos (independiente del filtro).
-  const hcats=['Cantidad F3','Innovación','Empresas CAPRES','Falta 2+ AP','Falta enlace','Varias def.'];
-  const hkeys=['cantidadF3','innovacion','empresasCapres','faltaAP','faltaEnlace','variasDeficiencias'];
-  const hpal=[C.navy,C.slate,C.cyan,C.blue,C.violet,C.amber,C.green];
-  const histRows=d.filter(r=>r.cantidadF3!=null);
-  mkChart('chCobHist',{type:'bar',data:{labels:hcats,datasets:histRows.map((r,i)=>({
-    label:r.semana.replace('Semana ','S')+' · '+r.bloque,
-    data:hkeys.map(k=>r[k]),backgroundColor:hpal[i%hpal.length],borderRadius:3}))},
-    options:{maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:baseScales()}});
+  const weekLbl = week==='all' ? 'comparativo entre semanas' : 'semana · '+week;
+  Object.values(COB_GROUPS).forEach(g=>{
+    $('#'+g.sub).textContent = g.subFixed+' — '+weekLbl;
+    const rowsWithData = cur.filter(r=>g.keys.some(k=>r[k]!=null));
+    const tones = weekShades(g.color, rowsWithData.length);
+    mkChart(g.chart,{type:'bar',data:{labels:g.cats,datasets:rowsWithData.map((r,i)=>({
+      label:r.semana,data:g.keys.map(k=>r[k]),backgroundColor:tones[i]}))},
+      options:{maintainAspectRatio:false,scales:baseScales(),plugins:{legend:{display:rowsWithData.length>1}}}});
+  });
 }
 
 /* ================= 09 DIMENSIONAMIENTO ================= */
