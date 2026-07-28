@@ -305,11 +305,11 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
 
     <!-- ===== ANCHOS DE BANDA ===== -->
     <section class="view" id="banda">
-      <div class="sec-head"><span class="num">05</span><h3>Anchos de banda</h3><span class="tag">por bloque</span></div>
+      <div class="sec-head"><span class="num">05</span><h3>Anchos de banda</h3><span class="tag">consolidado por semana</span></div>
       <div class="gated"><div class="kpis" id="kpiBanda"></div>
       <div class="grid g2">
-        <div class="panel"><h4>Verificación de velocidad (VT)</h4><div class="psub">cumple · no cumple · sin verificar, por bloque</div><div class="chart-box"><canvas id="chBandaVT"></canvas></div></div>
-        <div class="panel"><h4>Cumplimiento teórico</h4><div class="psub">cumple vs. no cumple teórico, por bloque</div><div class="chart-box"><canvas id="chBandaTeo"></canvas></div></div>
+        <div class="panel"><h4>Verificación de velocidad (VT)</h4><div class="psub">cumple · no cumple · sin verificar, por semana</div><div class="chart-box"><canvas id="chBandaVT"></canvas></div></div>
+        <div class="panel"><h4>Cumplimiento teórico</h4><div class="psub">cumple vs. no cumple teórico, por semana</div><div class="chart-box"><canvas id="chBandaTeo"></canvas></div></div>
       </div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
@@ -472,7 +472,7 @@ const TITLES={
   inspeccion:['Inspección','Cumplimiento F4 / F3 y pendientes'],
   reparacion:['Reparación','Flujo de casos de reparación'],
   mantenimiento:['Mantenimiento','Intervenciones preventivas, correctivas y garantías'],
-  banda:['Anchos de banda','Verificación de velocidad por bloque'],
+  banda:['Anchos de banda','Verificación de velocidad, semana a semana'],
   fibra:['Cortes de fibra óptica','Enlaces afectados en el bloque F3'],
   starlink:['Starlink','Estado de antenas satelitales'],
   cobertura:['Cobertura','Deficiencias de cobertura detectadas'],
@@ -525,7 +525,7 @@ function renderResumen(week){
     {area:'Inspección',sec:'inspeccion',lbl:'Inspecciones',val:weekVal(ins,week,'inspecciones')},
     {area:'Reparación',sec:'reparacion',lbl:'Reparados',val:weekVal(rep,week,'reparados')},
     {area:'Mantenimiento',sec:'mantenimiento',lbl:'Correctivos',val:weekVal(DATA.mantenimiento,week,'correctivos')},
-    {area:'Anchos de banda',sec:'banda',lbl:'Cumple VT (total)',val:aggWeek(band,week,'cumpleVT')},
+    {area:'Anchos de banda',sec:'banda',lbl:'Cumple VT',val:weekVal(band,week,'cumpleVT')},
     {area:'Fibra óptica',sec:'fibra',lbl:'Enlaces offline',val:weekVal(fib,week,'enlacesOffline')},
     {area:'Starlink',sec:'starlink',lbl:'Con antena',val:aggWeek(star,cobSnapWeek(star,week,'conAntena'),'conAntena')},
     {area:'Cobertura',sec:'cobertura',lbl:'Falta 2+ AP',val:aggWeek(cob,cobSnapWeek(cob,week),'faltaAP')},
@@ -673,20 +673,21 @@ function renderBanda(week){
   const d=DATA.anchosBanda;
   if(!gate('banda',d,week)){ killCharts(['chBandaVT','chBandaTeo']); return; }
   const rows=weekRows(d,week);
-  const sum=k=>rows.reduce((a,r)=>a+r[k],0);
+  const sum=k=>rows.reduce((a,r)=>a+(r[k]||0),0);
   card('#kpiBanda',[
-    {lbl:'Cumple VT (total)',val:fmt(sum('cumpleVT')),cls:'good'},
-    {lbl:'No cumple VT (total)',val:fmt(sum('noCumpleVT')),cls:'bad'},
+    {lbl:'Cumple VT',val:fmt(sum('cumpleVT')),cls:'good'},
+    {lbl:'No cumple VT',val:fmt(sum('noCumpleVT')),cls:'bad'},
     {lbl:'Sin verificar VT',val:fmt(sum('sinVerificarVT')),cls:'warn'},
     {lbl:'Sin contrato',val:fmt(sum('noContrato')),foot:'requiere gestión'},
+    {lbl:'Sin dato (NO DATA)',val:fmt(sum('noData')),cls:'accent'},
   ]);
-  const bl=rows.map(r=>r.bloque);
-  mkChart('chBandaVT',{type:'bar',data:{labels:bl,datasets:[
+  const L=rows.map(r=>r.semana);
+  mkChart('chBandaVT',{type:'bar',data:{labels:L,datasets:[
     {label:'Cumple VT',data:rows.map(r=>r.cumpleVT),backgroundColor:C.green},
     {label:'No cumple VT',data:rows.map(r=>r.noCumpleVT),backgroundColor:C.red},
     {label:'Sin verificar VT',data:rows.map(r=>r.sinVerificarVT),backgroundColor:C.amber}]},
     options:{maintainAspectRatio:false,scales:baseScales(true)}});
-  mkChart('chBandaTeo',{type:'bar',data:{labels:bl,datasets:[
+  mkChart('chBandaTeo',{type:'bar',data:{labels:L,datasets:[
     {label:'Cumple teórico',data:rows.map(r=>r.cumpleTeorico),backgroundColor:C.blue},
     {label:'No cumple teórico',data:rows.map(r=>r.noCumpleTeorico),backgroundColor:C.violet}]},
     options:{maintainAspectRatio:false,scales:baseScales(true)}});

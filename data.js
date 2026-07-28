@@ -39,14 +39,11 @@ var DATA = {
     { semana: "Semana 29", preventivos: 0, correctivos: 2, ups: 1, switch: 1, accessPoint: 0, garantias: 4, firewall: 4, enProceso: 3, resueltas: 1 }
   ],
 
-  // --- Hoja: Anchos de Banda (Semana 28) ---
+  // --- Hoja: Anchos de Banda (1 fila consolidada por semana) ---
   anchosBanda: [
-    { semana: "Semana 28", bloque: "754",         noCumpleVT: 143, cumpleVT: 557,  sinVerificarVT: 54,   noCumpleTeorico: 11, cumpleTeorico: 42,  noContrato: 1 },
-    { semana: "Semana 28", bloque: "5k",          noCumpleVT: 304, cumpleVT: 1426, sinVerificarVT: 3340, noCumpleTeorico: 62, cumpleTeorico: 334, noContrato: 95 },
-    { semana: "Semana 28", bloque: "Q2 F3 1083",  noCumpleVT: 326, cumpleVT: 322,  sinVerificarVT: 435,  noCumpleTeorico: 43, cumpleTeorico: 189, noContrato: 6 },
-    { semana: "Semana 29", bloque: "754",         noCumpleVT: 143, cumpleVT: 559,  sinVerificarVT: 52,   noCumpleTeorico: 11, cumpleTeorico: 40,  noContrato: 1 },
-    { semana: "Semana 29", bloque: "5K",          noCumpleVT: 304, cumpleVT: 1426, sinVerificarVT: 3340, noCumpleTeorico: 62, cumpleTeorico: 334, noContrato: 95 },
-    { semana: "Semana 29", bloque: "Q2 F3 1011",  noCumpleVT: 315, cumpleVT: 301,  sinVerificarVT: 395,  noCumpleTeorico: 26, cumpleTeorico: 169, noContrato: 3 }
+    { semana: "Semana 28", parque: 1083, noCumpleVT: 326, cumpleVT: 322, sinVerificarVT: 435, noCumpleTeorico: 43, cumpleTeorico: 189, noContrato: 6, noData: 197 },
+    { semana: "Semana 29", parque: 1011, noCumpleVT: 315, cumpleVT: 301, sinVerificarVT: 395, noCumpleTeorico: 26, cumpleTeorico: 169, noContrato: 3, noData: 197 },
+    { semana: "Semana 30", parque: 962,  noCumpleVT: 293, cumpleVT: 260, sinVerificarVT: 409, noCumpleTeorico: 30, cumpleTeorico: 179, noContrato: 4, noData: 196 }
   ],
 
   // --- Hoja: Cortes de Fibra Optica ---
