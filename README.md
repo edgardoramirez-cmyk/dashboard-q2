@@ -6,7 +6,7 @@ hosting estático subiendo estos 5 archivos tal cual.
 
 ## Archivos
 
-- **`index.html`** — estructura, estilos y toda la lógica de render (10 secciones, gráficos con Chart.js).
+- **`index.html`** — estructura, estilos y toda la lógica de render (11 secciones, gráficos con Chart.js).
 - **`data.js`** — copia local de los datos (lo que ve cualquiera que abra el dashboard si no hay datos en vivo). Se regenera a mano desde el Excel/Sheet cuando cambian los números.
 - **`config.js`** — configuración para leer el Google Sheet en vivo (ID del libro + nombre de cada pestaña).
 - **`live.js`** — lee el Google Sheet en vivo (CSV vía `gviz`) y lo convierte al mismo formato que `data.js`. Si algo falla, se queda con la copia local sin romper nada.
@@ -38,15 +38,24 @@ siempre cuadren):
   reemplazaron por un comparativo semanal (CE visitados / inspecciones /
   visitas técnicas) y un gráfico propio para Revisiones (su escala — cientos
   o miles — no es comparable con el resto).
-- **Mantenimiento** — la hoja **DATA_MANTENIMIENTO se renombró a
-  DATA_EQUIPOS** (ya actualizado en `config.js`). Ya no trae "Preventivos"
-  ni "Correctivos"; se agregó una columna "UTP" (todavía sin datos
-  cargados). Como ya no hay un total de "Correctivos" aparte, ahora ESE
-  total se calcula como UPS + Switch + Access Point + UTP — se muestra
-  como la tarjeta "Equipos intervenidos", y el KPI de "Total
-  intervenciones" es esa suma + Garantías. "Garantías" y "Firewall" siguen
-  coincidiendo siempre en esta hoja (todas las garantías registradas son de
-  firewalls); "En proceso"/"Resueltas" es su desglose de estado.
+- **Correctivos** (antes "Mantenimiento" en el dashboard) — la hoja **DATA_MANTENIMIENTO
+  se renombró a DATA_EQUIPOS** (ya actualizado en `config.js`). Ya no trae
+  "Preventivos" ni una columna de "Correctivos" aparte; se agregó "UTP"
+  (todavía sin datos cargados) y "Router" dentro del grupo de Garantías,
+  junto a "Firewall". La sección se restructuró para separar con claridad
+  equipo correctivo de garantías:
+  - Las 4 tarjetas de arriba son, una por una: **Access Point instalados**,
+    **SW instalados**, **UPS instalados** y **UTP instalado** — el valor
+    tal cual viene de la hoja para cada equipo, sin sumarlos entre sí.
+  - **Garantías** queda totalmente aparte, en su propio panel/gráfico
+    ("Garantías · estado"), con el desglose Garantías · Firewall · Router ·
+    En proceso · Resueltas — ya no se mezcla con el grupo de equipo
+    correctivo.
+  - El gráfico de "Evolución de correctivos y garantías" arriba de todo
+    sigue con su filtro Total/Correctivo/Garantías; "Correctivo" ahí usa
+    la suma UPS+Switch+Access Point+UTP (el total ya no viene como columna
+    propia de la hoja), y la tarjeta de resumen "Equipos intervenidos" (en
+    la sección Resumen) usa ese mismo cálculo.
 - **Reparación** — la hoja ya no trae "Cola" ni "Casos nuevos" (tampoco AP
   instalados/reubicados ni cable UTP, que había traído en una versión
   intermedia de la hoja y ya no están). Queda solo Reparados, En proceso y

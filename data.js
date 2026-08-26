@@ -55,16 +55,17 @@ var DATA = {
   // --- Hoja: DATA_MANTENIMIENTO (renombrada a DATA_EQUIPOS) ---
   // Esquema nuevo: ya no trae "Preventivos" NI "Correctivos" (el total de
   // correctivos ahora es simplemente la suma de UPS+Switch+Access
-  // Point+UTP); se agregó la columna "UTP" (todavía sin datos cargados).
+  // Point+UTP); se agregó "UTP" (todavía sin datos cargados) y "Router"
+  // junto a Firewall dentro del grupo de Garantías.
   mantenimiento: [
-    { semana: "Semana 28", ups: 1, switch: 0, accessPoint: 0, utp: null, garantias: 0, firewall: 0, enProceso: null, resueltas: 0 },
-    { semana: "Semana 29", ups: 3, switch: 1, accessPoint: 22, utp: null, garantias: 4, firewall: 4, enProceso: 3, resueltas: 1 },
-    { semana: "Semana 30", ups: 4, switch: 9, accessPoint: 51, utp: null, garantias: 1, firewall: 1, enProceso: 1, resueltas: 0 },
-    { semana: "Semana 31", ups: 3, switch: 9, accessPoint: 77, utp: null, garantias: 2, firewall: 2, enProceso: 2, resueltas: 0 },
-    { semana: "Semana 32", ups: 0, switch: 1, accessPoint: 7, utp: null, garantias: 0, firewall: 0, enProceso: 0, resueltas: 0 },
-    { semana: "Semana 33", ups: 4, switch: 9, accessPoint: 78, utp: null, garantias: 0, firewall: 0, enProceso: 0, resueltas: 0 },
-    { semana: "Semana 34", ups: 2, switch: 3, accessPoint: 58, utp: null, garantias: 0, firewall: 0, enProceso: 0, resueltas: 0 },
-    { semana: "Semana 35", ups: 0, switch: 2, accessPoint: 20, utp: null, garantias: 0, firewall: 0, enProceso: 0, resueltas: 0 },
+    { semana: "Semana 28", ups: 1, switch: 0, accessPoint: 0, utp: null, garantias: 0, firewall: 0, router: 0, enProceso: null, resueltas: 0 },
+    { semana: "Semana 29", ups: 3, switch: 1, accessPoint: 22, utp: null, garantias: 4, firewall: 4, router: 0, enProceso: 3, resueltas: 1 },
+    { semana: "Semana 30", ups: 4, switch: 9, accessPoint: 51, utp: null, garantias: 1, firewall: 1, router: 0, enProceso: 1, resueltas: 0 },
+    { semana: "Semana 31", ups: 3, switch: 9, accessPoint: 77, utp: null, garantias: 2, firewall: 2, router: 0, enProceso: 2, resueltas: 0 },
+    { semana: "Semana 32", ups: 0, switch: 1, accessPoint: 7, utp: null, garantias: 0, firewall: 0, router: 0, enProceso: 0, resueltas: 0 },
+    { semana: "Semana 33", ups: 4, switch: 9, accessPoint: 78, utp: null, garantias: 0, firewall: 0, router: 0, enProceso: 0, resueltas: 0 },
+    { semana: "Semana 34", ups: 2, switch: 3, accessPoint: 58, utp: null, garantias: 0, firewall: 0, router: 0, enProceso: 0, resueltas: 0 },
+    { semana: "Semana 35", ups: 0, switch: 2, accessPoint: 20, utp: null, garantias: 0, firewall: 0, router: 0, enProceso: 0, resueltas: 0 },
   ],
 
   // --- Hoja: Anchos de Banda (1 fila consolidada por semana) ---

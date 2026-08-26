@@ -121,7 +121,7 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .chart-box{position:relative;height:280px}
 .chart-box.sm{height:248px}
 
-/* Filtro Preventivo/Correctivo/Garantías/Total sobre "Evolución de mantenimientos" */
+/* Filtro Total/Correctivo/Garantías sobre "Evolución de correctivos y garantías" */
 .mfilter{display:flex;gap:6px;flex-wrap:wrap;margin:-2px 0 14px}
 .mfilter button{font-family:'IBM Plex Mono';font-size:10.5px;padding:5px 12px;border-radius:20px;
   border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;transition:.15s}
@@ -199,7 +199,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <button data-section="fase"><span class="dot"></span>Cambios de fase</button>
     <button data-section="inspeccion"><span class="dot"></span>Inspección</button>
     <button data-section="reparacion"><span class="dot"></span>Reparación</button>
-    <button data-section="mantenimiento"><span class="dot"></span>Mantenimiento</button>
+    <button data-section="mantenimiento"><span class="dot"></span>Correctivos</button>
     <button data-section="banda"><span class="dot"></span>Anchos de banda</button>
     <button data-section="fibra"><span class="dot"></span>Fibra óptica</button>
     <button data-section="starlink"><span class="dot"></span>Starlink</button>
@@ -274,11 +274,11 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
-    <!-- ===== MANTENIMIENTO ===== -->
+    <!-- ===== CORRECTIVOS (hoja DATA_EQUIPOS) ===== -->
     <section class="view" id="mantenimiento">
-      <div class="sec-head"><span class="num">04</span><h3>Mantenimiento</h3><span class="tag">correctivo · garantías</span></div>
+      <div class="sec-head"><span class="num">04</span><h3>Correctivos</h3><span class="tag">equipos · garantías</span></div>
       <div class="gated"><div class="kpis" id="kpiMant"></div>
-      <div class="panel" style="margin-bottom:16px"><h4>Evolución de mantenimientos</h4>
+      <div class="panel" style="margin-bottom:16px"><h4>Evolución de correctivos y garantías</h4>
         <div class="psub" id="mantEvoSub">intervenciones totales por semana</div>
         <div class="mfilter" id="mantEvoFilter">
           <button class="active" data-mg="total">Total</button>
@@ -294,14 +294,16 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
         </div>
         <div class="mgrp blue">
           <div class="mgrp-head"><span class="mdot"></span><h5>Garantías · estado</h5></div>
-          <div class="psub" id="mantSubGar">Garantías · Firewall · En proceso · Resueltas</div>
+          <div class="psub" id="mantSubGar">Garantías · Firewall · Router · En proceso · Resueltas</div>
           <div class="chart-box sm"><canvas id="chMantGar"></canvas></div>
         </div>
       </div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
-    <!-- Nota: la hoja de mantenimiento ya no reporta "Preventivos"; el filtro
-         y la tarjeta correspondiente se quitaron de esta sección. -->
+    <!-- Nota: la hoja (renombrada DATA_EQUIPOS) ya no reporta "Preventivos"
+         ni un total de "Correctivos" aparte — el total correctivo ahora es
+         UPS+Switch+Access Point+UTP. Se agregó "Router" al grupo de
+         Garantías, junto a Firewall. -->
 
     <!-- ===== ANCHOS DE BANDA ===== -->
     <section class="view" id="banda">
@@ -585,7 +587,7 @@ const TITLES={
   fase:['Cambios de fase','Evolución del parque y migraciones'],
   inspeccion:['Inspección','Visitas técnicas, inspecciones y revisiones'],
   reparacion:['Reparación','Flujo de casos de reparación'],
-  mantenimiento:['Mantenimiento','Intervenciones correctivas y garantías'],
+  mantenimiento:['Correctivos','Intervenciones correctivas y garantías'],
   banda:['Anchos de banda','Verificación de velocidad, semana a semana'],
   fibra:['Cortes de fibra óptica','Enlaces afectados en el bloque F3'],
   starlink:['Starlink','Antenas instaladas, reparadas y retiradas por semana'],
@@ -638,7 +640,7 @@ function renderResumen(week){
     {area:'Cambios de fase',sec:'fase',lbl:'Parque activo',val:weekVal(f,week,'parque')},
     {area:'Inspección',sec:'inspeccion',lbl:'Inspecciones técnicas',val:weekVal(ins,week,'inspeccionesTecnicas')},
     {area:'Reparación',sec:'reparacion',lbl:'Reparados',val:weekVal(rep,week,'reparados')},
-    {area:'Mantenimiento',sec:'mantenimiento',lbl:'Equipos intervenidos',val:equipoWeekVal(DATA.mantenimiento,week)},
+    {area:'Correctivos',sec:'mantenimiento',lbl:'Equipos intervenidos',val:equipoWeekVal(DATA.mantenimiento,week)},
     {area:'Anchos de banda',sec:'banda',lbl:'Cumple VT',val:weekVal(band,week,'cumpleVT')},
     {area:'Fibra óptica',sec:'fibra',lbl:'Enlaces offline',val:weekVal(fib,week,'enlacesOffline')},
     {area:'Starlink',sec:'starlink',lbl:'Instaladas (semana)',val:weekVal(star,week,'instaladas')},
@@ -741,23 +743,25 @@ function renderRep(week){
     options:{maintainAspectRatio:false,scales:baseScales()}});
 }
 
-/* ================= 04 MANTENIMIENTO ================= */
+/* ================= 04 CORRECTIVOS (antes "Mantenimiento") ================= */
 /* Los 2 bloques (Correctivo / Garantías) reproducen la separación por color
    de la hoja DATA_EQUIPOS (antes DATA_MANTENIMIENTO): verde =
-   UPS·Switch·Access Point·UTP, azul = Garantías·Firewall·En proceso·Resueltas.
+   UPS·Switch·Access Point·UTP, azul = Garantías·Firewall·Router·En
+   proceso·Resueltas.
 
    IMPORTANTE — cómo cuadran los números con la hoja:
    la hoja ya no trae un total de "Correctivos" aparte: ahora el total
-   correctivo ES la suma de UPS+Switch+Access Point+UTP (por eso el TOTAL de
-   la sección es esa suma + garantías). "UTP" es una columna nueva, todavía
-   sin datos cargados en la hoja. "Garantías" y "Firewall" sí coinciden
-   siempre en esta hoja (todas las garantías registradas son de firewalls);
-   "En proceso"/"Resueltas" es el desglose de estado de esas garantías.
+   correctivo ES la suma de UPS+Switch+Access Point+UTP. "UTP" es una
+   columna nueva, todavía sin datos cargados en la hoja. Garantías queda
+   como su propio grupo, separado del correctivo: "Firewall" y "Router" son
+   los dos tipos de equipo que puede tener una garantía (el equipo agregó
+   "Router" junto a "Firewall"); "En proceso"/"Resueltas" es el desglose de
+   estado de esas garantías.
    La hoja simplificada ya no reporta "Preventivos": se quitó el filtro,
    la tarjeta y el grupo correspondientes de esta sección. */
 const MANT_GROUPS = {
   corr: { cats:['UPS','Switch','Access Point','UTP'], keys:['ups','switch','accessPoint','utp'], color:C.green, chart:'chMantCorr', sub:'mantSubCorr', subFixed:'UPS · Switch · Access Point · UTP' },
-  gar:  { cats:['Garantías','Firewall','En proceso','Resueltas'], keys:['garantias','firewall','enProceso','resueltas'], color:C.blue, chart:'chMantGar', sub:'mantSubGar', subFixed:'Garantías · Firewall · En proceso · Resueltas' }
+  gar:  { cats:['Garantías','Firewall','Router','En proceso','Resueltas'], keys:['garantias','firewall','router','enProceso','resueltas'], color:C.blue, chart:'chMantGar', sub:'mantSubGar', subFixed:'Garantías · Firewall · Router · En proceso · Resueltas' }
 };
 const equipoVal=r=>(r.ups==null&&r.switch==null&&r.accessPoint==null&&r.utp==null)?null:(r.ups||0)+(r.switch||0)+(r.accessPoint||0)+(r.utp||0);
 /* Mismo criterio que weekVal/latestVal pero para el total calculado (no
@@ -767,7 +771,7 @@ function equipoWeekVal(arr,week){
   if(week==='all'){ for(let i=arr.length-1;i>=0;i--){ const v=equipoVal(arr[i]); if(v!=null) return v; } return null; }
   const r=arr.find(x=>x.semana===week); return r?equipoVal(r):null;
 }
-/* Series disponibles para el filtro de "Evolución de mantenimientos" */
+/* Series disponibles para el filtro de "Evolución de correctivos y garantías" */
 const MANT_EVO = {
   total:{ label:'Total intervenciones', color:C.cyan, sub:'intervenciones totales por semana',
     val:r=>(equipoVal(r)==null&&r.garantias==null)?null:(equipoVal(r)||0)+(r.garantias||0) },
@@ -777,17 +781,18 @@ const MANT_EVO = {
 function renderMant(week){
   const d=DATA.mantenimiento;
   if(!gate('mantenimiento',d,week)){ killCharts(['chMantTotal','chMantCorr','chMantGar']); return; }
-  const totVal=r=>(equipoVal(r)||0)+(r.garantias||0);
   const cur=weekRows(d,week);
+  /* Tarjetas: los 4 equipos correctivos, uno por uno. Garantías (con su
+     desglose Firewall/Router/En proceso/Resueltas) queda aparte, en el
+     panel "Garantías · estado" de abajo — no se repite acá arriba. */
   card('#kpiMant',[
-    {lbl:'Equipos intervenidos',val:fmt(equipoWeekVal(d,week)),cls:'green',foot:'UPS + Switch + AP + UTP'},
-    {lbl:'UPS intervenidos',val:fmt(weekVal(d,week,'ups')),cls:'green'},
+    {lbl:'Access Point instalados',val:fmt(weekVal(d,week,'accessPoint')),cls:'green'},
+    {lbl:'SW instalados',val:fmt(weekVal(d,week,'switch')),cls:'green'},
+    {lbl:'UPS instalados',val:fmt(weekVal(d,week,'ups')),cls:'green'},
     {lbl:'UTP instalado',val:fmt(weekVal(d,week,'utp')),cls:'green'},
-    {lbl:'Garantías',val:fmt(weekVal(d,week,'garantias')),cls:'blue'},
-    {lbl:'Total intervenciones',val:fmt(cur.reduce((a,r)=>a+totVal(r),0)),cls:'accent',foot:'equipos + garantías'},
   ]);
 
-  // Evolución: respeta el filtro activo (Total/Preventivo/Correctivo/Garantías)
+  // Evolución: respeta el filtro activo (Total/Correctivo/Garantías)
   // y omite semanas sin dato todavía (evita el falso "cae a 0" de Semana 31).
   const evoCfg = MANT_EVO[state.mantEvo] || MANT_EVO.total;
   const evoRows = weekRows(d,week).filter(r=>evoCfg.val(r)!=null);

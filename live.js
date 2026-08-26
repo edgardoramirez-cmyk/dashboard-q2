@@ -178,8 +178,9 @@
     reparacion: { semana: ['semana'], reparados: ['reparados'], enProceso: ['en proceso', 'proceso'], pendientes: ['pendientes'] },
     /* Hoja renombrada de DATA_MANTENIMIENTO a DATA_EQUIPOS (ver config.js).
        Ya no trae "Preventivos" ni "Correctivos"; se agregó "UTP" junto a
-       UPS/Switch/Access Point (todavía sin datos cargados en la hoja). */
-    mantenimiento: { semana: ['semana'], ups: ['ups'], switch: ['switch'], accessPoint: ['access point', 'access'], utp: ['utp'], garantias: ['garant'], firewall: ['firewall'], enProceso: ['en proceso', 'proceso'], resueltas: ['resueltas'] },
+       UPS/Switch/Access Point (todavía sin datos cargados), y "Router"
+       junto a Firewall dentro del grupo de Garantías. */
+    mantenimiento: { semana: ['semana'], ups: ['ups'], switch: ['switch'], accessPoint: ['access point', 'access'], utp: ['utp'], garantias: ['garant'], firewall: ['firewall'], router: ['router'], enProceso: ['en proceso', 'proceso'], resueltas: ['resueltas'] },
     anchosBanda: { semana: ['semana'], parque: ['parque'], noCumpleVT: ['no cumple por visita tecnica', 'no cumple vt'], cumpleVT: ['cumple por visita tecnica', 'cumple vt'], sinVerificarVT: ['sin verificar por visita tecnica', 'sin verificar'], noCumpleTeorico: ['no cumple teorico'], cumpleTeorico: ['cumple teorico'], noContrato: ['no contrato', 'contrato'], noData: ['no data'] },
     fibra: { semana: ['semana'], parque: ['parque'], bloque: ['bloque'], enlacesOffline: ['enlaces offline', 'offline'], cfoSDP: ['cfo'], sinEnergia: ['energia', 's/ energia'] },
     starlink: { semana: ['semana'], instaladas: ['instaladas'], reparadas: ['reparadas'], retiradas: ['retiradas'] },
