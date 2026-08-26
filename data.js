@@ -1,77 +1,124 @@
 /* ============================================================
-   Datos del "Dashboard Q2" — extraídos de Google Sheets
+   Datos del "Dashboard Q2" — extraídos del Excel simplificado
    Programa de conectividad e infraestructura de Centros Escolares
-   Semanas 28, 29 y 30
+   Semanas 28 a 35
    ============================================================ */
 
 var DATA = {
   meta: {
     titulo: "Dashboard Gerencial · Q2",
-    fuente: "Google Sheets — Dashboard Q2",
-    actualizado: "Semana 30 completa · Semana 31 en carga",
-    semanas: ["Semana 28", "Semana 29", "Semana 30", "Semana 31"]
+    fuente: "Excel — Dashboard Q2 (hojas simplificadas)",
+    actualizado: "Semana 35",
+    semanas: ["Semana 28","Semana 29","Semana 30","Semana 31","Semana 32","Semana 33","Semana 34","Semana 35"]
   },
 
   // --- Hoja: Cambios Fase ---
   cambiosFase: [
-    { semana: "Semana 28", parque: 1083, migradosQ3: 83, migradosQ1: 4,  ingresanQ2: 15, sinFaseF3: 0 },
-    { semana: "Semana 29", parque: 1011, migradosQ3: 48, migradosQ1: 4,  ingresanQ2: 3,  sinFaseF3: 0 },
-    { semana: "Semana 30", parque: 962,  migradosQ3: 36, migradosQ1: 17, ingresanQ2: 40, sinFaseF3: 34 },
-    { semana: "Semana 31", parque: 983,  migradosQ3: null, migradosQ1: null, ingresanQ2: null, sinFaseF3: null }
+    { semana: "Semana 28", parque: 1083, migradosQ3: 83, migradosQ1: 4, ingresanQ2: 15, sinFaseF3: 0 },
+    { semana: "Semana 29", parque: 1011, migradosQ3: 48, migradosQ1: 4, ingresanQ2: 3, sinFaseF3: 0 },
+    { semana: "Semana 30", parque: 962, migradosQ3: 36, migradosQ1: 17, ingresanQ2: 40, sinFaseF3: 34 },
+    { semana: "Semana 31", parque: 983, migradosQ3: 74, migradosQ1: 9, ingresanQ2: 24, sinFaseF3: 27 },
+    { semana: "Semana 32", parque: 951, migradosQ3: 11, migradosQ1: 5, ingresanQ2: 0, sinFaseF3: 0 },
+    { semana: "Semana 33", parque: 935, migradosQ3: 53, migradosQ1: 13, ingresanQ2: 18, sinFaseF3: 25 },
+    { semana: "Semana 34", parque: 912, migradosQ3: 90, migradosQ1: 4, ingresanQ2: 14, sinFaseF3: 367 },
+    { semana: "Semana 35", parque: 1199, migradosQ3: null, migradosQ1: null, ingresanQ2: null, sinFaseF3: null },
   ],
 
   // --- Hoja: DATA_INSPECCION ---
+  // Esquema nuevo (simplificado): ya no trae el desglose Cumple F4 / No cumple F3 / Hallazgos / % Revisión / Pendientes.
   inspeccion: [
-    { semana: "Semana 28", totalCE: 398, inspecciones: 272, visitas: 390, cumpleF4: 148, noCumpleF3: 116, hallazgos: 8,  revisiones: 86,  pctRevision: 32,  pendientes: 186 },
-    { semana: "Semana 29", totalCE: 180, inspecciones: 121, visitas: 180, cumpleF4: 69,  noCumpleF3: 39,  hallazgos: 13, revisiones: 121, pctRevision: 100, pendientes: 0 },
-    { semana: "Semana 30", totalCE: 128,  inspecciones: 70,   visitas: 128,  cumpleF4: 34,   noCumpleF3: 33,   hallazgos: 3,    revisiones: 70,   pctRevision: 100, pendientes: 0 }
+    { semana: "Semana 28", ceVisitados: 398, inspeccionesTecnicas: 272, visitasTecnicas: 390, revisiones: 86, cantidadCE: null },
+    { semana: "Semana 29", ceVisitados: 180, inspeccionesTecnicas: 121, visitasTecnicas: 180, revisiones: 121, cantidadCE: null },
+    { semana: "Semana 30", ceVisitados: 128, inspeccionesTecnicas: 70, visitasTecnicas: 128, revisiones: 70, cantidadCE: null },
+    { semana: "Semana 31", ceVisitados: 46, inspeccionesTecnicas: 46, visitasTecnicas: 0, revisiones: 1161, cantidadCE: 551 },
+    { semana: "Semana 32", ceVisitados: 30, inspeccionesTecnicas: 30, visitasTecnicas: 0, revisiones: 608, cantidadCE: 586 },
+    { semana: "Semana 33", ceVisitados: 176, inspeccionesTecnicas: 116, visitasTecnicas: 60, revisiones: 1438, cantidadCE: 798 },
+    { semana: "Semana 34", ceVisitados: 236, inspeccionesTecnicas: 141, visitasTecnicas: 95, revisiones: 127, cantidadCE: 63 },
+    { semana: "Semana 35", ceVisitados: 92, inspeccionesTecnicas: 79, visitasTecnicas: 13, revisiones: 261, cantidadCE: 137 },
   ],
 
   // --- Hoja: DATA_REPARACION ---
+  // Esquema nuevo: ya no trae "Cola" ni "Casos nuevos"; suma AP instalados/reubicados y cable UTP instalado (metros).
   reparacion: [
-    { semana: "Semana 28", cola: 17, reparados: 10, casosNuevos: 7,  enProceso: 0,  pendientes: 14 },
-    { semana: "Semana 29", cola: 14, reparados: 22, casosNuevos: 18, enProceso: 2,  pendientes: 8 },
-    { semana: "Semana 30", cola: 8,  reparados: 17, casosNuevos: 14, enProceso: 1,  pendientes: 4 }
+    { semana: "Semana 28", reparados: 10, enProceso: 0, pendientes: 17, apInstalados: null, apReubicaciones: null, cableUTP: null },
+    { semana: "Semana 29", reparados: 22, enProceso: 2, pendientes: 14, apInstalados: null, apReubicaciones: null, cableUTP: null },
+    { semana: "Semana 30", reparados: 17, enProceso: 1, pendientes: 8, apInstalados: null, apReubicaciones: null, cableUTP: null },
+    { semana: "Semana 31", reparados: 40, enProceso: 0, pendientes: 40, apInstalados: 81, apReubicaciones: 47, cableUTP: 1929 },
+    { semana: "Semana 32", reparados: 6, enProceso: 0, pendientes: 4, apInstalados: 6, apReubicaciones: 3, cableUTP: 293 },
+    { semana: "Semana 33", reparados: 47, enProceso: 0, pendientes: 3, apInstalados: 88, apReubicaciones: 68, cableUTP: 2585 },
+    { semana: "Semana 34", reparados: 9, enProceso: 0, pendientes: 10, apInstalados: 23, apReubicaciones: 10, cableUTP: 602 },
+    { semana: "Semana 35", reparados: 13, enProceso: 4, pendientes: 0, apInstalados: null, apReubicaciones: null, cableUTP: null },
   ],
 
   // --- Hoja: DATA_MANTENIMIENTO ---
+  // Esquema nuevo: ya no trae "Preventivos" (la hoja solo reporta Correctivo y Garantías).
   mantenimiento: [
-    { semana: "Semana 28", preventivos: 0, correctivos: 1, ups: 1, switch: 0, accessPoint: 0, garantias: 0, firewall: 0, enProceso: null, resueltas: 0 },
-    { semana: "Semana 29", preventivos: 0, correctivos: 2, ups: 1, switch: 1, accessPoint: 0, garantias: 4, firewall: 4, enProceso: 3, resueltas: 1 },
-    { semana: "Semana 30", preventivos: 0, correctivos: 2, ups: 1, switch: 1, accessPoint: 0, garantias: 5, firewall: 5, enProceso: 4, resueltas: 1 }
+    { semana: "Semana 28", correctivos: 1, ups: 1, switch: 0, accessPoint: 0, garantias: 0, firewall: 0, enProceso: null, resueltas: 0 },
+    { semana: "Semana 29", correctivos: 15, ups: 3, switch: 1, accessPoint: 22, garantias: 4, firewall: 4, enProceso: 3, resueltas: 1 },
+    { semana: "Semana 30", correctivos: 18, ups: 4, switch: 9, accessPoint: 51, garantias: 1, firewall: 1, enProceso: 1, resueltas: 0 },
+    { semana: "Semana 31", correctivos: 40, ups: 3, switch: 9, accessPoint: 77, garantias: 2, firewall: 2, enProceso: 2, resueltas: 0 },
+    { semana: "Semana 32", correctivos: 6, ups: 0, switch: 1, accessPoint: 7, garantias: 0, firewall: 0, enProceso: 0, resueltas: 0 },
+    { semana: "Semana 33", correctivos: 47, ups: 4, switch: 9, accessPoint: 78, garantias: 0, firewall: 0, enProceso: 0, resueltas: 0 },
+    { semana: "Semana 34", correctivos: 29, ups: 2, switch: 3, accessPoint: 58, garantias: 0, firewall: 0, enProceso: 0, resueltas: 0 },
+    { semana: "Semana 35", correctivos: 14, ups: 0, switch: 2, accessPoint: 20, garantias: 0, firewall: 0, enProceso: 0, resueltas: 0 },
   ],
 
   // --- Hoja: Anchos de Banda (1 fila consolidada por semana) ---
   anchosBanda: [
     { semana: "Semana 28", parque: 1083, noCumpleVT: 326, cumpleVT: 322, sinVerificarVT: 435, noCumpleTeorico: 43, cumpleTeorico: 189, noContrato: 6, noData: 197 },
     { semana: "Semana 29", parque: 1011, noCumpleVT: 315, cumpleVT: 301, sinVerificarVT: 395, noCumpleTeorico: 26, cumpleTeorico: 169, noContrato: 3, noData: 197 },
-    { semana: "Semana 30", parque: 962,  noCumpleVT: 293, cumpleVT: 260, sinVerificarVT: 409, noCumpleTeorico: 30, cumpleTeorico: 179, noContrato: 4, noData: 196 }
+    { semana: "Semana 30", parque: 962, noCumpleVT: 293, cumpleVT: 260, sinVerificarVT: 409, noCumpleTeorico: 30, cumpleTeorico: 179, noContrato: 4, noData: 196 },
+    { semana: "Semana 31", parque: 983, noCumpleVT: 293, cumpleVT: 294, sinVerificarVT: 396, noCumpleTeorico: 37, cumpleTeorico: 161, noContrato: 3, noData: 195 },
+    { semana: "Semana 32", parque: 951, noCumpleVT: 284, cumpleVT: 238, sinVerificarVT: 429, noCumpleTeorico: 40, cumpleTeorico: 150, noContrato: 2, noData: 237 },
+    { semana: "Semana 33", parque: 935, noCumpleVT: 271, cumpleVT: 264, sinVerificarVT: 400, noCumpleTeorico: 30, cumpleTeorico: 181, noContrato: 2, noData: 187 },
+    { semana: "Semana 34", parque: 912, noCumpleVT: 266, cumpleVT: 247, sinVerificarVT: 399, noCumpleTeorico: 30, cumpleTeorico: 181, noContrato: 1, noData: 187 },
+    { semana: "Semana 35", parque: 1199, noCumpleVT: 254, cumpleVT: 266, sinVerificarVT: 679, noCumpleTeorico: 31, cumpleTeorico: 202, noContrato: 1, noData: 445 },
   ],
 
   // --- Hoja: Cortes de Fibra Optica ---
+  // La hoja trae la celda de encabezado A1 mal escrita ("318" en vez de "Semana"); no afecta los datos.
   fibra: [
     { semana: "Semana 28", parque: 1083, bloque: "F3", enlacesOffline: 344, cfoSDP: 297, sinEnergia: 47 },
     { semana: "Semana 29", parque: 1011, bloque: "F3", enlacesOffline: 325, cfoSDP: 275, sinEnergia: 50 },
-    { semana: "Semana 30", parque: 962,  bloque: "F3", enlacesOffline: 305, cfoSDP: 280, sinEnergia: 25 }
+    { semana: "Semana 30", parque: 962, bloque: "F3", enlacesOffline: 305, cfoSDP: 280, sinEnergia: 25 },
+    { semana: "Semana 31", parque: 983, bloque: "F3", enlacesOffline: 298, cfoSDP: 274, sinEnergia: 24 },
+    { semana: "Semana 32", parque: 951, bloque: "F3", enlacesOffline: 272, cfoSDP: 231, sinEnergia: 41 },
+    { semana: "Semana 33", parque: 935, bloque: "F3", enlacesOffline: 266, cfoSDP: 246, sinEnergia: 20 },
+    { semana: "Semana 34", parque: 913, bloque: "F3", enlacesOffline: 264, cfoSDP: 210, sinEnergia: 54 },
+    { semana: "Semana 35", parque: 1199, bloque: "F3", enlacesOffline: 337, cfoSDP: 320, sinEnergia: 17 },
   ],
 
-  // --- Hoja: Starlink (nueva estructura: instaladas/reparadas/retiradas por semana) ---
+  // --- Hoja: Starlink ---
   starlink: [
     { semana: "Semana 30", instaladas: 2, reparadas: 0, retiradas: 0 },
-    { semana: "Semana 31", instaladas: 0, reparadas: 0, retiradas: 0 }
+    { semana: "Semana 31", instaladas: 0, reparadas: 0, retiradas: 0 },
+    { semana: "Semana 32", instaladas: 0, reparadas: 0, retiradas: 0 },
+    { semana: "Semana 33", instaladas: 2, reparadas: 0, retiradas: 0 },
+    { semana: "Semana 34", instaladas: 0, reparadas: 0, retiradas: 0 },
+    { semana: "Semana 35", instaladas: 0, reparadas: 0, retiradas: 0 },
   ],
 
   // --- Hoja: Cobertura (1 fila consolidada por semana) ---
+  // Esquema nuevo: se agregó "Falta instalar 1 AP" (antes solo existía "Falta 2+ AP").
   cobertura: [
-    { semana: "Semana 28", parqueCE: 1083, cantidadF3: 200, innovacion: 173, empresasCapres: 27, faltaAP: 172, faltaEnlace: 8,  variasDeficiencias: 20 },
-    { semana: "Semana 29", parqueCE: 1011, cantidadF3: 196, innovacion: 174, empresasCapres: 22, faltaAP: 173, faltaEnlace: 6,  variasDeficiencias: 17 },
-    { semana: "Semana 30", parqueCE: 962,  cantidadF3: 179, innovacion: 162, empresasCapres: 17, faltaAP: 158, faltaEnlace: 5,  variasDeficiencias: 16 },
-    { semana: "Semana 31", parqueCE: 983,  cantidadF3: 378, innovacion: 348, empresasCapres: 30, faltaAP: 368, faltaEnlace: 0,  variasDeficiencias: 10 }
+    { semana: "Semana 28", parqueCE: 1083, cantidadF3: 200, innovacion: 173, empresasCapres: 27, faltaAP1: null, faltaAP: 172, faltaEnlace: 8, variasDeficiencias: 20 },
+    { semana: "Semana 29", parqueCE: 1011, cantidadF3: 196, innovacion: 174, empresasCapres: 22, faltaAP1: null, faltaAP: 173, faltaEnlace: 6, variasDeficiencias: 17 },
+    { semana: "Semana 30", parqueCE: 962, cantidadF3: 179, innovacion: 162, empresasCapres: 17, faltaAP1: null, faltaAP: 158, faltaEnlace: 5, variasDeficiencias: 16 },
+    { semana: "Semana 31", parqueCE: 983, cantidadF3: 378, innovacion: 348, empresasCapres: 30, faltaAP1: 152, faltaAP: 216, faltaEnlace: 0, variasDeficiencias: 10 },
+    { semana: "Semana 32", parqueCE: 951, cantidadF3: 365, innovacion: 343, empresasCapres: 22, faltaAP1: 140, faltaAP: 215, faltaEnlace: 0, variasDeficiencias: 10 },
+    { semana: "Semana 33", parqueCE: 935, cantidadF3: 365, innovacion: 344, empresasCapres: 21, faltaAP1: 134, faltaAP: 221, faltaEnlace: 0, variasDeficiencias: 10 },
+    { semana: "Semana 34", parqueCE: 912, cantidadF3: 348, innovacion: 328, empresasCapres: 20, faltaAP1: 183, faltaAP: 157, faltaEnlace: 0, variasDeficiencias: 8 },
+    { semana: "Semana 35", parqueCE: 1199, cantidadF3: 363, innovacion: 344, empresasCapres: 19, faltaAP1: 179, faltaAP: 177, faltaEnlace: 0, variasDeficiencias: 7 },
   ],
 
-  // --- Hoja: TICKET SDP (arranca en Semana 30 en el Drive) ---
+  // --- Hoja: TICKET SDP ---
   ticketSDP: [
-    { semana: "Semana 30", cfoInspecciones: 42, cfoCerrados: 40, chatbotCE: 46, chatbotCerrados: 34, chatbotProceso: 12, visitas: 28, visitasProceso: 17, visitasCerrados: 11 }
+    { semana: "Semana 30", cfoInspecciones: 42, cfoCerrados: 40, chatbotCE: 46, chatbotCerrados: 34, chatbotProceso: 12, visitas: 28, visitasProceso: 17, visitasCerrados: 11 },
+    { semana: "Semana 31", cfoInspecciones: 14, cfoCerrados: 3, chatbotCE: 14, chatbotCerrados: 17, chatbotProceso: 14, visitas: 14, visitasProceso: 4, visitasCerrados: 4 },
+    { semana: "Semana 32", cfoInspecciones: 9, cfoCerrados: 5, chatbotCE: 14, chatbotCerrados: 4, chatbotProceso: 10, visitas: 14, visitasProceso: 9, visitasCerrados: 2 },
+    { semana: "Semana 33", cfoInspecciones: 43, cfoCerrados: 20, chatbotCE: 25, chatbotCerrados: 18, chatbotProceso: 7, visitas: 12, visitasProceso: 8, visitasCerrados: 4 },
+    { semana: "Semana 34", cfoInspecciones: 21, cfoCerrados: 15, chatbotCE: 36, chatbotCerrados: 26, chatbotProceso: 10, visitas: 26, visitasProceso: 25, visitasCerrados: 1 },
+    { semana: "Semana 35", cfoInspecciones: 9, cfoCerrados: 3, chatbotCE: 4, chatbotCerrados: 3, chatbotProceso: 1, visitas: 19, visitasProceso: 12, visitasCerrados: 7 },
   ],
 
   // --- Hoja: Dimensionamiento RT — resumen de cumplimiento (no se usa en el render; el detalle en DIMENSIONAMIENTO_CSV manda) ---
@@ -80,8 +127,10 @@ var DATA = {
 
 /* Dimensionamiento RT — detalle por centro escolar.
    Formato: codigo | nombre | modelo de router | escenario (Cumple / Revisar / No Cumple / Sin datos) | porcentaje (%)
-   Fuente: hoja "Dimensionamiento RT" (columna Modelo de router agregada). */
-var DIMENSIONAMIENTO_CSV = `11330|INSTITUTO NACIONAL DE APOPA|AR651|No Cumple|592.57
+   Fuente: hoja "Dimensionamiento RT". La hoja ahora guarda el % como fracción (5.9257 = 592.57%);
+   se multiplica por 100 al leerla (mismo criterio que aplica live.js). */
+var DIMENSIONAMIENTO_CSV = `
+11330|INSTITUTO NACIONAL DE APOPA|AR651|No Cumple|592.57
 11354|CENTRO ESCOLAR DOCTOR ARTURO ROMERO|AR6280|Cumple|17.39
 11395|INSTITUTO NACIONAL DE SAN BARTOLO|AR651|No Cumple|629.66
 11433|COMPLEJO EDUCATIVO PROFESORA MARÍA AMANDA ARTIGA DE VILLALTA|AR651|No Cumple|557.99
@@ -359,4 +408,5 @@ var DIMENSIONAMIENTO_CSV = `11330|INSTITUTO NACIONAL DE APOPA|AR651|No Cumple|59
 88077|CENTRO ESCOLAR CATOLICO LUIS PASTOR ARGUETA|AR651|No Cumple|476.31
 88079|CENTRO ESCOLAR CATÓLICO SAN FRANCISCO DE ASIS|AR651|No Cumple|242.95
 88083|CENTRO ESCOLAR CATOLICO FRAY COSME SPESSOTTO|AR651|No Cumple|125.43
-88120|CENTRO ESCOLAR CATOLICO SANTO DOMINGO DE GUZMAN|AR651|No Cumple|105.01`;
+88120|CENTRO ESCOLAR CATOLICO SANTO DOMINGO DE GUZMAN|AR651|No Cumple|105.01
+`;

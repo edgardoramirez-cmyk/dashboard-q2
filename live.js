@@ -78,7 +78,13 @@
     if (hi < 0) return null;
     const header = rows[hi];
     const cmap = {}; for (const f in spec) cmap[f] = col(header, spec[f]);
-    if (cmap.semana < 0) return null;
+    /* Alguna hoja (p.ej. "Cortes de Fibra Optica") trae la celda de encabezado
+       de la columna A mal escrita (un número suelto en vez de "Semana"). Si no
+       se encuentra por nombre pero SÍ se encontraron el resto de columnas de
+       la hoja, se asume que la semana sigue viviendo en la primera columna
+       (así es en todas las hojas de este Sheet) en vez de descartar la hoja
+       entera y quedarse con la copia local. */
+    if (cmap.semana < 0) cmap.semana = 0;
     const out = [];
     for (let r = hi + 1; r < rows.length; r++) {
       const raw = rows[r]; if (!raw) continue;
@@ -142,12 +148,18 @@
       const pct = num(raw[ci.pct]);
       let escenario = (raw[ci.escenario] || '').toString().trim();
       if (norm(escenario) === 'sin datos') escenario = 'Sin datos';
+      /* La hoja simplificada guarda el % como fracción (5.9257 = 592.57%) en
+         vez del número ya multiplicado por 100 que usaba la hoja anterior.
+         Si el texto original no trae el símbolo "%", se asume fracción y se
+         multiplica por 100; si ya viene con "%", se respeta tal cual. */
+      const pctRaw = (raw[ci.pct] || '').toString();
+      const pctFinal = pct == null ? null : (pctRaw.indexOf('%') >= 0 ? pct : pct * 100);
       out.push({
         codigo: code,
         nombre: (raw[ci.nombre] || '').toString().trim(),
         modelo: ci.modelo >= 0 ? (raw[ci.modelo] || '').toString().trim() : '',
         escenario,
-        pct: pct == null ? null : pct   // null (no 0) para no mezclar "sin dato" con un uso real de 0%
+        pct: pctFinal   // null (no 0) para no mezclar "sin dato" con un uso real de 0%
       });
     }
     return out.length ? out : null;
@@ -156,13 +168,23 @@
   /* ---------- especificaciones de columnas por hoja ---------- */
   const SPEC = {
     cambiosFase: { semana: ['semana'], parque: ['parque'], migradosQ3: ['migrados q3', 'q3'], migradosQ1: ['migrados q1', 'q1'], ingresanQ2: ['ingresan q2', 'ingresan'], sinFaseF3: ['sin fase a f3', 'sin fase'] },
-    inspeccion: { semana: ['semana'], totalCE: ['total ce'], inspecciones: ['inspecciones'], visitas: ['visitas'], cumpleF4: ['f4'], noCumpleF3: ['f3'], hallazgos: ['hallazgos'], revisiones: ['revisiones'], pctRevision: ['%'], pendientes: ['pendientes'] },
-    reparacion: { semana: ['semana'], cola: ['cola'], reparados: ['reparados'], casosNuevos: ['casos nuevos', 'nuevos'], enProceso: ['en proceso', 'proceso'], pendientes: ['pendientes'] },
-    mantenimiento: { semana: ['semana'], preventivos: ['preventivos'], correctivos: ['correctivos'], ups: ['ups'], switch: ['switch'], accessPoint: ['access point', 'access'], garantias: ['garant'], firewall: ['firewall'], enProceso: ['en proceso', 'proceso'], resueltas: ['resueltas'] },
+    /* Esquema nuevo (simplificado): ya no trae Total CE / Cumple F4 / No cumple F3 /
+       Hallazgos / % Revisión / Pendientes — solo CE Visitados, Inspecciones
+       Técnicas, Visitas Técnicas, Revisiones y Cantidad de CE. */
+    inspeccion: { semana: ['semana'], ceVisitados: ['ce visitados'], inspeccionesTecnicas: ['inspecciones tecnicas', 'inspecciones'], visitasTecnicas: ['visitas tecnicas', 'visitas'], revisiones: ['revisiones'], cantidadCE: ['cantidad de ce', 'cantidad ce'] },
+    /* Esquema nuevo: ya no trae "Cola" ni "Casos nuevos"; suma AP instalados,
+       AP reubicaciones y cable UTP instalado (viene como texto "1929 MT",
+       num() ya descarta el sufijo y se queda con el número). */
+    reparacion: { semana: ['semana'], reparados: ['reparados'], enProceso: ['en proceso', 'proceso'], pendientes: ['pendientes'], apInstalados: ['cantidad de ap instalados', 'ap instalados'], apReubicaciones: ['cantidad de ap reubicaciones', 'ap reubicaciones'], cableUTP: ['cantidad de cable utp instalado', 'cable utp instalado', 'cable utp'] },
+    /* Esquema nuevo: ya no trae "Preventivos" (la hoja solo reporta Correctivo y Garantías). */
+    mantenimiento: { semana: ['semana'], correctivos: ['correctivos'], ups: ['ups'], switch: ['switch'], accessPoint: ['access point', 'access'], garantias: ['garant'], firewall: ['firewall'], enProceso: ['en proceso', 'proceso'], resueltas: ['resueltas'] },
     anchosBanda: { semana: ['semana'], parque: ['parque'], noCumpleVT: ['no cumple por visita tecnica', 'no cumple vt'], cumpleVT: ['cumple por visita tecnica', 'cumple vt'], sinVerificarVT: ['sin verificar por visita tecnica', 'sin verificar'], noCumpleTeorico: ['no cumple teorico'], cumpleTeorico: ['cumple teorico'], noContrato: ['no contrato', 'contrato'], noData: ['no data'] },
     fibra: { semana: ['semana'], parque: ['parque'], bloque: ['bloque'], enlacesOffline: ['enlaces offline', 'offline'], cfoSDP: ['cfo'], sinEnergia: ['energia', 's/ energia'] },
     starlink: { semana: ['semana'], instaladas: ['instaladas'], reparadas: ['reparadas'], retiradas: ['retiradas'] },
-    cobertura: { semana: ['semana'], parqueCE: ['parque'], cantidadF3: ['cantidad f3', 'cantidad'], innovacion: ['innovacion'], empresasCapres: ['capres'], faltaAP: ['falta instalar', '2 o mas ap'], faltaEnlace: ['falta enlace', 'enlace entre'], variasDeficiencias: ['varias'] },
+    /* Esquema nuevo: se agregó "Falta instalar 1 AP" además de la ya
+       existente "Falta 2+ AP" — los needles usan un fragmento único de cada
+       encabezado ("un 1 ap" / "2 o mas ap") para no confundir una con otra. */
+    cobertura: { semana: ['semana'], parqueCE: ['parque'], cantidadF3: ['cantidad f3', 'cantidad'], innovacion: ['innovacion'], empresasCapres: ['capres'], faltaAP1: ['un 1 ap', 'falta instalar un 1'], faltaAP: ['2 o mas ap', 'falta instalar 2'], faltaEnlace: ['falta enlace', 'enlace entre'], variasDeficiencias: ['varias'] },
     ticketSDP: { semana: ['semana'], cfoInspecciones: ['ticket cfo', 'cfo de inspecciones'], cfoCerrados: ['ticket cerrados'], chatbotCE: ['ticket de chatbot ce', 'chatbot ce'], chatbotCerrados: ['ticket cerrados de chatbot', 'cerrados de chatbot'], chatbotProceso: ['ticket chatbot en proceso', 'chatbot en proceso'], visitas: ['ticket para visita'], visitasProceso: ['ticket para visitas en proceso', 'visitas en proceso'], visitasCerrados: ['cerrados ticket de visitas', 'cerrados ticket'] }
   };
 
@@ -178,9 +200,9 @@
   /* ---------- plan de hojas ---------- */
   const PLAN = [
     { key: 'cambiosFase', fn: r => weeklySheet(r, SPEC.cambiosFase, ['parque', 'migrados']) },
-    { key: 'inspeccion', fn: r => weeklySheet(r, SPEC.inspeccion, ['inspecciones', 'pendientes']) },
+    { key: 'inspeccion', fn: r => weeklySheet(r, SPEC.inspeccion, ['inspecciones tecnicas', 'visitas tecnicas']) },
     { key: 'reparacion', fn: r => weeklySheet(r, SPEC.reparacion, ['reparados']) },
-    { key: 'mantenimiento', fn: r => weeklySheet(r, SPEC.mantenimiento, ['preventivos', 'correctivos']) },
+    { key: 'mantenimiento', fn: r => weeklySheet(r, SPEC.mantenimiento, ['correctivos', 'garant']) },
     { key: 'anchosBanda', fn: r => weeklySheet(r, SPEC.anchosBanda, ['parque', 'teorico']) },
     { key: 'fibra', fn: r => weeklySheet(r, SPEC.fibra, ['offline']) },
     { key: 'starlink', fn: r => weeklySheet(r, SPEC.starlink, ['instaladas']) },

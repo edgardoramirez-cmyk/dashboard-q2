@@ -128,7 +128,6 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .mfilter button:hover{border-color:var(--cyan-deep);color:var(--ink)}
 .mfilter button.active{color:#fff;border-color:transparent}
 .mfilter button.active[data-mg="total"]{background:var(--navy)}
-.mfilter button.active[data-mg="prev"]{background:var(--pink)}
 .mfilter button.active[data-mg="corr"]{background:var(--green)}
 .mfilter button.active[data-mg="gar"]{background:var(--blue)}
 
@@ -256,44 +255,41 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
 
     <!-- ===== INSPECCION ===== -->
     <section class="view" id="inspeccion">
-      <div class="sec-head"><span class="num">02</span><h3>Inspección</h3><span class="tag">cumplimiento F4 / F3</span></div>
+      <div class="sec-head"><span class="num">02</span><h3>Inspección</h3><span class="tag">visitas técnicas · revisiones</span></div>
       <div class="gated"><div class="kpis" id="kpiInsp"></div>
-      <div class="panel" style="margin-bottom:16px"><h4>Evolución de inspecciones</h4><div class="psub">inspecciones totales realizadas por semana</div><div class="chart-box sm"><canvas id="chInspTotal"></canvas></div></div>
+      <div class="panel" style="margin-bottom:16px"><h4>Evolución de inspecciones técnicas</h4><div class="psub">inspecciones técnicas realizadas por semana</div><div class="chart-box sm"><canvas id="chInspTotal"></canvas></div></div>
       <div class="grid g3">
-        <div class="panel"><h4>Cumple vs. No cumple</h4><div class="psub">F4 (cumple) · F3 (no cumple) · pendientes</div><div class="chart-box"><canvas id="chInsp"></canvas></div></div>
-        <div class="panel"><h4>Distribución</h4><div class="psub">estado de inspecciones</div><div class="chart-box"><canvas id="chInspDonut"></canvas></div></div>
+        <div class="panel"><h4>CE visitados · inspecciones · visitas técnicas</h4><div class="psub">comparativo por semana</div><div class="chart-box"><canvas id="chInspComp"></canvas></div></div>
+        <div class="panel"><h4>Revisiones</h4><div class="psub">revisiones registradas por semana</div><div class="chart-box"><canvas id="chInspRev"></canvas></div></div>
       </div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
     <!-- ===== REPARACION ===== -->
     <section class="view" id="reparacion">
-      <div class="sec-head"><span class="num">03</span><h3>Reparación</h3><span class="tag">flujo de casos</span></div>
+      <div class="sec-head"><span class="num">03</span><h3>Reparación</h3><span class="tag">flujo de casos · infraestructura</span></div>
       <div class="gated"><div class="kpis" id="kpiRep"></div>
       <div class="panel" style="margin-bottom:16px"><h4>Evolución de reparaciones</h4><div class="psub">casos reparados por semana</div><div class="chart-box sm"><canvas id="chRepTotal"></canvas></div></div>
-      <div class="panel"><h4>Flujo de reparaciones</h4><div class="psub">cola, reparados, casos nuevos, en proceso y pendientes</div><div class="chart-box"><canvas id="chRep"></canvas></div></div></div>
+      <div class="grid g2">
+        <div class="panel"><h4>Flujo de reparaciones</h4><div class="psub">reparados, en proceso y pendientes</div><div class="chart-box"><canvas id="chRep"></canvas></div></div>
+        <div class="panel"><h4>Infraestructura instalada</h4><div class="psub">AP instalados y reubicados por semana</div><div class="chart-box"><canvas id="chRepAP"></canvas></div></div>
+      </div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
     <!-- ===== MANTENIMIENTO ===== -->
     <section class="view" id="mantenimiento">
-      <div class="sec-head"><span class="num">04</span><h3>Mantenimiento</h3><span class="tag">preventivo · correctivo · garantías</span></div>
+      <div class="sec-head"><span class="num">04</span><h3>Mantenimiento</h3><span class="tag">correctivo · garantías</span></div>
       <div class="gated"><div class="kpis" id="kpiMant"></div>
       <div class="panel" style="margin-bottom:16px"><h4>Evolución de mantenimientos</h4>
         <div class="psub" id="mantEvoSub">intervenciones totales por semana</div>
         <div class="mfilter" id="mantEvoFilter">
           <button class="active" data-mg="total">Total</button>
-          <button data-mg="prev">Preventivo</button>
           <button data-mg="corr">Correctivo</button>
           <button data-mg="gar">Garantías</button>
         </div>
         <div class="chart-box sm"><canvas id="chMantTotal"></canvas></div></div>
-      <div class="grid g3m">
-        <div class="mgrp pink">
-          <div class="mgrp-head"><span class="mdot"></span><h5>Preventivo</h5></div>
-          <div class="psub" id="mantSubPrev">comparativo entre semanas</div>
-          <div class="chart-box sm"><canvas id="chMantPrev"></canvas></div>
-        </div>
+      <div class="grid g2">
         <div class="mgrp green">
           <div class="mgrp-head"><span class="mdot"></span><h5>Correctivo · por equipo</h5></div>
           <div class="psub" id="mantSubCorr">Correctivos · UPS · Switch · Access Point</div>
@@ -307,6 +303,8 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
       </div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
+    <!-- Nota: la hoja de mantenimiento ya no reporta "Preventivos"; el filtro
+         y la tarjeta correspondiente se quitaron de esta sección. -->
 
     <!-- ===== ANCHOS DE BANDA ===== -->
     <section class="view" id="banda">
@@ -357,7 +355,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
         </div>
         <div class="mgrp amber">
           <div class="mgrp-head"><span class="mdot"></span><h5>Deficiencias</h5></div>
-          <div class="psub" id="cobSubAmber">Falta 2+ AP · Falta enlace · Varias deficiencias</div>
+          <div class="psub" id="cobSubAmber">Falta 1 AP · Falta 2+ AP · Falta enlace · Varias deficiencias</div>
           <div class="chart-box sm"><canvas id="chCobAmber"></canvas></div>
         </div>
       </div></div>
@@ -416,7 +414,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
   </div>
 </div>
 <footer>
-  Generado desde <strong>Dashboard Q2</strong> (Google Sheets) · 10 hojas consolidadas · Datos de Semanas 28–30.
+  Generado desde <strong>Dashboard Q2</strong> (Google Sheets) · 10 hojas consolidadas · Datos de Semanas 28–35.
 </footer>
 
 <script src="data.js"></script>
@@ -586,11 +584,11 @@ function refreshWeekOptions(){
 }
 
 const TITLES={
-  resumen:['Resumen ejecutivo','Panorama consolidado de 9 áreas de trabajo'],
+  resumen:['Resumen ejecutivo','Panorama consolidado de 10 áreas de trabajo'],
   fase:['Cambios de fase','Evolución del parque y migraciones'],
-  inspeccion:['Inspección','Cumplimiento F4 / F3 y pendientes'],
-  reparacion:['Reparación','Flujo de casos de reparación'],
-  mantenimiento:['Mantenimiento','Intervenciones preventivas, correctivas y garantías'],
+  inspeccion:['Inspección','Visitas técnicas, inspecciones y revisiones'],
+  reparacion:['Reparación','Flujo de casos e infraestructura instalada'],
+  mantenimiento:['Mantenimiento','Intervenciones correctivas y garantías'],
   banda:['Anchos de banda','Verificación de velocidad, semana a semana'],
   fibra:['Cortes de fibra óptica','Enlaces afectados en el bloque F3'],
   starlink:['Starlink','Antenas instaladas, reparadas y retiradas por semana'],
@@ -626,7 +624,7 @@ function renderResumen(week){
   $('#heroEyebrow').textContent='Estado de la red · '+WEEKLABEL(week);
   const stats=[
     {lbl:'Parque activo',arr:f,key:'parque',inv:false},
-    {lbl:'Pendientes de inspección',arr:ins,key:'pendientes',inv:true},
+    {lbl:'Reparaciones pendientes',arr:rep,key:'pendientes',inv:true},
     {lbl:'Reparaciones en la semana',arr:rep,key:'reparados',inv:false},
     {lbl:'Enlaces de fibra offline',arr:fib,key:'enlacesOffline',inv:true},
   ].map(s=>{
@@ -641,7 +639,7 @@ function renderResumen(week){
   const dimCounts=getDimCounts();
   const ov=[
     {area:'Cambios de fase',sec:'fase',lbl:'Parque activo',val:weekVal(f,week,'parque')},
-    {area:'Inspección',sec:'inspeccion',lbl:'Inspecciones',val:weekVal(ins,week,'inspecciones')},
+    {area:'Inspección',sec:'inspeccion',lbl:'Inspecciones técnicas',val:weekVal(ins,week,'inspeccionesTecnicas')},
     {area:'Reparación',sec:'reparacion',lbl:'Reparados',val:weekVal(rep,week,'reparados')},
     {area:'Mantenimiento',sec:'mantenimiento',lbl:'Correctivos',val:weekVal(DATA.mantenimiento,week,'correctivos')},
     {area:'Anchos de banda',sec:'banda',lbl:'Cumple VT',val:weekVal(band,week,'cumpleVT')},
@@ -682,51 +680,66 @@ function renderFase(week){
 }
 
 /* ================= 02 INSPECCION ================= */
+/* Esquema nuevo (hoja simplificada): ya no trae el desglose Cumple F4 / No
+   cumple F3 / Hallazgos / % Revisión / Pendientes, así que el gráfico de
+   cumplimiento y la dona de esta sección se reemplazaron por un comparativo
+   semanal (CE visitados / inspecciones / visitas técnicas) y un gráfico
+   propio para "Revisiones" (su escala no es comparable con las otras
+   métricas: son cientos/miles de renglones revisados, no centros). */
 function renderInsp(week){
   const d=DATA.inspeccion;
-  if(!gate('inspeccion',d,week)){ killCharts(['chInspTotal','chInsp','chInspDonut']); return; }
+  if(!gate('inspeccion',d,week)){ killCharts(['chInspTotal','chInspComp','chInspRev']); return; }
   card('#kpiInsp',[
-    {lbl:'Inspecciones',val:fmt(weekVal(d,week,'inspecciones')),cls:'accent'},
-    {lbl:'Cumple F4',val:fmt(weekVal(d,week,'cumpleF4')),cls:'good'},
-    {lbl:'No cumple F3',val:fmt(weekVal(d,week,'noCumpleF3')),cls:'bad'},
-    {lbl:'% Revisión',val:(weekVal(d,week,'pctRevision')??'—')+(weekVal(d,week,'pctRevision')!=null?'%':''),cls:'warn'},
-    {lbl:'Pendientes',val:fmt(weekVal(d,week,'pendientes')),foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'pendientes'))}`},
+    {lbl:'CE visitados',val:fmt(weekVal(d,week,'ceVisitados')),cls:'accent'},
+    {lbl:'Inspecciones técnicas',val:fmt(weekVal(d,week,'inspeccionesTecnicas')),cls:'good'},
+    {lbl:'Visitas técnicas',val:fmt(weekVal(d,week,'visitasTecnicas')),cls:'blue'},
+    {lbl:'Revisiones',val:fmt(weekVal(d,week,'revisiones')),cls:'warn'},
+    {lbl:'Cantidad de CE',val:fmt(weekVal(d,week,'cantidadCE')),foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'cantidadCE'))}`},
   ]);
   const rows=weekRows(d,week), L=rows.map(r=>r.semana);
-  mkChart('chInspTotal',{type:'line',data:{labels:L,datasets:[{label:'Inspecciones',
-    data:rows.map(r=>r.inspecciones),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
+  mkChart('chInspTotal',{type:'line',data:{labels:L,datasets:[{label:'Inspecciones técnicas',
+    data:rows.map(r=>r.inspeccionesTecnicas),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
-  mkChart('chInsp',{type:'bar',data:{labels:L,datasets:[
-    {label:'Cumple (F4)',data:rows.map(r=>r.cumpleF4),backgroundColor:C.green},
-    {label:'No cumple (F3)',data:rows.map(r=>r.noCumpleF3),backgroundColor:C.red},
-    {label:'Pendientes',data:rows.map(r=>r.pendientes),backgroundColor:C.amber}]},
-    options:{maintainAspectRatio:false,scales:baseScales(true),plugins:STACK_LABELS}});
-  const cf=weekVal(d,week,'cumpleF4'), nf=weekVal(d,week,'noCumpleF3'), hz=weekVal(d,week,'hallazgos');
-  mkChart('chInspDonut',{type:'doughnut',data:{labels:['Cumple (F4)','No cumple (F3)','Hallazgos'],
-    datasets:[{data:[cf,nf,hz],backgroundColor:[C.green,C.red,C.violet],borderWidth:0}]},
-    options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'},...DONUT_LABELS}}});
+  mkChart('chInspComp',{type:'bar',data:{labels:L,datasets:[
+    {label:'CE visitados',data:rows.map(r=>r.ceVisitados),backgroundColor:C.blue},
+    {label:'Inspecciones técnicas',data:rows.map(r=>r.inspeccionesTecnicas),backgroundColor:C.cyan},
+    {label:'Visitas técnicas',data:rows.map(r=>r.visitasTecnicas),backgroundColor:C.violet}]},
+    options:{maintainAspectRatio:false,scales:baseScales()}});
+  mkChart('chInspRev',{type:'line',data:{labels:L,datasets:[{label:'Revisiones',
+    data:rows.map(r=>r.revisiones),borderColor:C.amber,backgroundColor:hexToRgba(C.amber,.12),fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.amber,borderWidth:2}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
 }
 
 /* ================= 03 REPARACION ================= */
+/* Esquema nuevo: la hoja ya no trae "Cola" ni "Casos nuevos". A cambio suma
+   AP instalados/reubicados y metros de cable UTP instalado, que se muestran
+   como un panel y tarjetas nuevas (cable UTP queda solo como tarjeta: su
+   escala en metros no es comparable con un conteo de casos). */
 function renderRep(week){
   const d=DATA.reparacion;
-  if(!gate('reparacion',d,week)){ killCharts(['chRepTotal','chRep']); return; }
+  if(!gate('reparacion',d,week)){ killCharts(['chRepTotal','chRep','chRepAP']); return; }
+  const rows0=weekRows(d,week);
+  const sumUTP=rows0.reduce((a,r)=>a+(r.cableUTP||0),0);
   card('#kpiRep',[
     {lbl:'Reparados',val:fmt(weekVal(d,week,'reparados')),cls:'good'},
-    {lbl:'Casos nuevos',val:fmt(weekVal(d,week,'casosNuevos')),cls:'warn'},
     {lbl:'En proceso',val:fmt(weekVal(d,week,'enProceso')),cls:'accent'},
     {lbl:'Pendientes',val:fmt(weekVal(d,week,'pendientes')),cls:'bad',foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'pendientes'))}`},
+    {lbl:'AP instalados',val:fmt(weekVal(d,week,'apInstalados')),cls:'blue'},
+    {lbl:'AP reubicados',val:fmt(weekVal(d,week,'apReubicaciones')),cls:'blue'},
+    {lbl:'Cable UTP instalado',val:sumUTP?fmt(sumUTP)+' m':'—',foot:'metros'},
   ]);
   const rows=weekRows(d,week), L=rows.map(r=>r.semana);
   mkChart('chRepTotal',{type:'line',data:{labels:L,datasets:[{label:'Reparados',
     data:rows.map(r=>r.reparados),borderColor:C.cyan,backgroundColor:'rgba(23,184,196,.12)',fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.cyan,borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
   mkChart('chRep',{type:'bar',data:{labels:L,datasets:[
-    {label:'Cola (inicio)',data:rows.map(r=>r.cola),backgroundColor:C.slate},
     {label:'Reparados',data:rows.map(r=>r.reparados),backgroundColor:C.green},
-    {label:'Casos nuevos',data:rows.map(r=>r.casosNuevos),backgroundColor:C.blue},
     {label:'En proceso',data:rows.map(r=>r.enProceso),backgroundColor:C.amber},
     {label:'Pendientes',data:rows.map(r=>r.pendientes),backgroundColor:C.red}]},
+    options:{maintainAspectRatio:false,scales:baseScales()}});
+  mkChart('chRepAP',{type:'bar',data:{labels:L,datasets:[
+    {label:'AP instalados',data:rows.map(r=>r.apInstalados),backgroundColor:C.blue},
+    {label:'AP reubicados',data:rows.map(r=>r.apReubicaciones),backgroundColor:C.violet}]},
     options:{maintainAspectRatio:false,scales:baseScales()}});
 }
 
@@ -740,33 +753,31 @@ function renderRep(week){
    en la hoja, "Correctivos" YA ES la suma de UPS+Switch+Access Point,
    y "Garantías" ya es el total de casos de garantía (Firewall es el
    equipo afectado y En proceso/Resueltas es su desglose de estado).
-   Por eso el TOTAL correcto es preventivos + correctivos + garantías;
-   sumar también ups/switch/accessPoint/firewall/enProceso/resueltas
-   los cuenta dos veces. */
+   Por eso el TOTAL correcto es correctivos + garantías; sumar también
+   ups/switch/accessPoint/firewall/enProceso/resueltas los cuenta dos veces.
+   La hoja simplificada ya no reporta "Preventivos": se quitó el filtro,
+   la tarjeta y el grupo correspondientes de esta sección. */
 const MANT_GROUPS = {
-  prev: { cats:['Preventivos'], keys:['preventivos'], color:C.pink, chart:'chMantPrev', sub:'mantSubPrev', subFixed:'' },
   corr: { cats:['Correctivos','UPS','Switch','Access Point'], keys:['correctivos','ups','switch','accessPoint'], color:C.green, chart:'chMantCorr', sub:'mantSubCorr', subFixed:'Correctivos · UPS · Switch · Access Point' },
   gar:  { cats:['Garantías','Firewall','En proceso','Resueltas'], keys:['garantias','firewall','enProceso','resueltas'], color:C.blue, chart:'chMantGar', sub:'mantSubGar', subFixed:'Garantías · Firewall · En proceso · Resueltas' }
 };
 /* Series disponibles para el filtro de "Evolución de mantenimientos" */
 const MANT_EVO = {
   total:{ label:'Total intervenciones', color:C.cyan, sub:'intervenciones totales por semana',
-    val:r=>(r.preventivos==null&&r.correctivos==null&&r.garantias==null)?null:(r.preventivos||0)+(r.correctivos||0)+(r.garantias||0) },
-  prev: { label:'Preventivo', color:C.pink, sub:'intervenciones preventivas por semana', val:r=>r.preventivos },
+    val:r=>(r.correctivos==null&&r.garantias==null)?null:(r.correctivos||0)+(r.garantias||0) },
   corr: { label:'Correctivo', color:C.green, sub:'intervenciones correctivas por semana (UPS+Switch+Access Point)', val:r=>r.correctivos },
   gar:  { label:'Garantías', color:C.blue, sub:'casos de garantía por semana', val:r=>r.garantias }
 };
 function renderMant(week){
   const d=DATA.mantenimiento;
-  if(!gate('mantenimiento',d,week)){ killCharts(['chMantTotal','chMantPrev','chMantCorr','chMantGar']); return; }
-  const totVal=r=>(r.preventivos||0)+(r.correctivos||0)+(r.garantias||0);
+  if(!gate('mantenimiento',d,week)){ killCharts(['chMantTotal','chMantCorr','chMantGar']); return; }
+  const totVal=r=>(r.correctivos||0)+(r.garantias||0);
   const cur=weekRows(d,week);
   card('#kpiMant',[
-    {lbl:'Preventivos',val:fmt(weekVal(d,week,'preventivos')),cls:'pink'},
     {lbl:'Correctivos',val:fmt(weekVal(d,week,'correctivos')),cls:'green'},
     {lbl:'UPS intervenidos',val:fmt(weekVal(d,week,'ups')),cls:'green'},
     {lbl:'Garantías',val:fmt(weekVal(d,week,'garantias')),cls:'blue'},
-    {lbl:'Total intervenciones',val:fmt(cur.reduce((a,r)=>a+totVal(r),0)),cls:'accent',foot:'preventivos + correctivos + garantías'},
+    {lbl:'Total intervenciones',val:fmt(cur.reduce((a,r)=>a+totVal(r),0)),cls:'accent',foot:'correctivos + garantías'},
   ]);
 
   // Evolución: respeta el filtro activo (Total/Preventivo/Correctivo/Garantías)
@@ -879,7 +890,9 @@ function cobSnapWeek(d,week,key){ if(week!=='all') return week; const w=cobWeeks
 const COB_GROUPS = {
   green: { cats:['Parque CE','Cantidad F3'], keys:['parqueCE','cantidadF3'], color:C.green, chart:'chCobGreen', sub:'cobSubGreen', subFixed:'Parque Centros Escolares · Cantidad F3 Cobertura' },
   red:   { cats:['Innovación','Empresas CAPRES'], keys:['innovacion','empresasCapres'], color:C.red, chart:'chCobRed', sub:'cobSubRed', subFixed:'Innovación · Empresas CAPRES' },
-  amber: { cats:['Falta 2+ AP','Falta enlace','Varias deficiencias'], keys:['faltaAP','faltaEnlace','variasDeficiencias'], color:C.amber, chart:'chCobAmber', sub:'cobSubAmber', subFixed:'Falta 2+ AP · Falta enlace · Varias deficiencias' }
+  /* "Falta 1 AP" es una columna nueva de la hoja simplificada (antes solo
+     existía "Falta 2+ AP"). */
+  amber: { cats:['Falta 1 AP','Falta 2+ AP','Falta enlace','Varias deficiencias'], keys:['faltaAP1','faltaAP','faltaEnlace','variasDeficiencias'], color:C.amber, chart:'chCobAmber', sub:'cobSubAmber', subFixed:'Falta 1 AP · Falta 2+ AP · Falta enlace · Varias deficiencias' }
 };
 function renderCob(week){
   const d=DATA.cobertura;
@@ -889,6 +902,7 @@ function renderCob(week){
   card('#kpiCob',[
     {lbl:'F3 con cobertura',val:fmt(sum('cantidadF3')),cls:'green'},
     {lbl:'Innovación',val:fmt(sum('innovacion')),cls:'red'},
+    {lbl:'Falta 1 AP',val:fmt(sum('faltaAP1')),cls:'amber'},
     {lbl:'Falta 2+ AP',val:fmt(sum('faltaAP')),cls:'amber'},
     {lbl:'Varias deficiencias',val:fmt(sum('variasDeficiencias')),cls:'amber'},
   ]);
