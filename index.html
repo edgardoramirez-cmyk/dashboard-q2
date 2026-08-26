@@ -260,7 +260,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
       <div class="panel" style="margin-bottom:16px"><h4>Evolución de inspecciones técnicas</h4><div class="psub">inspecciones técnicas realizadas por semana</div><div class="chart-box sm"><canvas id="chInspTotal"></canvas></div></div>
       <div class="grid g3">
         <div class="panel"><h4>CE visitados · inspecciones · visitas técnicas</h4><div class="psub">comparativo por semana</div><div class="chart-box"><canvas id="chInspComp"></canvas></div></div>
-        <div class="panel"><h4>Revisiones</h4><div class="psub">revisiones registradas por semana</div><div class="chart-box"><canvas id="chInspRev"></canvas></div></div>
+        <div class="panel"><h4>Revisiones vs. Cantidad de CE</h4><div class="psub">revisiones registradas y centros escolares evaluados, por semana</div><div class="chart-box"><canvas id="chInspRev"></canvas></div></div>
       </div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
@@ -683,18 +683,22 @@ function renderFase(week){
 /* Esquema nuevo (hoja simplificada): ya no trae el desglose Cumple F4 / No
    cumple F3 / Hallazgos / % Revisión / Pendientes, así que el gráfico de
    cumplimiento y la dona de esta sección se reemplazaron por un comparativo
-   semanal (CE visitados / inspecciones / visitas técnicas) y un gráfico
-   propio para "Revisiones" (su escala no es comparable con las otras
-   métricas: son cientos/miles de renglones revisados, no centros). */
+   semanal (CE visitados / inspecciones / visitas técnicas) y un gráfico que
+   cruza "Revisiones" con "Cantidad de CE" en el mismo eje (su escala sí es
+   comparable entre ellas: ambas van de decenas a más de mil) para que se
+   vea cómo se mueven juntas semana a semana, más un KPI con la razón
+   revisiones/CE. */
 function renderInsp(week){
   const d=DATA.inspeccion;
   if(!gate('inspeccion',d,week)){ killCharts(['chInspTotal','chInspComp','chInspRev']); return; }
+  const rev=weekVal(d,week,'revisiones'), ce=weekVal(d,week,'cantidadCE');
+  const ratio = (rev!=null && ce) ? (rev/ce).toFixed(1) : null;
   card('#kpiInsp',[
     {lbl:'CE visitados',val:fmt(weekVal(d,week,'ceVisitados')),cls:'accent'},
     {lbl:'Inspecciones técnicas',val:fmt(weekVal(d,week,'inspeccionesTecnicas')),cls:'good'},
     {lbl:'Visitas técnicas',val:fmt(weekVal(d,week,'visitasTecnicas')),cls:'blue'},
-    {lbl:'Revisiones',val:fmt(weekVal(d,week,'revisiones')),cls:'warn'},
-    {lbl:'Cantidad de CE',val:fmt(weekVal(d,week,'cantidadCE')),foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'cantidadCE'))}`},
+    {lbl:'Revisiones',val:fmt(rev),cls:'warn'},
+    {lbl:'Cantidad de CE',val:fmt(ce),foot:ratio!=null?`${ratio} revisiones por CE`:'sin datos'},
   ]);
   const rows=weekRows(d,week), L=rows.map(r=>r.semana);
   mkChart('chInspTotal',{type:'line',data:{labels:L,datasets:[{label:'Inspecciones técnicas',
@@ -705,9 +709,15 @@ function renderInsp(week){
     {label:'Inspecciones técnicas',data:rows.map(r=>r.inspeccionesTecnicas),backgroundColor:C.cyan},
     {label:'Visitas técnicas',data:rows.map(r=>r.visitasTecnicas),backgroundColor:C.violet}]},
     options:{maintainAspectRatio:false,scales:baseScales()}});
-  mkChart('chInspRev',{type:'line',data:{labels:L,datasets:[{label:'Revisiones',
-    data:rows.map(r=>r.revisiones),borderColor:C.amber,backgroundColor:hexToRgba(C.amber,.12),fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.amber,borderWidth:2}]},
-    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
+  /* Revisiones (línea) vs. Cantidad de CE (barra) en el mismo eje: la línea
+     encima de la barra deja ver de un vistazo si las revisiones crecen más
+     rápido que los CE evaluados (más revisiones por centro) o al mismo
+     ritmo (línea y barra suben parejo). */
+  mkChart('chInspRev',{type:'bar',data:{labels:L,datasets:[
+    {type:'bar',label:'Cantidad de CE',data:rows.map(r=>r.cantidadCE),backgroundColor:hexToRgba(C.violet,.55),order:2},
+    {type:'line',label:'Revisiones',data:rows.map(r=>r.revisiones),borderColor:C.amber,backgroundColor:hexToRgba(C.amber,.12),fill:false,tension:.3,pointRadius:5,pointBackgroundColor:C.amber,borderWidth:2,order:1,
+      datalabels:{align:'top',anchor:'end'}}]},
+    options:{maintainAspectRatio:false,scales:baseScales(false,'24%'),plugins:{legend:bottomLegend(true)}}});
 }
 
 /* ================= 03 REPARACION ================= */
