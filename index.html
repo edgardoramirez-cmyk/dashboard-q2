@@ -289,7 +289,7 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
       <div class="grid g2">
         <div class="mgrp green">
           <div class="mgrp-head"><span class="mdot"></span><h5>Correctivo · por equipo</h5></div>
-          <div class="psub" id="mantSubCorr">Correctivos · UPS · Switch · Access Point</div>
+          <div class="psub" id="mantSubCorr">UPS · Switch · Access Point · UTP</div>
           <div class="chart-box sm"><canvas id="chMantCorr"></canvas></div>
         </div>
         <div class="mgrp blue">
@@ -638,7 +638,7 @@ function renderResumen(week){
     {area:'Cambios de fase',sec:'fase',lbl:'Parque activo',val:weekVal(f,week,'parque')},
     {area:'Inspección',sec:'inspeccion',lbl:'Inspecciones técnicas',val:weekVal(ins,week,'inspeccionesTecnicas')},
     {area:'Reparación',sec:'reparacion',lbl:'Reparados',val:weekVal(rep,week,'reparados')},
-    {area:'Mantenimiento',sec:'mantenimiento',lbl:'Correctivos',val:weekVal(DATA.mantenimiento,week,'correctivos')},
+    {area:'Mantenimiento',sec:'mantenimiento',lbl:'Equipos intervenidos',val:equipoWeekVal(DATA.mantenimiento,week)},
     {area:'Anchos de banda',sec:'banda',lbl:'Cumple VT',val:weekVal(band,week,'cumpleVT')},
     {area:'Fibra óptica',sec:'fibra',lbl:'Enlaces offline',val:weekVal(fib,week,'enlacesOffline')},
     {area:'Starlink',sec:'starlink',lbl:'Instaladas (semana)',val:weekVal(star,week,'instaladas')},
@@ -743,41 +743,48 @@ function renderRep(week){
 
 /* ================= 04 MANTENIMIENTO ================= */
 /* Los 2 bloques (Correctivo / Garantías) reproducen la separación por color
-   de la hoja DATA_MANTENIMIENTO: verde = Correctivos·UPS·Switch·Access
-   Point, azul = Garantías·Firewall·En proceso·Resueltas.
+   de la hoja DATA_EQUIPOS (antes DATA_MANTENIMIENTO): verde =
+   UPS·Switch·Access Point·UTP, azul = Garantías·Firewall·En proceso·Resueltas.
 
    IMPORTANTE — cómo cuadran los números con la hoja:
-   "Correctivos" y "Garantías" son los dos totales de la semana (por eso el
-   TOTAL de la sección es correctivos + garantías). UPS/Switch/Access Point
-   es el desglose de qué equipo se intervino en esos casos correctivos, pero
-   NO tiene por qué sumar igual a "Correctivos": un mismo caso puede
-   involucrar más de un equipo. En cambio "Garantías" y "Firewall" sí
-   coinciden siempre en esta hoja (todas las garantías registradas son de
-   firewalls); "En proceso"/"Resueltas" es el desglose de estado de esas
-   garantías.
+   la hoja ya no trae un total de "Correctivos" aparte: ahora el total
+   correctivo ES la suma de UPS+Switch+Access Point+UTP (por eso el TOTAL de
+   la sección es esa suma + garantías). "UTP" es una columna nueva, todavía
+   sin datos cargados en la hoja. "Garantías" y "Firewall" sí coinciden
+   siempre en esta hoja (todas las garantías registradas son de firewalls);
+   "En proceso"/"Resueltas" es el desglose de estado de esas garantías.
    La hoja simplificada ya no reporta "Preventivos": se quitó el filtro,
    la tarjeta y el grupo correspondientes de esta sección. */
 const MANT_GROUPS = {
-  corr: { cats:['Correctivos','UPS','Switch','Access Point'], keys:['correctivos','ups','switch','accessPoint'], color:C.green, chart:'chMantCorr', sub:'mantSubCorr', subFixed:'Correctivos · UPS · Switch · Access Point' },
+  corr: { cats:['UPS','Switch','Access Point','UTP'], keys:['ups','switch','accessPoint','utp'], color:C.green, chart:'chMantCorr', sub:'mantSubCorr', subFixed:'UPS · Switch · Access Point · UTP' },
   gar:  { cats:['Garantías','Firewall','En proceso','Resueltas'], keys:['garantias','firewall','enProceso','resueltas'], color:C.blue, chart:'chMantGar', sub:'mantSubGar', subFixed:'Garantías · Firewall · En proceso · Resueltas' }
 };
+const equipoVal=r=>(r.ups==null&&r.switch==null&&r.accessPoint==null&&r.utp==null)?null:(r.ups||0)+(r.switch||0)+(r.accessPoint||0)+(r.utp||0);
+/* Mismo criterio que weekVal/latestVal pero para el total calculado (no
+   viene como columna propia en la hoja): en "todas las semanas" busca el
+   último valor no nulo; en una semana puntual devuelve el de esa fila. */
+function equipoWeekVal(arr,week){
+  if(week==='all'){ for(let i=arr.length-1;i>=0;i--){ const v=equipoVal(arr[i]); if(v!=null) return v; } return null; }
+  const r=arr.find(x=>x.semana===week); return r?equipoVal(r):null;
+}
 /* Series disponibles para el filtro de "Evolución de mantenimientos" */
 const MANT_EVO = {
   total:{ label:'Total intervenciones', color:C.cyan, sub:'intervenciones totales por semana',
-    val:r=>(r.correctivos==null&&r.garantias==null)?null:(r.correctivos||0)+(r.garantias||0) },
-  corr: { label:'Correctivo', color:C.green, sub:'intervenciones correctivas por semana (UPS+Switch+Access Point)', val:r=>r.correctivos },
+    val:r=>(equipoVal(r)==null&&r.garantias==null)?null:(equipoVal(r)||0)+(r.garantias||0) },
+  corr: { label:'Correctivo', color:C.green, sub:'intervenciones correctivas por semana (UPS+Switch+Access Point+UTP)', val:equipoVal },
   gar:  { label:'Garantías', color:C.blue, sub:'casos de garantía por semana', val:r=>r.garantias }
 };
 function renderMant(week){
   const d=DATA.mantenimiento;
   if(!gate('mantenimiento',d,week)){ killCharts(['chMantTotal','chMantCorr','chMantGar']); return; }
-  const totVal=r=>(r.correctivos||0)+(r.garantias||0);
+  const totVal=r=>(equipoVal(r)||0)+(r.garantias||0);
   const cur=weekRows(d,week);
   card('#kpiMant',[
-    {lbl:'Correctivos',val:fmt(weekVal(d,week,'correctivos')),cls:'green'},
+    {lbl:'Equipos intervenidos',val:fmt(equipoWeekVal(d,week)),cls:'green',foot:'UPS + Switch + AP + UTP'},
     {lbl:'UPS intervenidos',val:fmt(weekVal(d,week,'ups')),cls:'green'},
+    {lbl:'UTP instalado',val:fmt(weekVal(d,week,'utp')),cls:'green'},
     {lbl:'Garantías',val:fmt(weekVal(d,week,'garantias')),cls:'blue'},
-    {lbl:'Total intervenciones',val:fmt(cur.reduce((a,r)=>a+totVal(r),0)),cls:'accent',foot:'correctivos + garantías'},
+    {lbl:'Total intervenciones',val:fmt(cur.reduce((a,r)=>a+totVal(r),0)),cls:'accent',foot:'equipos + garantías'},
   ]);
 
   // Evolución: respeta el filtro activo (Total/Preventivo/Correctivo/Garantías)

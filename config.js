@@ -36,7 +36,7 @@ var LIVE_CONFIG = {
     cambiosFase:      "Cambios Fase",
     inspeccion:       "DATA_INSPECCION",
     reparacion:       "DATA_REPARACION",
-    mantenimiento:    "DATA_MANTENIMIENTO",
+    mantenimiento:    "DATA_EQUIPOS",
     anchosBanda:      "Anchos de Banda",
     fibra:            "Cortes de Fibra Optica",
     starlink:         "Starlink",

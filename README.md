@@ -25,10 +25,11 @@ hosting estático subiendo estos 5 archivos tal cual.
 
 ## Qué cambió con las hojas simplificadas (esta regeneración)
 
-Tu Excel “Dashboard Q2” trae las mismas 10 pestañas de siempre, pero varias
-quedaron con columnas distintas. Esto es lo que se adaptó automáticamente
-(usando el mismo criterio en `data.js` y en `live.js`, para que la copia
-local y la lectura en vivo siempre cuadren):
+Tu Excel “Dashboard Q2” sigue teniendo 10 pestañas, pero varias quedaron con
+columnas distintas y una se renombró (DATA_MANTENIMIENTO → DATA_EQUIPOS).
+Esto es lo que se adaptó automáticamente (usando el mismo criterio en
+`data.js` y en `live.js`, para que la copia local y la lectura en vivo
+siempre cuadren):
 
 - **Inspección** — la hoja ya no trae el desglose "Cumple F4 / No cumple F3 /
   Hallazgos / % Revisión / Pendientes". Ahora reporta *CE Visitados*,
@@ -37,14 +38,15 @@ local y la lectura en vivo siempre cuadren):
   reemplazaron por un comparativo semanal (CE visitados / inspecciones /
   visitas técnicas) y un gráfico propio para Revisiones (su escala — cientos
   o miles — no es comparable con el resto).
-- **Mantenimiento** — la hoja ya no trae "Preventivos". Se quitó el filtro,
-  la tarjeta y el grupo correspondientes; la sección queda con Correctivo y
-  Garantías. "Correctivos" y "Garantías" son los dos totales de la semana
-  (el KPI de "Total intervenciones" es correctivos + garantías). UPS /
-  Switch / Access Point es el desglose de qué equipo se intervino, pero no
-  tiene por qué sumar igual a "Correctivos" (un mismo caso puede involucrar
-  más de un equipo); "Firewall" sí coincide siempre con "Garantías" en esta
-  hoja, y "En proceso"/"Resueltas" es su desglose de estado.
+- **Mantenimiento** — la hoja **DATA_MANTENIMIENTO se renombró a
+  DATA_EQUIPOS** (ya actualizado en `config.js`). Ya no trae "Preventivos"
+  ni "Correctivos"; se agregó una columna "UTP" (todavía sin datos
+  cargados). Como ya no hay un total de "Correctivos" aparte, ahora ESE
+  total se calcula como UPS + Switch + Access Point + UTP — se muestra
+  como la tarjeta "Equipos intervenidos", y el KPI de "Total
+  intervenciones" es esa suma + Garantías. "Garantías" y "Firewall" siguen
+  coincidiendo siempre en esta hoja (todas las garantías registradas son de
+  firewalls); "En proceso"/"Resueltas" es su desglose de estado.
 - **Reparación** — la hoja ya no trae "Cola" ni "Casos nuevos" (tampoco AP
   instalados/reubicados ni cable UTP, que había traído en una versión
   intermedia de la hoja y ya no están). Queda solo Reparados, En proceso y

@@ -176,8 +176,10 @@
        (ni AP instalados/reubicados ni cable UTP, que la hoja trajo
        brevemente y ya no están). Solo Reparados, En proceso y Pendientes. */
     reparacion: { semana: ['semana'], reparados: ['reparados'], enProceso: ['en proceso', 'proceso'], pendientes: ['pendientes'] },
-    /* Esquema nuevo: ya no trae "Preventivos" (la hoja solo reporta Correctivo y Garantías). */
-    mantenimiento: { semana: ['semana'], correctivos: ['correctivos'], ups: ['ups'], switch: ['switch'], accessPoint: ['access point', 'access'], garantias: ['garant'], firewall: ['firewall'], enProceso: ['en proceso', 'proceso'], resueltas: ['resueltas'] },
+    /* Hoja renombrada de DATA_MANTENIMIENTO a DATA_EQUIPOS (ver config.js).
+       Ya no trae "Preventivos" ni "Correctivos"; se agregó "UTP" junto a
+       UPS/Switch/Access Point (todavía sin datos cargados en la hoja). */
+    mantenimiento: { semana: ['semana'], ups: ['ups'], switch: ['switch'], accessPoint: ['access point', 'access'], utp: ['utp'], garantias: ['garant'], firewall: ['firewall'], enProceso: ['en proceso', 'proceso'], resueltas: ['resueltas'] },
     anchosBanda: { semana: ['semana'], parque: ['parque'], noCumpleVT: ['no cumple por visita tecnica', 'no cumple vt'], cumpleVT: ['cumple por visita tecnica', 'cumple vt'], sinVerificarVT: ['sin verificar por visita tecnica', 'sin verificar'], noCumpleTeorico: ['no cumple teorico'], cumpleTeorico: ['cumple teorico'], noContrato: ['no contrato', 'contrato'], noData: ['no data'] },
     fibra: { semana: ['semana'], parque: ['parque'], bloque: ['bloque'], enlacesOffline: ['enlaces offline', 'offline'], cfoSDP: ['cfo'], sinEnergia: ['energia', 's/ energia'] },
     starlink: { semana: ['semana'], instaladas: ['instaladas'], reparadas: ['reparadas'], retiradas: ['retiradas'] },
@@ -202,7 +204,7 @@
     { key: 'cambiosFase', fn: r => weeklySheet(r, SPEC.cambiosFase, ['parque', 'migrados']) },
     { key: 'inspeccion', fn: r => weeklySheet(r, SPEC.inspeccion, ['inspecciones tecnicas', 'visitas tecnicas']) },
     { key: 'reparacion', fn: r => weeklySheet(r, SPEC.reparacion, ['reparados']) },
-    { key: 'mantenimiento', fn: r => weeklySheet(r, SPEC.mantenimiento, ['correctivos', 'garant']) },
+    { key: 'mantenimiento', fn: r => weeklySheet(r, SPEC.mantenimiento, ['access point', 'garant']) },
     { key: 'anchosBanda', fn: r => weeklySheet(r, SPEC.anchosBanda, ['parque', 'teorico']) },
     { key: 'fibra', fn: r => weeklySheet(r, SPEC.fibra, ['offline']) },
     { key: 'starlink', fn: r => weeklySheet(r, SPEC.starlink, ['instaladas']) },
