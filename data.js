@@ -38,16 +38,18 @@ var DATA = {
   ],
 
   // --- Hoja: DATA_REPARACION ---
-  // Esquema nuevo: ya no trae "Cola" ni "Casos nuevos"; suma AP instalados/reubicados y cable UTP instalado (metros).
+  // Esquema simplificado (2da vuelta): ya no trae "Cola" ni "Casos nuevos"
+  // (ni tampoco AP instalados/reubicados ni cable UTP, que la hoja trajo
+  // brevemente y ya no están). Solo Reparados, En proceso y Pendientes.
   reparacion: [
-    { semana: "Semana 28", reparados: 10, enProceso: 0, pendientes: 17, apInstalados: null, apReubicaciones: null, cableUTP: null },
-    { semana: "Semana 29", reparados: 22, enProceso: 2, pendientes: 14, apInstalados: null, apReubicaciones: null, cableUTP: null },
-    { semana: "Semana 30", reparados: 17, enProceso: 1, pendientes: 8, apInstalados: null, apReubicaciones: null, cableUTP: null },
-    { semana: "Semana 31", reparados: 40, enProceso: 0, pendientes: 40, apInstalados: 81, apReubicaciones: 47, cableUTP: 1929 },
-    { semana: "Semana 32", reparados: 6, enProceso: 0, pendientes: 4, apInstalados: 6, apReubicaciones: 3, cableUTP: 293 },
-    { semana: "Semana 33", reparados: 47, enProceso: 0, pendientes: 3, apInstalados: 88, apReubicaciones: 68, cableUTP: 2585 },
-    { semana: "Semana 34", reparados: 9, enProceso: 0, pendientes: 10, apInstalados: 23, apReubicaciones: 10, cableUTP: 602 },
-    { semana: "Semana 35", reparados: 13, enProceso: 4, pendientes: 0, apInstalados: null, apReubicaciones: null, cableUTP: null },
+    { semana: "Semana 28", reparados: 10, enProceso: 0, pendientes: 17 },
+    { semana: "Semana 29", reparados: 22, enProceso: 2, pendientes: 14 },
+    { semana: "Semana 30", reparados: 17, enProceso: 1, pendientes: 8 },
+    { semana: "Semana 31", reparados: 40, enProceso: 0, pendientes: 40 },
+    { semana: "Semana 32", reparados: 6, enProceso: 0, pendientes: 4 },
+    { semana: "Semana 33", reparados: 47, enProceso: 0, pendientes: 3 },
+    { semana: "Semana 34", reparados: 9, enProceso: 0, pendientes: 10 },
+    { semana: "Semana 35", reparados: 13, enProceso: 4, pendientes: 0 },
   ],
 
   // --- Hoja: DATA_MANTENIMIENTO ---

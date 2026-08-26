@@ -45,10 +45,10 @@ local y la lectura en vivo siempre cuadren):
   tiene por qué sumar igual a "Correctivos" (un mismo caso puede involucrar
   más de un equipo); "Firewall" sí coincide siempre con "Garantías" en esta
   hoja, y "En proceso"/"Resueltas" es su desglose de estado.
-- **Reparación** — la hoja ya no trae "Cola" ni "Casos nuevos". A cambio
-  suma *AP instalados*, *AP reubicaciones* y *cable UTP instalado* (metros),
-  que ahora se muestran como tarjetas nuevas y un panel de "Infraestructura
-  instalada".
+- **Reparación** — la hoja ya no trae "Cola" ni "Casos nuevos" (tampoco AP
+  instalados/reubicados ni cable UTP, que había traído en una versión
+  intermedia de la hoja y ya no están). Queda solo Reparados, En proceso y
+  Pendientes.
 - **Cobertura** — se agregó la columna "Falta instalar 1 AP" (antes solo
   existía "Falta 2+ AP"); se sumó como tarjeta y serie nueva junto a la que
   ya existía.

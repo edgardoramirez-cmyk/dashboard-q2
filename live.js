@@ -172,10 +172,10 @@
        Hallazgos / % Revisión / Pendientes — solo CE Visitados, Inspecciones
        Técnicas, Visitas Técnicas, Revisiones y Cantidad de CE. */
     inspeccion: { semana: ['semana'], ceVisitados: ['ce visitados'], inspeccionesTecnicas: ['inspecciones tecnicas', 'inspecciones'], visitasTecnicas: ['visitas tecnicas', 'visitas'], revisiones: ['revisiones'], cantidadCE: ['cantidad de ce', 'cantidad ce'] },
-    /* Esquema nuevo: ya no trae "Cola" ni "Casos nuevos"; suma AP instalados,
-       AP reubicaciones y cable UTP instalado (viene como texto "1929 MT",
-       num() ya descarta el sufijo y se queda con el número). */
-    reparacion: { semana: ['semana'], reparados: ['reparados'], enProceso: ['en proceso', 'proceso'], pendientes: ['pendientes'], apInstalados: ['cantidad de ap instalados', 'ap instalados'], apReubicaciones: ['cantidad de ap reubicaciones', 'ap reubicaciones'], cableUTP: ['cantidad de cable utp instalado', 'cable utp instalado', 'cable utp'] },
+    /* Esquema simplificado (2da vuelta): ya no trae "Cola" ni "Casos nuevos"
+       (ni AP instalados/reubicados ni cable UTP, que la hoja trajo
+       brevemente y ya no están). Solo Reparados, En proceso y Pendientes. */
+    reparacion: { semana: ['semana'], reparados: ['reparados'], enProceso: ['en proceso', 'proceso'], pendientes: ['pendientes'] },
     /* Esquema nuevo: ya no trae "Preventivos" (la hoja solo reporta Correctivo y Garantías). */
     mantenimiento: { semana: ['semana'], correctivos: ['correctivos'], ups: ['ups'], switch: ['switch'], accessPoint: ['access point', 'access'], garantias: ['garant'], firewall: ['firewall'], enProceso: ['en proceso', 'proceso'], resueltas: ['resueltas'] },
     anchosBanda: { semana: ['semana'], parque: ['parque'], noCumpleVT: ['no cumple por visita tecnica', 'no cumple vt'], cumpleVT: ['cumple por visita tecnica', 'cumple vt'], sinVerificarVT: ['sin verificar por visita tecnica', 'sin verificar'], noCumpleTeorico: ['no cumple teorico'], cumpleTeorico: ['cumple teorico'], noContrato: ['no contrato', 'contrato'], noData: ['no data'] },

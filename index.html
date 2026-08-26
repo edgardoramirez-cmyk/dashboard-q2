@@ -267,13 +267,10 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
 
     <!-- ===== REPARACION ===== -->
     <section class="view" id="reparacion">
-      <div class="sec-head"><span class="num">03</span><h3>Reparación</h3><span class="tag">flujo de casos · infraestructura</span></div>
+      <div class="sec-head"><span class="num">03</span><h3>Reparación</h3><span class="tag">flujo de casos</span></div>
       <div class="gated"><div class="kpis" id="kpiRep"></div>
       <div class="panel" style="margin-bottom:16px"><h4>Evolución de reparaciones</h4><div class="psub">casos reparados por semana</div><div class="chart-box sm"><canvas id="chRepTotal"></canvas></div></div>
-      <div class="grid g2">
-        <div class="panel"><h4>Flujo de reparaciones</h4><div class="psub">reparados, en proceso y pendientes</div><div class="chart-box"><canvas id="chRep"></canvas></div></div>
-        <div class="panel"><h4>Infraestructura instalada</h4><div class="psub">AP instalados y reubicados por semana</div><div class="chart-box"><canvas id="chRepAP"></canvas></div></div>
-      </div></div>
+      <div class="panel"><h4>Flujo de reparaciones</h4><div class="psub">reparados, en proceso y pendientes</div><div class="chart-box"><canvas id="chRep"></canvas></div></div></div>
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
 
@@ -587,7 +584,7 @@ const TITLES={
   resumen:['Resumen ejecutivo','Panorama consolidado de 10 áreas de trabajo'],
   fase:['Cambios de fase','Evolución del parque y migraciones'],
   inspeccion:['Inspección','Visitas técnicas, inspecciones y revisiones'],
-  reparacion:['Reparación','Flujo de casos e infraestructura instalada'],
+  reparacion:['Reparación','Flujo de casos de reparación'],
   mantenimiento:['Mantenimiento','Intervenciones correctivas y garantías'],
   banda:['Anchos de banda','Verificación de velocidad, semana a semana'],
   fibra:['Cortes de fibra óptica','Enlaces afectados en el bloque F3'],
@@ -721,22 +718,17 @@ function renderInsp(week){
 }
 
 /* ================= 03 REPARACION ================= */
-/* Esquema nuevo: la hoja ya no trae "Cola" ni "Casos nuevos". A cambio suma
-   AP instalados/reubicados y metros de cable UTP instalado, que se muestran
-   como un panel y tarjetas nuevas (cable UTP queda solo como tarjeta: su
-   escala en metros no es comparable con un conteo de casos). */
+/* Esquema simplificado (2da vuelta): la hoja ya no trae "Cola" ni "Casos
+   nuevos" — y tampoco AP instalados/reubicados ni cable UTP, que había
+   traído brevemente y ya no están. Queda solo Reparados, En proceso y
+   Pendientes. */
 function renderRep(week){
   const d=DATA.reparacion;
-  if(!gate('reparacion',d,week)){ killCharts(['chRepTotal','chRep','chRepAP']); return; }
-  const rows0=weekRows(d,week);
-  const sumUTP=rows0.reduce((a,r)=>a+(r.cableUTP||0),0);
+  if(!gate('reparacion',d,week)){ killCharts(['chRepTotal','chRep']); return; }
   card('#kpiRep',[
     {lbl:'Reparados',val:fmt(weekVal(d,week,'reparados')),cls:'good'},
     {lbl:'En proceso',val:fmt(weekVal(d,week,'enProceso')),cls:'accent'},
     {lbl:'Pendientes',val:fmt(weekVal(d,week,'pendientes')),cls:'bad',foot:`${refLabel(week)}: ${fmt(prevWeekVal(d,week,'pendientes'))}`},
-    {lbl:'AP instalados',val:fmt(weekVal(d,week,'apInstalados')),cls:'blue'},
-    {lbl:'AP reubicados',val:fmt(weekVal(d,week,'apReubicaciones')),cls:'blue'},
-    {lbl:'Cable UTP instalado',val:sumUTP?fmt(sumUTP)+' m':'—',foot:'metros'},
   ]);
   const rows=weekRows(d,week), L=rows.map(r=>r.semana);
   mkChart('chRepTotal',{type:'line',data:{labels:L,datasets:[{label:'Reparados',
@@ -746,10 +738,6 @@ function renderRep(week){
     {label:'Reparados',data:rows.map(r=>r.reparados),backgroundColor:C.green},
     {label:'En proceso',data:rows.map(r=>r.enProceso),backgroundColor:C.amber},
     {label:'Pendientes',data:rows.map(r=>r.pendientes),backgroundColor:C.red}]},
-    options:{maintainAspectRatio:false,scales:baseScales()}});
-  mkChart('chRepAP',{type:'bar',data:{labels:L,datasets:[
-    {label:'AP instalados',data:rows.map(r=>r.apInstalados),backgroundColor:C.blue},
-    {label:'AP reubicados',data:rows.map(r=>r.apReubicaciones),backgroundColor:C.violet}]},
     options:{maintainAspectRatio:false,scales:baseScales()}});
 }
 
