@@ -38,8 +38,13 @@ local y la lectura en vivo siempre cuadren):
   visitas técnicas) y un gráfico propio para Revisiones (su escala — cientos
   o miles — no es comparable con el resto).
 - **Mantenimiento** — la hoja ya no trae "Preventivos". Se quitó el filtro,
-  la tarjeta y el grupo correspondientes; la sección queda con
-  Correctivo y Garantías.
+  la tarjeta y el grupo correspondientes; la sección queda con Correctivo y
+  Garantías. "Correctivos" y "Garantías" son los dos totales de la semana
+  (el KPI de "Total intervenciones" es correctivos + garantías). UPS /
+  Switch / Access Point es el desglose de qué equipo se intervino, pero no
+  tiene por qué sumar igual a "Correctivos" (un mismo caso puede involucrar
+  más de un equipo); "Firewall" sí coincide siempre con "Garantías" en esta
+  hoja, y "En proceso"/"Resueltas" es su desglose de estado.
 - **Reparación** — la hoja ya no trae "Cola" ni "Casos nuevos". A cambio
   suma *AP instalados*, *AP reubicaciones* y *cable UTP instalado* (metros),
   que ahora se muestran como tarjetas nuevas y un panel de "Infraestructura
@@ -59,9 +64,15 @@ local y la lectura en vivo siempre cuadren):
   (Cumple: 72 · Revisar: 29 · No Cumple: 177 · Sin datos: 1, sobre 279
   centros).
 
-Todas las demás hojas (Cambios de Fase, Anchos de Banda, Starlink, Ticket
-SDP) mantienen exactamente las mismas columnas y gráficos de siempre; solo
-se actualizaron los datos, ahora con semanas 28 a 35.
+Todas las demás hojas (Anchos de Banda, Starlink, Ticket SDP) mantienen
+exactamente las mismas columnas y gráficos de siempre; solo se actualizaron
+los datos, ahora con semanas 28 a 35.
+
+**Cambios de Fase** también mantiene sus columnas de siempre, pero se
+corrigió cómo se explicaba "Sin fase a F3": son centros escolares que **no
+tenían fase previa y entraron directo a Fase 3** (un ingreso, no una
+salida), así que la tarjeta y el gráfico se corrigieron para mostrarlo como
+algo positivo en vez de "quedan fuera de F3".
 
 ## Actualizar los datos
 

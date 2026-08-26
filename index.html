@@ -665,7 +665,7 @@ function renderFase(week){
     {lbl:'Migrados Q3',val:fmt(weekVal(f,week,'migradosQ3')),foot:'centros migrados'},
     {lbl:'Migrados Q1',val:fmt(weekVal(f,week,'migradosQ1'))},
     {lbl:'Ingresan Q2',val:fmt(weekVal(f,week,'ingresanQ2')),cls:'good',foot:'nuevos ingresos'},
-    {lbl:'Sin fase a F3',val:fmt(weekVal(f,week,'sinFaseF3')),cls:'bad',foot:'quedan fuera de F3'},
+    {lbl:'Sin fase a F3',val:fmt(weekVal(f,week,'sinFaseF3')),cls:'good',foot:'sin fase previa, entran directo a F3'},
   ]);
   const rows=weekRows(f,week), L=rows.map(r=>r.semana);
   mkChart('chFaseParque',{type:'line',data:{labels:L,datasets:[{label:'Parque',
@@ -675,7 +675,7 @@ function renderFase(week){
     {label:'Migrados Q3',data:rows.map(r=>r.migradosQ3),backgroundColor:C.blue},
     {label:'Migrados Q1',data:rows.map(r=>r.migradosQ1),backgroundColor:C.violet},
     {label:'Ingresan Q2',data:rows.map(r=>r.ingresanQ2),backgroundColor:C.green},
-    {label:'Sin fase a F3',data:rows.map(r=>r.sinFaseF3),backgroundColor:C.red}]},
+    {label:'Sin fase a F3',data:rows.map(r=>r.sinFaseF3),backgroundColor:C.cyan}]},
     options:{maintainAspectRatio:false,scales:baseScales()}});
 }
 
@@ -744,17 +744,19 @@ function renderRep(week){
 }
 
 /* ================= 04 MANTENIMIENTO ================= */
-/* Los 3 bloques (Preventivo / Correctivo / Garantías) reproducen la
-   separación por color de la hoja DATA_MANTENIMIENTO en Drive:
-   magenta = Preventivos, verde = Correctivos·UPS·Switch·Access Point,
-   azul = Garantías·Firewall·En proceso·Resueltas.
+/* Los 2 bloques (Correctivo / Garantías) reproducen la separación por color
+   de la hoja DATA_MANTENIMIENTO: verde = Correctivos·UPS·Switch·Access
+   Point, azul = Garantías·Firewall·En proceso·Resueltas.
 
-   IMPORTANTE — cómo cuadran los números con el Drive:
-   en la hoja, "Correctivos" YA ES la suma de UPS+Switch+Access Point,
-   y "Garantías" ya es el total de casos de garantía (Firewall es el
-   equipo afectado y En proceso/Resueltas es su desglose de estado).
-   Por eso el TOTAL correcto es correctivos + garantías; sumar también
-   ups/switch/accessPoint/firewall/enProceso/resueltas los cuenta dos veces.
+   IMPORTANTE — cómo cuadran los números con la hoja:
+   "Correctivos" y "Garantías" son los dos totales de la semana (por eso el
+   TOTAL de la sección es correctivos + garantías). UPS/Switch/Access Point
+   es el desglose de qué equipo se intervino en esos casos correctivos, pero
+   NO tiene por qué sumar igual a "Correctivos": un mismo caso puede
+   involucrar más de un equipo. En cambio "Garantías" y "Firewall" sí
+   coinciden siempre en esta hoja (todas las garantías registradas son de
+   firewalls); "En proceso"/"Resueltas" es el desglose de estado de esas
+   garantías.
    La hoja simplificada ya no reporta "Preventivos": se quitó el filtro,
    la tarjeta y el grupo correspondientes de esta sección. */
 const MANT_GROUPS = {
