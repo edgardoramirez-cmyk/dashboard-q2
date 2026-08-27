@@ -23,6 +23,23 @@ hosting estático subiendo estos 5 archivos tal cual.
 2. En `config.js`, `spreadsheetId` ya apunta a tu libro. En `sheets`, cada clave debe tener el **nombre exacto de la pestaña** (la etiqueta de abajo en Sheets, no la URL). Se usa el nombre en vez del `gid` porque el `gid` se rompe si borrás y volvés a crear una pestaña.
 3. Subí los 5 archivos a GitHub. El dashboard intenta leer el Sheet al cargar; si no puede (sin conexión, Sheet privado, hoja sin nombre configurado), usa `data.js` automáticamente — nunca se rompe.
 
+## Filtro de semana: comparar las últimas 2 o 3 semanas
+
+El selector "Semana" (arriba a la derecha) ahora tiene, además de "Todas" y
+cada semana puntual, dos opciones nuevas:
+
+- **Últimas 2 semanas**
+- **Últimas 3 semanas**
+
+Comparan hacia atrás desde la semana más reciente con datos cargados (por
+ejemplo, si la última es la Semana 35, "Últimas 3 semanas" muestra 33·34·35).
+Se aplican a todo el dashboard igual que "Todas": los gráficos comparativos
+por semana (barras agrupadas, líneas de evolución) muestran solo esas 2 o 3
+semanas en vez de las 8 completas, y las tarjetas de arriba siguen mostrando
+el valor más reciente (igual que con "Todas"). Estas dos opciones solo
+aparecen en el filtro si hay suficientes semanas cargadas (no tiene sentido
+ofrecer "últimas 3" si solo hay 1 o 2 semanas con datos todavía).
+
 ## Qué cambió con las hojas simplificadas (esta regeneración)
 
 Tu Excel “Dashboard Q2” sigue teniendo 10 pestañas, pero varias quedaron con

@@ -514,13 +514,25 @@ function mkChart(id,cfg){ if(charts[id]){charts[id].destroy();} charts[id]=new C
 function killCharts(ids){ ids.forEach(id=>{ if(charts[id]){charts[id].destroy(); delete charts[id];} }); }
 
 /* Acceso a valores por semana */
+/* "Semana" en el filtro admite 3 formas: 'all' (todas), 'lastN' (las N
+   semanas más recientes hacia atrás desde la actual — así se arma el
+   comparativo de 2 o 3 semanas) o el nombre exacto de una semana puntual.
+   isMulti() agrupa 'all' y 'lastN' porque para casi toda la lógica de abajo
+   (valor más reciente, texto de comparación, gráficos comparativos) se
+   comportan igual: la diferencia es solo CUÁNTAS filas trae weekRows(). */
+function isMulti(week){ return week==='all' || /^last\d+$/.test(week); }
 function latestVal(arr,key){ for(let i=arr.length-1;i>=0;i--){ if(arr[i][key]!=null) return arr[i][key]; } return null; }
-function weekVal(arr,week,key){ if(week==='all') return latestVal(arr,key); const r=arr.find(x=>x.semana===week); return r?r[key]:null; }
+function weekVal(arr,week,key){ if(isMulti(week)) return latestVal(arr,key); const r=arr.find(x=>x.semana===week); return r?r[key]:null; }
 function prevWeekVal(arr,week,key){
-  if(week==='all'){ let seen=0; for(let i=arr.length-1;i>=0;i--){ if(arr[i][key]!=null){ if(++seen===2) return arr[i][key]; } } return null; }
+  if(isMulti(week)){ let seen=0; for(let i=arr.length-1;i>=0;i--){ if(arr[i][key]!=null){ if(++seen===2) return arr[i][key]; } } return null; }
   const i=arr.findIndex(x=>x.semana===week); for(let j=i-1;j>=0;j--){ if(arr[j][key]!=null) return arr[j][key]; } return null;
 }
-function weekRows(arr,week){ return week==='all'? arr : arr.filter(r=>r.semana===week); }
+function weekRows(arr,week){
+  if(week==='all') return arr;
+  const m=/^last(\d+)$/.exec(week);
+  if(m) return arr.slice(-parseInt(m[1],10));
+  return arr.filter(r=>r.semana===week);
+}
 function hasData(arr,week){
   return weekRows(arr,week).some(r=>Object.entries(r).some(([k,v])=>k!=='semana'&&k!=='bloque'&&v!=null));
 }
@@ -537,7 +549,7 @@ function delta(cur,prev,invert=false){
   return {t:(d>0?'▲ +':'▼ ')+fmt(Math.abs(d)),c:good?'up':'down'};
 }
 /* etiqueta del "punto de comparación" según semana */
-function refLabel(week){ return week==='all' ? 'sem. previa' : 'vs. sem. previa'; }
+function refLabel(week){ return isMulti(week) ? 'sem. previa' : 'vs. sem. previa'; }
 
 /* Mostrar/ocultar estado vacío por sección */
 function gate(viewId, arr, week){
@@ -545,12 +557,12 @@ function gate(viewId, arr, week){
   v.querySelectorAll('.gated').forEach(el=>el.style.display=ok?'':'none');
   const e=v.querySelector('.empty-state');
   if(e){ e.style.display=ok?'none':'block';
-    if(!ok) e.querySelector('p').textContent=`Sin datos cargados para ${week} en esta sección.`; }
+    if(!ok) e.querySelector('p').textContent=`Sin datos cargados para ${WEEKLABEL(week)} en esta sección.`; }
   return ok;
 }
 
 /* ================= State + navegación ================= */
-const WEEKLABEL = w => w==='all' ? 'Todas las semanas' : w;
+const WEEKLABEL = w => w==='all' ? 'Todas las semanas' : w==='last2' ? 'Últimas 2 semanas' : w==='last3' ? 'Últimas 3 semanas' : w;
 const state={ week:'all', section:'resumen', mantEvo:'total' };
 
 /* El filtro de semana ya NO trae las semanas escritas a mano en el HTML:
@@ -577,8 +589,15 @@ function collectWeeks(){
 function refreshWeekOptions(){
   const sel=$('#weekSel'); if(!sel) return;
   const weeks=collectWeeks(), current=sel.value||state.week||'all';
-  sel.innerHTML='<option value="all">Todas</option>'+weeks.map(w=>`<option value="${w}">${w}</option>`).join('');
-  sel.value = (current==='all'||weeks.includes(current)) ? current : 'all';
+  /* "Últimas 2/3 semanas" comparan hacia atrás desde la semana más reciente
+     cargada — solo aparecen en el filtro si hay suficientes semanas con
+     datos (si solo hay 1 semana, no tiene sentido ofrecer comparar 2). */
+  const multi=[];
+  if(weeks.length>=2) multi.push('<option value="last2">Últimas 2 semanas</option>');
+  if(weeks.length>=3) multi.push('<option value="last3">Últimas 3 semanas</option>');
+  sel.innerHTML='<option value="all">Todas</option>'+multi.join('')+weeks.map(w=>`<option value="${w}">${w}</option>`).join('');
+  const valid=['all',...(weeks.length>=2?['last2']:[]),...(weeks.length>=3?['last3']:[]),...weeks];
+  sel.value = valid.includes(current) ? current : 'all';
   state.week=sel.value;
 }
 
@@ -765,10 +784,11 @@ const MANT_GROUPS = {
 };
 const equipoVal=r=>(r.ups==null&&r.switch==null&&r.accessPoint==null&&r.utp==null)?null:(r.ups||0)+(r.switch||0)+(r.accessPoint||0)+(r.utp||0);
 /* Mismo criterio que weekVal/latestVal pero para el total calculado (no
-   viene como columna propia en la hoja): en "todas las semanas" busca el
-   último valor no nulo; en una semana puntual devuelve el de esa fila. */
+   viene como columna propia en la hoja): en "todas las semanas" (o en un
+   comparativo de últimas N) busca el último valor no nulo; en una semana
+   puntual devuelve el de esa fila. */
 function equipoWeekVal(arr,week){
-  if(week==='all'){ for(let i=arr.length-1;i>=0;i--){ const v=equipoVal(arr[i]); if(v!=null) return v; } return null; }
+  if(isMulti(week)){ for(let i=arr.length-1;i>=0;i--){ const v=equipoVal(arr[i]); if(v!=null) return v; } return null; }
   const r=arr.find(x=>x.semana===week); return r?equipoVal(r):null;
 }
 /* Series disponibles para el filtro de "Evolución de correctivos y garantías" */
@@ -796,13 +816,13 @@ function renderMant(week){
   // y omite semanas sin dato todavía (evita el falso "cae a 0" de Semana 31).
   const evoCfg = MANT_EVO[state.mantEvo] || MANT_EVO.total;
   const evoRows = weekRows(d,week).filter(r=>evoCfg.val(r)!=null);
-  $('#mantEvoSub').textContent = week==='all' ? evoCfg.sub : evoCfg.sub.replace('por semana','· '+week);
+  $('#mantEvoSub').textContent = week==='all' ? evoCfg.sub : isMulti(week) ? evoCfg.sub.replace('por semana', WEEKLABEL(week).toLowerCase()) : evoCfg.sub.replace('por semana','· '+week);
   mkChart('chMantTotal',{type:'line',data:{labels:evoRows.map(r=>r.semana),datasets:[{label:evoCfg.label,
     data:evoRows.map(evoCfg.val),borderColor:evoCfg.color,backgroundColor:hexToRgba(evoCfg.color,.12),
     fill:true,tension:.3,pointRadius:5,pointBackgroundColor:evoCfg.color,borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
 
-  const weekLbl = week==='all' ? 'comparativo entre semanas' : 'semana · '+week;
+  const weekLbl = week==='all' ? 'comparativo entre semanas' : isMulti(week) ? 'comparativo · '+WEEKLABEL(week).toLowerCase() : 'semana · '+week;
   Object.values(MANT_GROUPS).forEach(g=>{
     $('#'+g.sub).textContent = g.subFixed ? g.subFixed+' — '+weekLbl : weekLbl;
     const tones = weekShades(g.color, cur.length);
@@ -921,13 +941,13 @@ function renderCob(week){
 
   // Histórico pedido: Cantidad F3 Cobertura por semana
   const f3Rows=weekRows(d,week).filter(r=>r.cantidadF3!=null);
-  $('#cobF3Sub').textContent = week==='all' ? 'centros con cobertura Fase 3, por semana' : 'Fase 3 · '+week;
+  $('#cobF3Sub').textContent = week==='all' ? 'centros con cobertura Fase 3, por semana' : isMulti(week) ? 'Fase 3 · '+WEEKLABEL(week).toLowerCase() : 'Fase 3 · '+week;
   mkChart('chCobF3',{type:'line',data:{labels:f3Rows.map(r=>r.semana),datasets:[{label:'Cantidad F3',
     data:f3Rows.map(r=>r.cantidadF3),borderColor:C.green,backgroundColor:hexToRgba(C.green,.12),
     fill:true,tension:.3,pointRadius:5,pointBackgroundColor:C.green,borderWidth:2}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales()}});
 
-  const weekLbl = week==='all' ? 'comparativo entre semanas' : 'semana · '+week;
+  const weekLbl = week==='all' ? 'comparativo entre semanas' : isMulti(week) ? 'comparativo · '+WEEKLABEL(week).toLowerCase() : 'semana · '+week;
   Object.values(COB_GROUPS).forEach(g=>{
     $('#'+g.sub).textContent = g.subFixed+' — '+weekLbl;
     const rowsWithData = cur.filter(r=>g.keys.some(k=>r[k]!=null));
