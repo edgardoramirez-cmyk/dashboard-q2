@@ -286,10 +286,15 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
           <button data-mg="gar">Garantías</button>
         </div>
         <div class="chart-box sm"><canvas id="chMantTotal"></canvas></div></div>
-      <div class="grid g2">
+      <div class="grid g3m">
+        <div class="mgrp pink">
+          <div class="mgrp-head"><span class="mdot"></span><h5>UTP · cable</h5></div>
+          <div class="psub" id="mantSubUTP">Metros de cable UTP instalados</div>
+          <div class="chart-box sm"><canvas id="chMantUTP"></canvas></div>
+        </div>
         <div class="mgrp green">
           <div class="mgrp-head"><span class="mdot"></span><h5>Correctivo · por equipo</h5></div>
-          <div class="psub" id="mantSubCorr">UPS · Switch · Access Point · UTP</div>
+          <div class="psub" id="mantSubCorr">UPS · Switch · Access Point</div>
           <div class="chart-box sm"><canvas id="chMantCorr"></canvas></div>
         </div>
         <div class="mgrp blue">
@@ -301,9 +306,13 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
       <div class="empty-state"><div class="ico">🗓️</div><p></p></div>
     </section>
     <!-- Nota: la hoja (renombrada DATA_EQUIPOS) ya no reporta "Preventivos"
-         ni un total de "Correctivos" aparte — el total correctivo ahora es
-         UPS+Switch+Access Point+UTP. Se agregó "Router" al grupo de
-         Garantías, junto a Firewall. -->
+         ni un total de "Correctivos" aparte. Se agregó "Router" al grupo de
+         Garantías, junto a Firewall. La columna "UTP" trae ahora datos reales
+         y su encabezado real es "UTP (Mts)" — son METROS de cable, no una
+         cantidad de equipos, así que se sacó del gráfico de barras de
+         "Correctivo · por equipo" (mezclar 0–90 equipos con 0–2600 metros en
+         el mismo eje aplastaba las barras de equipo) y del total "Equipos
+         intervenidos": ahora tiene su propio panel/gráfico "UTP · cable". -->
 
     <!-- ===== ANCHOS DE BANDA ===== -->
     <section class="view" id="banda">
@@ -763,26 +772,36 @@ function renderRep(week){
 }
 
 /* ================= 04 CORRECTIVOS (antes "Mantenimiento") ================= */
-/* Los 2 bloques (Correctivo / Garantías) reproducen la separación por color
-   de la hoja DATA_EQUIPOS (antes DATA_MANTENIMIENTO): verde =
-   UPS·Switch·Access Point·UTP, azul = Garantías·Firewall·Router·En
-   proceso·Resueltas.
+/* Los 3 bloques reproducen la separación por color de la hoja DATA_EQUIPOS
+   (antes DATA_MANTENIMIENTO): rosa = UTP (metros de cable — su propio
+   grupo, ver nota de unidades abajo), verde = UPS·Switch·Access Point, azul
+   = Garantías·Firewall·Router·En proceso·Resueltas.
 
    IMPORTANTE — cómo cuadran los números con la hoja:
    la hoja ya no trae un total de "Correctivos" aparte: ahora el total
-   correctivo ES la suma de UPS+Switch+Access Point+UTP. "UTP" es una
-   columna nueva, todavía sin datos cargados en la hoja. Garantías queda
-   como su propio grupo, separado del correctivo: "Firewall" y "Router" son
-   los dos tipos de equipo que puede tener una garantía (el equipo agregó
-   "Router" junto a "Firewall"); "En proceso"/"Resueltas" es el desglose de
-   estado de esas garantías.
+   correctivo ("Equipos intervenidos") ES la suma de UPS+Switch+Access
+   Point. "UTP" (columna real "UTP (Mts)") NO entra en esa suma ni en el
+   gráfico de barras junto a los otros 3: son METROS de cable instalado,
+   no una cantidad de equipos, y mezclar ambas unidades en el mismo eje
+   aplastaría visualmente las barras de equipo (UTP llega a >2500, los
+   equipos rondan las decenas). Por eso UTP tiene su propio panel/gráfico
+   "UTP · cable", igual que "Revisiones" en Inspección se separó por el
+   mismo motivo (escala no comparable con el resto).
+   Garantías queda como su propio grupo, separado del correctivo: "Firewall"
+   y "Router" son los dos tipos de equipo que puede tener una garantía (el
+   equipo agregó "Router" junto a "Firewall"); "En proceso"/"Resueltas" es
+   el desglose de estado de esas garantías.
    La hoja simplificada ya no reporta "Preventivos": se quitó el filtro,
    la tarjeta y el grupo correspondientes de esta sección. */
 const MANT_GROUPS = {
-  corr: { cats:['UPS','Switch','Access Point','UTP'], keys:['ups','switch','accessPoint','utp'], color:C.green, chart:'chMantCorr', sub:'mantSubCorr', subFixed:'UPS · Switch · Access Point · UTP' },
+  utp:  { cats:['UTP instalado (m)'], keys:['utp'], color:C.pink, chart:'chMantUTP', sub:'mantSubUTP', subFixed:'Metros de cable UTP instalados' },
+  corr: { cats:['UPS','Switch','Access Point'], keys:['ups','switch','accessPoint'], color:C.green, chart:'chMantCorr', sub:'mantSubCorr', subFixed:'UPS · Switch · Access Point' },
   gar:  { cats:['Garantías','Firewall','Router','En proceso','Resueltas'], keys:['garantias','firewall','router','enProceso','resueltas'], color:C.blue, chart:'chMantGar', sub:'mantSubGar', subFixed:'Garantías · Firewall · Router · En proceso · Resueltas' }
 };
-const equipoVal=r=>(r.ups==null&&r.switch==null&&r.accessPoint==null&&r.utp==null)?null:(r.ups||0)+(r.switch||0)+(r.accessPoint||0)+(r.utp||0);
+/* Total correctivo = solo equipos (UPS+Switch+Access Point). UTP se excluye
+   a propósito: está en metros, no en unidades, así que sumarlo daría un
+   número sin sentido (ej. "58 equipos" + "1831 metros" = "1889"). */
+const equipoVal=r=>(r.ups==null&&r.switch==null&&r.accessPoint==null)?null:(r.ups||0)+(r.switch||0)+(r.accessPoint||0);
 /* Mismo criterio que weekVal/latestVal pero para el total calculado (no
    viene como columna propia en la hoja): en "todas las semanas" (o en un
    comparativo de últimas N) busca el último valor no nulo; en una semana
@@ -795,21 +814,22 @@ function equipoWeekVal(arr,week){
 const MANT_EVO = {
   total:{ label:'Total intervenciones', color:C.cyan, sub:'intervenciones totales por semana',
     val:r=>(equipoVal(r)==null&&r.garantias==null)?null:(equipoVal(r)||0)+(r.garantias||0) },
-  corr: { label:'Correctivo', color:C.green, sub:'intervenciones correctivas por semana (UPS+Switch+Access Point+UTP)', val:equipoVal },
+  corr: { label:'Correctivo', color:C.green, sub:'intervenciones correctivas por semana (UPS+Switch+Access Point)', val:equipoVal },
   gar:  { label:'Garantías', color:C.blue, sub:'casos de garantía por semana', val:r=>r.garantias }
 };
 function renderMant(week){
   const d=DATA.mantenimiento;
-  if(!gate('mantenimiento',d,week)){ killCharts(['chMantTotal','chMantCorr','chMantGar']); return; }
+  if(!gate('mantenimiento',d,week)){ killCharts(['chMantTotal','chMantUTP','chMantCorr','chMantGar']); return; }
   const cur=weekRows(d,week);
-  /* Tarjetas: los 4 equipos correctivos, uno por uno. Garantías (con su
-     desglose Firewall/Router/En proceso/Resueltas) queda aparte, en el
-     panel "Garantías · estado" de abajo — no se repite acá arriba. */
+  /* Tarjetas: los 4 equipos correctivos, uno por uno (UTP en metros, marcada
+     aparte con su propio color). Garantías (con su desglose Firewall/
+     Router/En proceso/Resueltas) queda aparte, en el panel "Garantías ·
+     estado" de abajo — no se repite acá arriba. */
   card('#kpiMant',[
     {lbl:'Access Point instalados',val:fmt(weekVal(d,week,'accessPoint')),cls:'green'},
     {lbl:'SW instalados',val:fmt(weekVal(d,week,'switch')),cls:'green'},
     {lbl:'UPS instalados',val:fmt(weekVal(d,week,'ups')),cls:'green'},
-    {lbl:'UTP instalado',val:fmt(weekVal(d,week,'utp')),cls:'green'},
+    {lbl:'UTP instalado (m)',val:fmt(weekVal(d,week,'utp')),cls:'pink',foot:'metros de cable'},
   ]);
 
   // Evolución: respeta el filtro activo (Total/Correctivo/Garantías)

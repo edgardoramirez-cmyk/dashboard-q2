@@ -57,22 +57,29 @@ siempre cuadren):
   o miles — no es comparable con el resto).
 - **Correctivos** (antes "Mantenimiento" en el dashboard) — la hoja **DATA_MANTENIMIENTO
   se renombró a DATA_EQUIPOS** (ya actualizado en `config.js`). Ya no trae
-  "Preventivos" ni una columna de "Correctivos" aparte; se agregó "UTP"
-  (todavía sin datos cargados) y "Router" dentro del grupo de Garantías,
-  junto a "Firewall". La sección se restructuró para separar con claridad
-  equipo correctivo de garantías:
+  "Preventivos" ni una columna de "Correctivos" aparte; se agregó "Router"
+  dentro del grupo de Garantías, junto a "Firewall". La sección se
+  restructuró para separar con claridad equipo correctivo de garantías:
   - Las 4 tarjetas de arriba son, una por una: **Access Point instalados**,
-    **SW instalados**, **UPS instalados** y **UTP instalado** — el valor
-    tal cual viene de la hoja para cada equipo, sin sumarlos entre sí.
+    **SW instalados**, **UPS instalados** y **UTP instalado (m)** — el
+    valor tal cual viene de la hoja para cada equipo, sin sumarlos entre sí.
+  - **UTP** — el encabezado real de esa columna es **"UTP (Mts)"**: son
+    **metros de cable** instalado, no una cantidad de equipos. Por eso
+    tiene su propio panel/gráfico ("UTP · cable") separado del resto y
+    **no** entra en la suma de "Equipos intervenidos" ni en el gráfico de
+    barras "Correctivo · por equipo" — mezclar unidades tan distintas
+    (equipos en decenas, metros de cable en miles) en el mismo eje
+    aplastaba visualmente las barras de equipo. Mismo criterio que ya se
+    usaba con "Revisiones" en Inspección.
   - **Garantías** queda totalmente aparte, en su propio panel/gráfico
     ("Garantías · estado"), con el desglose Garantías · Firewall · Router ·
     En proceso · Resueltas — ya no se mezcla con el grupo de equipo
     correctivo.
   - El gráfico de "Evolución de correctivos y garantías" arriba de todo
     sigue con su filtro Total/Correctivo/Garantías; "Correctivo" ahí usa
-    la suma UPS+Switch+Access Point+UTP (el total ya no viene como columna
-    propia de la hoja), y la tarjeta de resumen "Equipos intervenidos" (en
-    la sección Resumen) usa ese mismo cálculo.
+    la suma UPS+Switch+Access Point (**sin** UTP, por la misma razón de
+    unidades), y la tarjeta de resumen "Equipos intervenidos" (en la
+    sección Resumen) usa ese mismo cálculo.
 - **Reparación** — la hoja ya no trae "Cola" ni "Casos nuevos" (tampoco AP
   instalados/reubicados ni cable UTP, que había traído en una versión
   intermedia de la hoja y ya no están). Queda solo Reparados, En proceso y

@@ -177,9 +177,11 @@
        brevemente y ya no están). Solo Reparados, En proceso y Pendientes. */
     reparacion: { semana: ['semana'], reparados: ['reparados'], enProceso: ['en proceso', 'proceso'], pendientes: ['pendientes'] },
     /* Hoja renombrada de DATA_MANTENIMIENTO a DATA_EQUIPOS (ver config.js).
-       Ya no trae "Preventivos" ni "Correctivos"; se agregó "UTP" junto a
-       UPS/Switch/Access Point (todavía sin datos cargados), y "Router"
-       junto a Firewall dentro del grupo de Garantías. */
+       Ya no trae "Preventivos" ni "Correctivos"; se agregó "Router" junto a
+       Firewall dentro del grupo de Garantías. El encabezado real de la
+       columna "utp" es "UTP (Mts)" (metros de cable, no unidades) — el
+       needle 'utp' igual la encuentra porque col() hace match por
+       "contiene" cuando no hay coincidencia exacta. */
     mantenimiento: { semana: ['semana'], ups: ['ups'], switch: ['switch'], accessPoint: ['access point', 'access'], utp: ['utp'], garantias: ['garant'], firewall: ['firewall'], router: ['router'], enProceso: ['en proceso', 'proceso'], resueltas: ['resueltas'] },
     anchosBanda: { semana: ['semana'], parque: ['parque'], noCumpleVT: ['no cumple por visita tecnica', 'no cumple vt'], cumpleVT: ['cumple por visita tecnica', 'cumple vt'], sinVerificarVT: ['sin verificar por visita tecnica', 'sin verificar'], noCumpleTeorico: ['no cumple teorico'], cumpleTeorico: ['cumple teorico'], noContrato: ['no contrato', 'contrato'], noData: ['no data'] },
     fibra: { semana: ['semana'], parque: ['parque'], bloque: ['bloque'], enlacesOffline: ['enlaces offline', 'offline'], cfoSDP: ['cfo'], sinEnergia: ['energia', 's/ energia'] },
