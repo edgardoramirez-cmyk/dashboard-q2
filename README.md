@@ -23,6 +23,26 @@ hosting estático subiendo estos 5 archivos tal cual.
 2. En `config.js`, `spreadsheetId` ya apunta a tu libro. En `sheets`, cada clave debe tener el **nombre exacto de la pestaña** (la etiqueta de abajo en Sheets, no la URL). Se usa el nombre en vez del `gid` porque el `gid` se rompe si borrás y volvés a crear una pestaña.
 3. Subí los 5 archivos a GitHub. El dashboard intenta leer el Sheet al cargar; si no puede (sin conexión, Sheet privado, hoja sin nombre configurado), usa `data.js` automáticamente — nunca se rompe.
 
+## Corrección: "Creados CFO" no se leía en vivo (Tickets SDP)
+
+`live.js` identifica cada columna del Sheet buscando un fragmento de texto
+("needle") dentro del encabezado — así no importa el orden de las columnas.
+El problema: el encabezado real de esa columna es **"Ticket Creados CFO
+Q2"**, y el fragmento que se buscaba (`"ticket cfo"`) no aparece ahí tal
+cual (la palabra "Creados" queda en medio) — esa columna nunca se
+encontraba y quedaba sin dato en TODAS las semanas, no solo la 34 (lo que
+viste en el gráfico "Corte de fibra (CFO)" era justamente eso: la barra
+"Creados CFO" siempre vacía).
+
+De paso encontré un segundo problema en la misma hoja: la columna
+"Solicitadas" de Visita Técnica estaba leyendo por error los mismos números
+que "En proceso" (el fragmento buscado para una calzaba también, sin
+querer, con el encabezado de la otra). Ya corregido — cada columna ahora se
+identifica con un fragmento que solo aparece en su propio encabezado. Esto
+solo afectaba la lectura **en vivo** del Sheet; la copia local (`data.js`)
+siempre tuvo los números correctos porque no depende de nombres de
+columna.
+
 ## Filtro de semana: comparar las últimas 2 o 3 semanas
 
 El selector "Semana" (arriba a la derecha) ahora tiene, además de "Todas" y

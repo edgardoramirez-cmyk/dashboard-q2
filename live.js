@@ -190,7 +190,23 @@
        existente "Falta 2+ AP" — los needles usan un fragmento único de cada
        encabezado ("un 1 ap" / "2 o mas ap") para no confundir una con otra. */
     cobertura: { semana: ['semana'], parqueCE: ['parque'], cantidadF3: ['cantidad f3', 'cantidad'], innovacion: ['innovacion'], empresasCapres: ['capres'], faltaAP1: ['un 1 ap', 'falta instalar un 1'], faltaAP: ['2 o mas ap', 'falta instalar 2'], faltaEnlace: ['falta enlace', 'enlace entre'], variasDeficiencias: ['varias'] },
-    ticketSDP: { semana: ['semana'], cfoInspecciones: ['ticket cfo', 'cfo de inspecciones'], cfoCerrados: ['ticket cerrados'], chatbotCE: ['ticket de chatbot ce', 'chatbot ce'], chatbotCerrados: ['ticket cerrados de chatbot', 'cerrados de chatbot'], chatbotProceso: ['ticket chatbot en proceso', 'chatbot en proceso'], visitas: ['ticket para visita'], visitasProceso: ['ticket para visitas en proceso', 'visitas en proceso'], visitasCerrados: ['cerrados ticket de visitas', 'cerrados ticket'] }
+    /* OJO con estos 2 needles — encabezados reales de la hoja que rompían la
+       lectura en vivo (la copia local data.js nunca se vio afectada, solo
+       la lectura del Sheet):
+       - "Ticket Creados CFO Q2": el needle 'ticket cfo' NO es substring de
+         eso (la palabra "Creados" queda en medio). Se cambió a 'cfo' solo
+         (única columna de las 9 que trae "cfo" en el encabezado), con
+         'creados cfo' como opción más específica primero.
+       - "Ticket SDP para visita tecnica": el needle 'ticket para visita' SÍ
+         es substring de OTRA columna, "Ticket para visitas en proceso" (por
+         el plural "visitas"), así que agarraba la columna equivocada —
+         "Solicitadas" terminaba mostrando el mismo número que "En proceso".
+         Se cambió a needles que solo aparecen en la columna correcta ('sdp',
+         'visita tecnica'); a propósito NO se dejó 'ticket para visita' como
+         respaldo, porque eso es lo que causaba el choque — mejor que quede
+         sin dato (visible como "—") a que muestre el número de otra
+         columna sin que se note. */
+    ticketSDP: { semana: ['semana'], cfoInspecciones: ['creados cfo', 'cfo de inspecciones', 'cfo'], cfoCerrados: ['ticket cerrados'], chatbotCE: ['ticket de chatbot ce', 'chatbot ce'], chatbotCerrados: ['ticket cerrados de chatbot', 'cerrados de chatbot'], chatbotProceso: ['ticket chatbot en proceso', 'chatbot en proceso'], visitas: ['sdp para visita', 'sdp', 'visita tecnica'], visitasProceso: ['ticket para visitas en proceso', 'visitas en proceso'], visitasCerrados: ['cerrados ticket de visitas', 'cerrados ticket'] }
   };
 
   /* corrige el orden columnar cuando "cumple vt" también aparece dentro de "no cumple vt" */
