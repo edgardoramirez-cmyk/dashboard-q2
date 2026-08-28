@@ -98,10 +98,20 @@ siempre cuadren):
   leerla, así que el detalle por centro escolar se ve igual que antes
   (Cumple: 72 · Revisar: 29 · No Cumple: 177 · Sin datos: 1, sobre 279
   centros).
+- **Tickets SDP** — la sección se restructuró en 3 grupos por color, igual
+  a como están agrupados los encabezados en la hoja: **azul** = Corte de
+  fibra/CFO (Creados · Cerrados), **verde** = Chatbot (Nuevos · Cerrados ·
+  En proceso), **morado** = Visita técnica (Solicitadas · En proceso ·
+  Cerradas). Cada grupo tiene su propio gráfico de barras y compara semanas
+  igual que Correctivos/Cobertura (respeta el filtro Todas/Últimas 2/
+  Últimas 3/semana puntual). Se quitó el gráfico anterior "Tickets por
+  canal" (mezclaba los 3 canales en un solo snapshot) porque los 3 grupos
+  nuevos ya cubren esa comparación con más detalle; la dona "Distribución
+  de cerrados" se mantiene.
 
-Todas las demás hojas (Anchos de Banda, Starlink, Ticket SDP) mantienen
-exactamente las mismas columnas y gráficos de siempre; solo se actualizaron
-los datos, ahora con semanas 28 a 35.
+Todas las demás hojas (Anchos de Banda, Starlink) mantienen exactamente las
+mismas columnas y gráficos de siempre; solo se actualizaron los datos,
+ahora con semanas 28 a 35.
 
 **Cambios de Fase** también mantiene sus columnas de siempre, pero se
 corrigió cómo se explicaba "Sin fase a F3": son centros escolares que **no

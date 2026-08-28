@@ -111,6 +111,7 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .kpi.blue{border-left:3px solid var(--blue)}
 .kpi.red{border-left:3px solid var(--red)}
 .kpi.amber{border-left:3px solid var(--amber)}
+.kpi.violet{border-left:3px solid var(--violet)}
 
 .grid{display:grid;gap:16px}
 .g2{grid-template-columns:1fr 1fr}
@@ -148,6 +149,8 @@ body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--surface);
 .mgrp.red .mdot{background:var(--red)}
 .mgrp.amber{border-top-color:var(--amber)}
 .mgrp.amber .mdot{background:var(--amber)}
+.mgrp.violet{border-top-color:var(--violet)}
+.mgrp.violet .mdot{background:var(--violet)}
 
 .empty-state{display:none;background:var(--card);border:1px dashed #c4d0db;border-radius:12px;padding:44px 24px;text-align:center}
 .empty-state .ico{font-size:26px}
@@ -412,12 +415,34 @@ footer{margin-left:var(--sidebar-w);padding:22px 32px;border-top:1px solid var(-
     <section class="view" id="ticket">
       <div class="sec-head"><span class="num">10</span><h3>Tickets SDP</h3><span class="tag">CFO · chatbot · visitas</span></div>
       <div class="gated"><div class="kpis" id="kpiTicket"></div>
-      <div class="grid g2">
-        <div class="panel"><h4>Tickets por canal</h4><div class="psub">generados · cerrados · en proceso</div><div class="chart-box"><canvas id="chTicket"></canvas></div></div>
-        <div class="panel"><h4>Distribución de cerrados</h4><div class="psub">tickets cerrados por canal</div><div class="chart-box"><canvas id="chTicketDonut"></canvas></div></div>
+      <div class="panel" style="margin-bottom:16px"><h4>Distribución de cerrados</h4><div class="psub">tickets cerrados por canal</div><div class="chart-box sm"><canvas id="chTicketDonut"></canvas></div></div>
+      <div class="grid g3m">
+        <div class="mgrp blue">
+          <div class="mgrp-head"><span class="mdot"></span><h5>Corte de fibra (CFO)</h5></div>
+          <div class="psub" id="ticketSubFibra">Creados CFO · Cerrados</div>
+          <div class="chart-box sm"><canvas id="chTicketFibra"></canvas></div>
+        </div>
+        <div class="mgrp green">
+          <div class="mgrp-head"><span class="mdot"></span><h5>Chatbot</h5></div>
+          <div class="psub" id="ticketSubChatbot">Chatbot CE (nuevos) · Cerrados · En proceso</div>
+          <div class="chart-box sm"><canvas id="chTicketChatbot"></canvas></div>
+        </div>
+        <div class="mgrp violet">
+          <div class="mgrp-head"><span class="mdot"></span><h5>Visita técnica</h5></div>
+          <div class="psub" id="ticketSubVisita">Solicitadas · En proceso · Cerradas</div>
+          <div class="chart-box sm"><canvas id="chTicketVisita"></canvas></div>
+        </div>
       </div></div>
       <div class="empty-state"><div class="ico">🎫</div><p></p></div>
     </section>
+    <!-- Nota: se restructuró para mostrar 3 grupos por color (igual a como
+         están agrupados los encabezados en la hoja TICKET SDP): azul =
+         Corte de fibra (CFO, columnas B·C), verde = Chatbot (columnas D·E·F),
+         morado = Visita técnica (columnas G·H·I). Cada grupo compara semanas
+         como en Correctivos/Cobertura (respeta Todas/Últimas 2/Últimas
+         3/semana puntual). Se quitó el gráfico "Tickets por canal" (mezclaba
+         los 3 canales en un solo snapshot) porque los 3 nuevos grupos ya
+         cubren esa comparación con más detalle. -->
 
   </div>
 </div>
@@ -1047,24 +1072,39 @@ function renderDim(week){
 }
 
 /* ================= 10 TICKETS SDP ================= */
+/* 3 grupos por color, igual a como están agrupados los encabezados en la
+   hoja TICKET SDP: azul = Corte de fibra (CFO), verde = Chatbot, morado =
+   Visita técnica. Mismo patrón que MANT_GROUPS/COB_GROUPS: un gráfico de
+   barras por grupo, 1 barra por semana mostrada (respeta el filtro de
+   semana, incluidas "últimas 2/3 semanas"). */
+const TICKET_GROUPS = {
+  fibra:   { cats:['Creados CFO','Cerrados'], keys:['cfoInspecciones','cfoCerrados'], color:C.blue, chart:'chTicketFibra', sub:'ticketSubFibra', subFixed:'Creados CFO · Cerrados' },
+  chatbot: { cats:['Chatbot CE (nuevos)','Cerrados','En proceso'], keys:['chatbotCE','chatbotCerrados','chatbotProceso'], color:C.green, chart:'chTicketChatbot', sub:'ticketSubChatbot', subFixed:'Chatbot CE (nuevos) · Cerrados · En proceso' },
+  visita:  { cats:['Solicitadas','En proceso','Cerradas'], keys:['visitas','visitasProceso','visitasCerrados'], color:C.violet, chart:'chTicketVisita', sub:'ticketSubVisita', subFixed:'Visita técnica · Solicitadas · En proceso · Cerradas' }
+};
 function renderTicket(week){
   const d=DATA.ticketSDP;
-  if(!gate('ticket',d,week)){ killCharts(['chTicket','chTicketDonut']); return; }
+  if(!gate('ticket',d,week)){ killCharts(['chTicketDonut','chTicketFibra','chTicketChatbot','chTicketVisita']); return; }
   const rows=weekRows(d,week); const t=rows[rows.length-1]||{};
   card('#kpiTicket',[
-    {lbl:'CFO inspección',val:fmt(t.cfoInspecciones),cls:'accent',foot:'cerrados: '+fmt(t.cfoCerrados)},
-    {lbl:'Chatbot CE',val:fmt(t.chatbotCE),cls:'warn',foot:'en proceso: '+fmt(t.chatbotProceso)},
-    {lbl:'Visitas solicitadas',val:fmt(t.visitas),cls:'good',foot:'en proceso: '+fmt(t.visitasProceso)},
+    {lbl:'Corte de fibra (CFO)',val:fmt(t.cfoInspecciones),cls:'blue',foot:'cerrados: '+fmt(t.cfoCerrados)},
+    {lbl:'Chatbot CE',val:fmt(t.chatbotCE),cls:'green',foot:'en proceso: '+fmt(t.chatbotProceso)},
+    {lbl:'Visitas solicitadas',val:fmt(t.visitas),cls:'violet',foot:'en proceso: '+fmt(t.visitasProceso)},
     {lbl:'Total cerrados',val:fmt((t.cfoCerrados||0)+(t.chatbotCerrados||0)+(t.visitasCerrados||0)),cls:'good'},
   ]);
-  mkChart('chTicket',{type:'bar',data:{labels:['CFO inspección','Chatbot CE','Visitas'],datasets:[
-    {label:'Generados',data:[t.cfoInspecciones,t.chatbotCE,t.visitas],backgroundColor:C.blue},
-    {label:'Cerrados',data:[t.cfoCerrados,t.chatbotCerrados,t.visitasCerrados],backgroundColor:C.green},
-    {label:'En proceso',data:[null,t.chatbotProceso,t.visitasProceso],backgroundColor:C.amber}]},
-    options:{maintainAspectRatio:false,scales:baseScales()}});
   mkChart('chTicketDonut',{type:'doughnut',data:{labels:['CFO','Chatbot','Visitas'],
-    datasets:[{data:[t.cfoCerrados,t.chatbotCerrados,t.visitasCerrados],backgroundColor:[C.cyan,C.violet,C.green],borderWidth:0}]},
+    datasets:[{data:[t.cfoCerrados,t.chatbotCerrados,t.visitasCerrados],backgroundColor:[C.blue,C.green,C.violet],borderWidth:0}]},
     options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'},...DONUT_LABELS}}});
+
+  const cur=weekRows(d,week);
+  const weekLbl = week==='all' ? 'comparativo entre semanas' : isMulti(week) ? 'comparativo · '+WEEKLABEL(week).toLowerCase() : 'semana · '+week;
+  Object.values(TICKET_GROUPS).forEach(g=>{
+    $('#'+g.sub).textContent = g.subFixed+' — '+weekLbl;
+    const tones = weekShades(g.color, cur.length);
+    mkChart(g.chart,{type:'bar',data:{labels:g.cats,datasets:cur.map((r,i)=>({
+      label:r.semana,data:g.keys.map(k=>r[k]),backgroundColor:tones[i]}))},
+      options:{maintainAspectRatio:false,scales:baseScales(false,'24%'),plugins:{legend:bottomLegend(cur.length>1)}}});
+  });
 }
 
 /* ================= Datos en vivo ================= */
